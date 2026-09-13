@@ -9,6 +9,7 @@ import { getTranslation } from '../utils/translations';
 import { Button } from './common/Button';
 import { Card } from './common/Card';
 import { StepBadge } from './common/StepBadge';
+import { GoogleMapView } from './common/GoogleMapView';
 
 const CATEGORIES = [
   "Grocery & Daily Provisions",
@@ -112,7 +113,7 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Geolocation detector
+  // Geolocation detector with accurate reverse geocoding
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser.');
@@ -122,14 +123,62 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
     setIsDetectingLocation(true);
     setValidationError('');
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
+        let villageName = 'Detected Location';
+        let subdistrictName = 'Local Block';
+        let districtName = 'Local District';
+        let stateName = 'India';
+        let lgdCode = 639842;
+
+        try {
+          // 1. Query backend Google Maps reverse-geocode
+          const res = await fetch('/api/assess/location/reverse-geocode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.villageName && data.villageName !== 'Melavalavu') {
+              villageName = data.villageName;
+              subdistrictName = data.subdistrictName || subdistrictName;
+              districtName = data.districtName || districtName;
+              lgdCode = data.nearestVillageLgdCode || lgdCode;
+            } else {
+              // 2. High-accuracy reverse geocode via Nominatim OSM
+              const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`);
+              if (nomRes.ok) {
+                const nomData = await nomRes.json();
+                const addr = nomData.address || {};
+                villageName = addr.village || addr.suburb || addr.town || addr.city || addr.neighbourhood || villageName;
+                subdistrictName = addr.county || addr.subdistrict || addr.state_district || subdistrictName;
+                districtName = addr.state_district || addr.district || addr.city || districtName;
+                stateName = addr.state || stateName;
+              }
+            }
+          } else {
+            const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`);
+            if (nomRes.ok) {
+              const nomData = await nomRes.json();
+              const addr = nomData.address || {};
+              villageName = addr.village || addr.suburb || addr.town || addr.city || addr.neighbourhood || villageName;
+              subdistrictName = addr.county || addr.subdistrict || addr.state_district || subdistrictName;
+              districtName = addr.state_district || addr.district || addr.city || districtName;
+              stateName = addr.state || stateName;
+            }
+          }
+        } catch (e) {
+          console.warn('Reverse geocode fallback:', e);
+        }
+
         updateField('selectedVillage', {
-          villageName: 'Current Location (GPS)',
-          subdistrictName: 'Local Catchment Block',
-          districtName: 'Local District',
-          stateName: 'India',
-          villageLgdCode: 639842,
+          villageName,
+          subdistrictName,
+          districtName,
+          stateName,
+          villageLgdCode: lgdCode,
           latitude,
           longitude
         });
@@ -137,9 +186,10 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       },
       (error) => {
         console.warn('Geolocation failed or denied:', error);
+        alert('Could not detect location. Please allow browser location access or select a village from the search bar.');
         setIsDetectingLocation(false);
       },
-      { timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
   };
 
@@ -406,7 +456,7 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                   className="flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl bg-[#006B7A] hover:bg-[#00525E] text-white transition-all shadow-xs min-h-[48px] cursor-pointer"
                 >
                   <Crosshair className={`w-4 h-4 ${isDetectingLocation ? 'animate-spin' : ''}`} />
-                  <span>{isDetectingLocation ? 'Detecting Location...' : 'Use Current GPS Location'}</span>
+                  <span>{isDetectingLocation ? 'Locating...' : 'Get my location'}</span>
                 </button>
               </div>
 
@@ -461,57 +511,15 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                 )}
               </div>
 
-              {/* Rapido-Style Interactive Visual Map Component */}
-              <div className="relative w-full h-64 sm:h-72 rounded-2xl bg-gradient-to-br from-slate-100 via-blue-50 to-emerald-50 border-2 border-[#79E4F3] overflow-hidden flex items-center justify-center p-4 shadow-xs">
-                {/* SVG Visual Catchment Circle & Pins */}
-                <svg className="w-full h-full" viewBox="0 0 400 240">
-                  <defs>
-                    <radialGradient id="catchmentGlow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#02C6E1" stopOpacity="0.3" />
-                      <stop offset="70%" stopColor="#009DB3" stopOpacity="0.15" />
-                      <stop offset="100%" stopColor="#006B7A" stopOpacity="0.0" />
-                    </radialGradient>
-                  </defs>
-
-                  {/* Topographic grid lines */}
-                  <line x1="0" y1="60" x2="400" y2="60" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <line x1="0" y1="120" x2="400" y2="120" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <line x1="0" y1="180" x2="400" y2="180" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <line x1="100" y1="0" x2="100" y2="240" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <line x1="200" y1="0" x2="200" y2="240" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <line x1="300" y1="0" x2="300" y2="240" stroke="#CBD5E1" strokeWidth="0.5" strokeDasharray="4 4" />
-
-                  {/* 5-10km Radius Catchment Zone */}
-                  <circle cx="200" cy="120" r="85" fill="url(#catchmentGlow)" stroke="#009DB3" strokeWidth="2" strokeDasharray="5 5" />
-                  <circle cx="200" cy="120" r="50" fill="none" stroke="#006B7A" strokeWidth="1" opacity="0.5" />
-
-                  {/* Competitor / Market Dots inside catchment */}
-                  <circle cx="235" cy="95" r="5" fill="#D97706" />
-                  <circle cx="160" cy="140" r="5" fill="#D97706" />
-                  <circle cx="215" cy="165" r="5" fill="#D97706" />
-                  <circle cx="170" cy="85" r="4" fill="#64748B" opacity="0.7" />
-                  <circle cx="250" cy="135" r="4" fill="#64748B" opacity="0.7" />
-
-                  {/* Center Drop Pin */}
-                  <circle cx="200" cy="120" r="8" fill="#006B7A" />
-                  <circle cx="200" cy="120" r="16" fill="#02C6E1" opacity="0.5" className="animate-ping" />
-                  <circle cx="200" cy="120" r="3" fill="#FFFFFF" />
-
-                  {/* Distance Label Badge */}
-                  <rect x="235" y="110" width="84" height="22" rx="6" fill="#006B7A" />
-                  <text x="277" y="125" fill="#FFFFFF" fontSize="10" fontWeight="bold" textAnchor="middle">5-10km Radius</text>
-                </svg>
-
-                {/* Map Overlay Badge */}
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-[#79E4F3] text-[11px] font-bold text-[#006B7A] shadow-xs flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5 text-[#009DB3]" />
-                  <span>Rapido GIS Catchment Engine</span>
-                </div>
-
-                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200 text-[10px] text-slate-700 font-bold shadow-xs">
-                  🟠 Competitor POIs • 📍 Enterprise Origin Pin
-                </div>
-              </div>
+              {/* Real Interactive Google Catchment Map */}
+              <GoogleMapView
+                latitude={selectedVillage?.latitude || 10.0524}
+                longitude={selectedVillage?.longitude || 78.3344}
+                radiusKm={10}
+                originName={selectedVillage?.villageName || "Proposed Business Location"}
+                showRadius={true}
+                height="320px"
+              />
 
               {/* Selected Village Card */}
               {selectedVillage ? (

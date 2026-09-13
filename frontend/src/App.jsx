@@ -16,6 +16,7 @@ import { TabSchemes } from './components/TabSchemes';
 import { ChatDrawer } from './components/ChatDrawer';
 import { LiveVoiceModal } from './components/LiveVoiceModal';
 import { SchemeSearchModal } from './components/SchemeSearchModal';
+import { SettingsPage } from './components/SettingsPage';
 import { PageFooter } from './components/common/PageFooter';
 import { getTranslation } from './utils/translations';
 
@@ -45,6 +46,7 @@ function App() {
     }
     if (path.startsWith('/assess')) return 'assess';
     if (path.startsWith('/report')) return 'report';
+    if (path.startsWith('/settings')) return 'settings';
     return 'home';
   });
 
@@ -154,6 +156,8 @@ function App() {
         setCurrentPage('assess');
       } else if (path.startsWith('/report')) {
         setCurrentPage('report');
+      } else if (path.startsWith('/settings')) {
+        setCurrentPage('settings');
       } else {
         setCurrentPage('home');
       }
@@ -243,7 +247,8 @@ function App() {
         opportunityAnalysis: m1.opportunityAnalysis,
         swotAnalysis: m1.swotAnalysis,
         productMarketValue: m1.productMarketValue,
-        competitorDensity: m1.competitorDensity
+        competitorDensity: m1.competitorDensity || m1.competitorMapping,
+        supply_metrics: unifiedReport.supplyMetrics || unifiedReport.supply_metrics || m1.supplyMetrics
       },
       module2_financial: m2
     };
@@ -465,6 +470,8 @@ function App() {
                 <TabFeasibility
                   reportData={module1_feasibility}
                   dashboardKpis={dashboard_kpis}
+                  villageContext={module1_feasibility?.village_context || dashboard_kpis}
+                  supplyMetrics={module1_feasibility?.supply_metrics}
                   selectedLang={selectedLang}
                 />
               )}
@@ -495,20 +502,6 @@ function App() {
               )}
             </main>
 
-            {/* AI Assistant Drawer & Voice Modal */}
-            <ChatDrawer
-              assessmentId={dashboard_kpis?.assessment_id || 101}
-              preferredLang={selectedLang}
-              onOpenLiveVoice={() => setShowLiveVoice(true)}
-            />
-
-            <LiveVoiceModal
-              assessmentId={dashboard_kpis?.assessment_id || 101}
-              isOpen={showLiveVoice}
-              onClose={() => setShowLiveVoice(false)}
-              preferredLang={selectedLang}
-            />
-
             {/* Schemes Recommendation Modal */}
             <SchemeSearchModal
               assessmentId={dashboard_kpis?.assessment_id || 101}
@@ -519,7 +512,39 @@ function App() {
             />
           </div>
         )}
+
+        {/* 5. Settings Page */}
+        {currentPage === 'settings' && (
+          <SettingsPage
+            currentUser={currentUser}
+            onNavigate={handleNavigate}
+            onLogout={handleLogout}
+            selectedLang={selectedLang}
+            onLangChange={setSelectedLang}
+            onLoadReport={(historyItem) => {
+              handleNavigate('report');
+            }}
+          />
+        )}
       </main>
+
+      {/* Global AI Assistant Floating FAB & Live Voice Modal (Available on all authenticated pages) */}
+      {currentUser && (
+        <>
+          <ChatDrawer
+            assessmentId={dashboard_kpis?.assessment_id || reportData?.assessment_id || 101}
+            preferredLang={selectedLang}
+            onOpenLiveVoice={() => setShowLiveVoice(true)}
+          />
+
+          <LiveVoiceModal
+            assessmentId={dashboard_kpis?.assessment_id || reportData?.assessment_id || 101}
+            isOpen={showLiveVoice}
+            onClose={() => setShowLiveVoice(false)}
+            preferredLang={selectedLang}
+          />
+        </>
+      )}
 
       {/* 3. Official Sovereign Government PageFooter */}
       <PageFooter selectedLang={selectedLang} />

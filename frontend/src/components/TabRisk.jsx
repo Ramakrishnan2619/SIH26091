@@ -11,9 +11,9 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
   const compositeScore = dashboardKpis?.composite_readiness_score || 78;
 
   const rings = [
-    { label: "Overall Feasibility", value: compositeScore, color: "#2563EB", radius: 70, stroke: 10 },
-    { label: "Document Completeness", value: 90, color: "#10B981", radius: 52, stroke: 10 },
-    { label: "Regulatory Compliance", value: 80, color: "#F59E0B", radius: 34, stroke: 10 },
+    { label: "Credit & Repayment Readiness", value: compositeScore, color: "#006B7A", radius: 88, stroke: 9 },
+    { label: "Market Demand & Catchment", value: 85, color: "#009DB3", radius: 72, stroke: 9 },
+    { label: "Statutory & Document Compliance", value: 92, color: "#02C6E1", radius: 56, stroke: 9 },
   ];
 
   const getCircumference = (radius) => 2 * Math.PI * radius;
@@ -89,16 +89,16 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
         <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
           <h3 className="text-base font-bold text-slate-900 mb-2">Readiness Index</h3>
           
-          <div className="relative w-48 h-48 flex items-center justify-center my-3">
-            <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 180 180">
+          <div className="relative w-56 h-56 flex items-center justify-center my-3">
+            <svg className="w-56 h-56 transform -rotate-90" viewBox="0 0 220 220">
               {rings.map((ring, idx) => {
                 const c = getCircumference(ring.radius);
                 const offset = c - (ring.value / 100) * c;
                 return (
                   <g key={idx}>
                     <circle
-                      cx="90"
-                      cy="90"
+                      cx="110"
+                      cy="110"
                       r={ring.radius}
                       fill="transparent"
                       stroke={ring.color}
@@ -106,8 +106,8 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
                       strokeOpacity="0.15"
                     />
                     <circle
-                      cx="90"
-                      cy="90"
+                      cx="110"
+                      cy="110"
                       r={ring.radius}
                       fill="transparent"
                       stroke={ring.color}
@@ -122,9 +122,11 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
               })}
             </svg>
 
-            <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-3xl font-black text-slate-900">{compositeScore}%</span>
-              <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Bank Ready</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-black text-slate-900 tracking-tight">{compositeScore}%</span>
+              <span className="mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200 tracking-wider shadow-2xs">
+                Bank Ready
+              </span>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, PlusCircle, FileText, Download, Sparkles, MessageSquare } from 'lucide-react';
+import { Home, PlusCircle, FileText, Download, Sparkles, MessageSquare, Settings } from 'lucide-react';
 import { getTranslation } from '../../utils/translations';
 
 /**
@@ -58,6 +58,19 @@ export function NavBar({
           >
             <FileText className="w-3.5 h-3.5" />
             <span>{t.navReport}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate('settings')}
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer min-h-[34px] sm:min-h-[38px] ${
+              currentPage === 'settings'
+                ? 'bg-white/25 text-white shadow-xs'
+                : 'text-slate-200 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Settings</span>
           </button>
         </div>
 

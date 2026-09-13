@@ -141,16 +141,23 @@ export function Header({
 
             {/* User Session or Sign In */}
             {currentUser ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-300 text-xs font-medium text-slate-800">
-                <div className="w-5 h-5 rounded-full bg-[#006B7A] text-white flex items-center justify-center text-[10px] font-bold">
-                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <span className="font-bold text-slate-900 truncate max-w-[100px]">{currentUser.name || 'Applicant'}</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 border border-slate-300 text-xs font-medium text-slate-800">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('settings')}
+                  className="flex items-center gap-2 hover:opacity-80 transition cursor-pointer"
+                  title="Open Settings & Profile"
+                >
+                  <div className="w-5 h-5 rounded-full bg-[#006B7A] text-white flex items-center justify-center text-[10px] font-bold">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="font-bold text-slate-900 truncate max-w-[100px]">{currentUser.name || 'Applicant'}</span>
+                </button>
                 <button
                   type="button"
                   onClick={onLogout}
                   title={t.navSignOut}
-                  className="p-1 hover:bg-slate-200 rounded-full text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                  className="p-1 hover:bg-slate-200 rounded-full text-slate-500 hover:text-rose-600 transition-colors cursor-pointer ml-1"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>

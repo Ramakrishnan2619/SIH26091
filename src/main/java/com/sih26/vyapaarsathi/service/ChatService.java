@@ -74,7 +74,19 @@ public class ChatService {
         userMsg.setCreatedAt(Instant.now());
         chatMessageRepository.save(userMsg);
 
-        // 4. Check Off-Topic Guardrail (FR-5.15)
+        // 4. Check Greetings & Off-Topic Guardrail (FR-5.15)
+        if (isGreeting(userText)) {
+            String greetingReply = "Namaste! I am VyapaarSathi, your AI Credit & Business Sahayak. How can I assist you with your feasibility report, repayment schedule, or government schemes today?";
+            ChatMessage asstMsg = saveAssistantMessage(assessment, greetingReply, false);
+            return SendChatMessageResponse.builder()
+                    .messageId(asstMsg.getMessageId())
+                    .sender("assistant")
+                    .content(greetingReply)
+                    .tokensUsed(15)
+                    .createdAt(asstMsg.getCreatedAt())
+                    .build();
+        }
+
         if (isOffTopic(userText)) {
             String guardrailReply = "I am your business advisory assistant. I can only help you with questions about your business plan, loan calculations, or government schemes.";
             ChatMessage asstMsg = saveAssistantMessage(assessment, guardrailReply, false);
@@ -128,6 +140,22 @@ public class ChatService {
         asstMsg.setIsVoice(isVoice);
         asstMsg.setCreatedAt(Instant.now());
         return chatMessageRepository.save(asstMsg);
+    }
+
+    private boolean isGreeting(String text) {
+        if (text == null) return false;
+        String clean = text.trim().toLowerCase().replaceAll("[^a-zA-Z0-9\\s]", "");
+        return clean.equals("hello") ||
+               clean.equals("hi") ||
+               clean.equals("hey") ||
+               clean.equals("namaste") ||
+               clean.equals("vanakkam") ||
+               clean.equals("namaskaram") ||
+               clean.equals("good morning") ||
+               clean.equals("good afternoon") ||
+               clean.equals("good evening") ||
+               clean.equals("hi vyapaarsathi") ||
+               clean.equals("hello vyapaarsathi");
     }
 
     private boolean isOffTopic(String text) {
@@ -221,6 +249,8 @@ public class ChatService {
                 - Scheme: %s (Interest: %s, Moratorium: %s months)
                 - Quarterly Installment: ₹%s, Affordability Verdict: %s
                 Always explain financial terms in simple, jargon-free analogies. Respond in %s.
+                If the user sends a simple greeting or says hello, reply with a short, warm 1-sentence welcome.
+                Always keep answers concise, focused, structured with bullet points where appropriate, and avoid raw JSON or large essays.
                 Never invent numbers outside this context. If citing figures from the report, explicitly mention the source.
                 """.formatted(
                 userName,
@@ -232,6 +262,9 @@ public class ChatService {
     }
 
     private String buildContextualFallbackResponse(Assessment assessment, String userText) {
+        if (isGreeting(userText)) {
+            return "Namaste! I am VyapaarSathi, your AI Credit & Business Sahayak. How can I assist you with your feasibility report, repayment schedule, or government schemes today?";
+        }
         String lower = userText.toLowerCase();
 
         // Extract key context
