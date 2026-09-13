@@ -46,6 +46,21 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserHistory(user));
     }
 
+    @DeleteMapping("/history/{assessmentId}")
+    public ResponseEntity<Void> deleteHistoryItem(@AuthenticationPrincipal UserPrincipal principal,
+                                                  @PathVariable Long assessmentId) {
+        User user = getUser(principal);
+        userService.deleteAssessment(user, assessmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<Void> clearAllHistory(@AuthenticationPrincipal UserPrincipal principal) {
+        User user = getUser(principal);
+        userService.clearAllHistory(user);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/usage")
     public ResponseEntity<UsageResponse> getUsage(@AuthenticationPrincipal UserPrincipal principal) {
         User user = getUser(principal);

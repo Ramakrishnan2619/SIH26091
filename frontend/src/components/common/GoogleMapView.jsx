@@ -245,9 +245,9 @@ export function GoogleMapView({
       <div className="bg-white px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 z-10">
         <div className="flex items-center gap-2 text-xs font-bold text-[#006B7A]">
           <Compass className="w-4 h-4 text-[#009DB3]" />
-          <span>Google Maps Competitor Density & Catchment ({radiusKm} km)</span>
+          <span>Nearby Business Density & Market Map ({radiusKm} km)</span>
           <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-            {displayPlaces.length} Identified Shops
+            {displayPlaces.length} Mapped Shops
           </span>
         </div>
 
@@ -367,11 +367,11 @@ export function GoogleMapView({
           </span>
           <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#EA4335]" />
-            <span>Identified Competitor Shops</span>
+            <span>Nearby Businesses</span>
           </span>
           <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full border border-[#009DB3] bg-[#02C6E1]/30" />
-            <span>10 km Catchment</span>
+            <span>10 km Market Area</span>
           </span>
         </div>
         <div className="text-[11px] text-slate-400">

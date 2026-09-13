@@ -36,7 +36,7 @@ export function NavBar({
 
           <button
             type="button"
-            onClick={() => onNavigate('assess')}
+            onClick={() => onNavigate('assess', undefined, true)}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer min-h-[34px] sm:min-h-[38px] ${
               currentPage === 'assess'
                 ? 'bg-white/25 text-white shadow-xs'
@@ -59,19 +59,6 @@ export function NavBar({
             <FileText className="w-3.5 h-3.5" />
             <span>{t.navReport}</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => onNavigate('settings')}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer min-h-[34px] sm:min-h-[38px] ${
-              currentPage === 'settings'
-                ? 'bg-white/25 text-white shadow-xs'
-                : 'text-slate-200 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>Settings</span>
-          </button>
         </div>
 
         {/* Right Action Items */}
@@ -86,6 +73,20 @@ export function NavBar({
               <span className="hidden sm:inline">{t.navDownloadPdf}</span>
             </button>
           )}
+
+          {/* Settings Button (Moved next to AI Assistant Button) */}
+          <button
+            type="button"
+            onClick={() => onNavigate('settings')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border border-[#79E4F3]/30 min-h-[38px] ${
+              currentPage === 'settings'
+                ? 'bg-white/30 text-white shadow-xs'
+                : 'bg-white/10 hover:bg-white/20 text-white'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5 text-[#A8EFF9]" />
+            <span>Settings</span>
+          </button>
 
           {/* AI Assistant Button: Semantic Sparkles/Chat icon, Brand-accent Wintergreen/Powder Blue background */}
           <button

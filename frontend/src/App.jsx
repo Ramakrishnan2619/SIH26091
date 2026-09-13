@@ -176,7 +176,7 @@ function App() {
     }
   }, []);
 
-  const handleNavigate = (page, activeUser = currentUser) => {
+  const handleNavigate = (page, activeUser = currentUser, resetAssess = false) => {
     let targetPage = page;
     let effectiveUser = activeUser;
     if (!effectiveUser) {
@@ -189,6 +189,14 @@ function App() {
     if (!effectiveUser && page !== 'home' && page !== 'login') {
       targetPage = 'login';
     }
+
+    if (targetPage === 'assess') {
+      // If user is opening assessment fresh or requested reset, clear stale draft
+      if (resetAssess) {
+        sessionStorage.removeItem('vyapaarsathi_assess_draft_v2');
+      }
+    }
+
     setCurrentPage(targetPage);
     const targetPath = targetPage === 'home' ? '/' : `/${targetPage}`;
     window.history.pushState({}, '', targetPath);

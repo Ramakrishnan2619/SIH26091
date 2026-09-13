@@ -9,71 +9,72 @@ import {
   AlertCircle,
   MapPin,
   Terminal,
-  Activity,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ArrowRight,
+  Clock
 } from 'lucide-react';
 
 const PIPELINE_STAGES = [
   {
     id: 1,
-    title: 'Village Demographics & Market Base',
-    desc: 'Querying Census 2011 master and district economic tier',
+    title: 'Village Population & Customer Demand',
+    desc: 'Checking village population, number of families, and local spending capacity',
     icon: Database,
     subtasks: [
-      'Querying revenue village demographics (Population, Households)',
-      'Calculating local literacy and working population ratio',
-      'Determining District NDP per capita & purchasing power tier'
+      'Reading official village census records (Population & Households)',
+      'Calculating local working families and potential daily customers',
+      'Checking district purchasing power for your village'
     ],
-    liveMetrics: { 'Demographics': 'Census 2011 Grounded', 'Catchment': '10 km' }
+    liveMetrics: { 'Demographics': 'Census Verified', 'Market Area': '10 km Radius' }
   },
   {
     id: 2,
-    title: 'Competitor Saturation & Google Places GIS',
-    desc: 'Scanning local competitor clusters within 10 km catchment zone',
+    title: 'Local Market & Nearby Shops',
+    desc: 'Locating nearby shops and direct competitors within your 10 km area',
     icon: MapPin,
     subtasks: [
-      'Scanning 10 km radius via Google Places & AreaInsights',
-      'Identifying physical retail stores and direct enterprise rivals',
-      'Computing saturation index and unfulfilled village demand headroom'
+      'Mapping other shops in your local area on Google Maps',
+      'Identifying direct competitor businesses selling similar products',
+      'Verifying unfulfilled market demand in your village cluster'
     ],
-    liveMetrics: { 'GIS Engine': 'Google Maps API', 'Radius': '10 km' }
+    liveMetrics: { 'Map Directory': 'Google Maps Active', 'Coverage': '10 km Area' }
   },
   {
     id: 3,
-    title: 'Concessional Financing & Debt Feasibility',
-    desc: 'Structuring 90% debt with 6-month moratorium & FOIR risk validation',
+    title: 'Govt Low-Interest Loan & Monthly EMI',
+    desc: 'Structuring 90% government loan with 6-month grace period',
     icon: Coins,
     subtasks: [
-      'Matching NBCFDC / NSFDC / NSKFDC concessional scheme rules',
-      'Calculating debt amortization at 5-8% p.a. with 6-month moratorium',
-      'Stress testing Fixed Obligation to Income Ratio (FOIR) & DSCR'
+      'Applying Ministry low-interest concessional scheme guidelines',
+      'Structuring 90% loan with 6-month grace period (no principal due initially)',
+      'Checking loan safety so monthly repayment stays well within profit'
     ],
-    liveMetrics: { 'Debt Ratio': '90% Concessional', 'FOIR Threshold': '≤ 45%' }
+    liveMetrics: { 'Loan Share': '90% Govt Loan', 'Grace Period': '6 Months' }
   },
   {
     id: 4,
-    title: 'Vertex AI / Gemini 2.5 Grounded Synthesis',
-    desc: 'Synthesizing SWOT matrix, pricing elasticity and rural cashflow safeguards',
+    title: 'Business Plan & Profit Forecast',
+    desc: 'Estimating recommended selling prices, daily sales, and monthly net profit',
     icon: Sparkles,
     subtasks: [
-      'Constructing context-grounded prompt with local village telemetry',
-      'Evaluating business strengths, rural supply bottlenecks & seasonals',
-      'Synthesizing pricing guidance and daily unit volume projections'
+      'Recommending competitive selling price suited for local customers',
+      'Estimating daily sales volume and seasonal demand patterns',
+      'Calculating monthly raw material costs, expenses, and net profit'
     ],
-    liveMetrics: { 'LLM Engine': 'Gemini 2.5 Flash', 'Latency': 'Real-time' }
+    liveMetrics: { 'Advisor': 'AI Business Engine', 'Guidance': 'Tailored to Category' }
   },
   {
     id: 5,
-    title: 'Credit Readiness Index & Official Dossier',
-    desc: 'Computing composite score across credit, market and operational readiness',
+    title: 'Finalizing Project Report',
+    desc: 'Preparing official bank-ready appraisal report for government scheme submission',
     icon: CheckCircle2,
     subtasks: [
-      'Synthesizing composite readiness index across 3 dimensions',
-      'Verifying Ministry of Social Justice and Empowerment eligibility',
-      'Compiling bank-ready appraisal report & scheme application package'
+      'Compiling complete project cost and margin breakdown',
+      'Verifying government scheme eligibility criteria for your category',
+      'Packaging bank-ready report for loan sanction and verification'
     ],
-    liveMetrics: { 'Standard': 'MoSJE Compliant', 'Status': 'Ready' }
+    liveMetrics: { 'Status': 'Bank Ready', 'Compliance': 'MoSJE Aligned' }
   }
 ];
 
@@ -83,13 +84,17 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
   const [elapsedMs, setElapsedMs] = useState(0);
   const [logs, setLogs] = useState([]);
   const [showTerminal, setShowTerminal] = useState(true);
-  const terminalEndRef = useRef(null);
+  const [completedReport, setCompletedReport] = useState(null);
+  const [autoRedirectSecs, setAutoRedirectSecs] = useState(15);
+  const [countdownPaused, setCountdownPaused] = useState(false);
+
+  const terminalBoxRef = useRef(null);
 
   const applicantName = payload?.ownerName || 'Applicant';
   const businessCategory = payload?.businessCategory || 'Micro Enterprise';
   const villageName = payload?.villageName || 'Selected Revenue Village';
 
-  // Dynamic log emitter simulating real-time pipeline traces
+  // Dynamic log emitter with plain language
   useEffect(() => {
     const startTime = Date.now();
     const timer = setInterval(() => {
@@ -97,20 +102,16 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
     }, 100);
 
     const logTemplates = [
-      { time: 200, step: 0, text: `[INIT] Starting unified assessment for ${applicantName} (${businessCategory})` },
-      { time: 500, step: 0, text: `[GIS] Target coordinates established: lat=${payload?.latitude || '10.0524'}, lng=${payload?.longitude || '78.3344'}` },
-      { time: 900, step: 0, text: `[CENSUS] Querying Census 2011 directory for village: ${villageName}` },
-      { time: 1400, step: 0, text: `[CENSUS] Retrieved demographic record: Rural Cluster, Literacy=74.2%` },
-      { time: 2000, step: 1, text: `[PLACES] Querying Google Maps AreaInsights within 10 km catchment zone` },
-      { time: 2600, step: 1, text: `[PLACES] Discovered physical competitor POIs in local commercial node` },
-      { time: 3200, step: 1, text: `[MARKET] Market saturation classified: Low to Moderate headroom available` },
-      { time: 3800, step: 2, text: `[FINANCE] Checking beneficiary social category eligibility for concessional schemes` },
-      { time: 4400, step: 2, text: `[FINANCE] Computing 90% debt amortization schedule at concessional 5.0% p.a.` },
-      { time: 5000, step: 2, text: `[FINANCE] Stress test: FOIR=32.4% (GREEN - Bank Viable), DSCR=1.84` },
-      { time: 5600, step: 3, text: `[GEMINI] Dispatching contextually grounded synthesis prompt to Vertex AI` },
-      { time: 6400, step: 3, text: `[GEMINI] Gemini 2.5 Flash streaming response: SWOT matrix & pricing strategy` },
-      { time: 7200, step: 4, text: `[DOSSIER] Calculating composite readiness rings (Credit: 82%, Market: 75%, Execution: 78%)` },
-      { time: 8000, step: 4, text: `[COMPLETE] Final bank-ready assessment report packaged successfully` }
+      { time: 200, step: 0, text: `Starting business analysis for ${applicantName} (${businessCategory})` },
+      { time: 600, step: 0, text: `Target village coordinates set: lat=${payload?.latitude || '10.0524'}, lng=${payload?.longitude || '78.3344'}` },
+      { time: 1100, step: 0, text: `Loaded Census records for village: ${villageName} (Population & Household count verified)` },
+      { time: 1800, step: 1, text: `Searching Google Maps directory within 10 km market area` },
+      { time: 2500, step: 1, text: `Mapped nearby establishments and competitor units in this local cluster` },
+      { time: 3300, step: 2, text: `Checking government low-interest loan eligibility for applicant category` },
+      { time: 4100, step: 2, text: `Calculated 90% loan with 6-month grace period; monthly repayment is safe` },
+      { time: 5000, step: 3, text: `AI generating category-specific profit forecast and pricing strategy for ${businessCategory}` },
+      { time: 6000, step: 4, text: `Synthesizing loan approval index across credit, market, and business readiness` },
+      { time: 7000, step: 4, text: `Final bank-ready project report compiled successfully!` }
     ];
 
     const logTimeouts = logTemplates.map(item => {
@@ -141,14 +142,12 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
 
         const data = await res.json();
         setCurrentStep(PIPELINE_STAGES.length);
-        setLogs(prev => [...prev, `[SUCCESS] Assessment response received from server. Redirecting...`]);
-        setTimeout(() => {
-          onSuccess(data);
-        }, 1200);
+        setLogs(prev => [...prev, `[SUCCESS] Complete assessment report ready!`]);
+        setCompletedReport(data);
       } catch (err) {
         console.error('Assessment execution failed:', err);
-        setErrorMsg(err.message || 'Failed to synthesize assessment. Please check connectivity or try again.');
-        setLogs(prev => [...prev, `[ERROR] Pipeline aborted: ${err.message}`]);
+        setErrorMsg(err.message || 'Failed to generate assessment. Please check network connectivity or try again.');
+        setLogs(prev => [...prev, `[ERROR] Process halted: ${err.message}`]);
       }
     };
 
@@ -160,20 +159,38 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
     };
   }, []);
 
-  // Auto-scroll terminal log
+  // ONLY scroll internal terminal box — NEVER scroll the main browser window!
   useEffect(() => {
-    if (terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (terminalBoxRef.current) {
+      terminalBoxRef.current.scrollTop = terminalBoxRef.current.scrollHeight;
     }
   }, [logs]);
 
-  const progressPct = Math.min(100, Math.round(((currentStep + 1) / (PIPELINE_STAGES.length + 1)) * 100));
+  // Gentle countdown timer when report is ready (user can pause or click immediately)
+  useEffect(() => {
+    if (!completedReport || countdownPaused) return;
+
+    if (autoRedirectSecs <= 0) {
+      onSuccess(completedReport);
+      return;
+    }
+
+    const cd = setInterval(() => {
+      setAutoRedirectSecs(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(cd);
+  }, [completedReport, autoRedirectSecs, countdownPaused]);
+
+  const progressPct = completedReport 
+    ? 100 
+    : Math.min(95, Math.round(((currentStep + 1) / (PIPELINE_STAGES.length + 1)) * 100));
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 bg-slate-50 min-h-[700px]">
+    <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 bg-slate-50 min-h-[700px]">
       <div className="max-w-3xl w-full p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xl">
         {/* 1. Header Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-2xl bg-[#006B7A] flex items-center justify-center text-white shadow-md">
               <Brain className="w-6 h-6 text-[#79E4F3] animate-pulse" />
@@ -181,17 +198,17 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                Synthesizing Bank-Ready Credit Dossier
+                Creating Your Business Project Report
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                AI pipeline evaluating <strong className="text-slate-800">{applicantName}</strong> • {businessCategory} in {villageName}
+                Evaluating <strong className="text-slate-800">{applicantName}</strong> • {businessCategory} in {villageName}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-xs font-bold text-slate-700">Pipeline Elapsed</div>
+              <div className="text-xs font-bold text-slate-700">Time Elapsed</div>
               <div className="text-xs font-mono text-[#006B7A] font-semibold">
                 {(elapsedMs / 1000).toFixed(1)}s
               </div>
@@ -202,8 +219,47 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           </div>
         </div>
 
-        {/* 2. Overall Progress Bar */}
-        <div className="my-5">
+        {/* 2. Completion Banner & Action Button when 100% Ready */}
+        {completedReport && (
+          <div className="my-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-sm flex flex-wrap items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-emerald-950">
+                  Project Report Completed Successfully!
+                </h4>
+                <p className="text-xs text-emerald-800 mt-0.5">
+                  All 5 evaluation steps verified. Take your time to review the logs below.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setCountdownPaused(!countdownPaused)}
+                className="text-xs text-slate-600 hover:text-slate-900 font-semibold px-2 py-1 rounded cursor-pointer"
+                title="Pause or resume auto-view"
+              >
+                {countdownPaused ? "▶ Resume Timer" : `⏸ Auto-opens in ${autoRedirectSecs}s`}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onSuccess(completedReport)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B7A] hover:bg-[#005561] text-white text-xs font-bold shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <span>View Project Report</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Overall Progress Bar */}
+        <div className="my-4">
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <div
               className="bg-gradient-to-r from-[#006B7A] via-[#009DB3] to-[#02C6E1] h-2 transition-all duration-500"
@@ -212,11 +268,11 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           </div>
         </div>
 
-        {/* 3. Detailed 5-Step Pipeline Telemetry */}
-        <div className="space-y-3.5 mb-6">
+        {/* 3. Detailed 5-Step Telemetry */}
+        <div className="space-y-3 mb-6">
           {PIPELINE_STAGES.map((step, idx) => {
-            const isDone = currentStep > idx;
-            const isCurrent = currentStep === idx;
+            const isDone = currentStep > idx || completedReport;
+            const isCurrent = currentStep === idx && !completedReport;
 
             return (
               <div
@@ -243,16 +299,16 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-bold ${isCurrent ? 'text-[#006B7A]' : isDone ? 'text-emerald-900' : 'text-slate-600'}`}>
-                          Phase {step.id}: {step.title}
+                          Step {step.id}: {step.title}
                         </span>
                         {isCurrent && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#006B7A] text-white animate-pulse">
-                            Processing Live
+                            Processing
                           </span>
                         )}
                         {isDone && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                            Verified ✓
+                            Done ✓
                           </span>
                         )}
                       </div>
@@ -260,9 +316,9 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
                         {step.desc}
                       </div>
 
-                      {/* Sub-tasks breakdown when active or completed */}
+                      {/* Subtasks breakdown */}
                       {(isCurrent || isDone) && (
-                        <div className="mt-2.5 space-y-1">
+                        <div className="mt-2 space-y-1">
                           {step.subtasks.map((st, i) => (
                             <div key={i} className="text-[11px] text-slate-600 flex items-center gap-1.5">
                               <span className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-500' : 'bg-[#009DB3]'}`} />
@@ -274,10 +330,10 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
                     </div>
                   </div>
 
-                  {/* Right-hand Live Metric Badges */}
+                  {/* Right-hand Metric Badges */}
                   <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
                     {Object.entries(step.liveMetrics).map(([key, val]) => (
-                      <span key={key} className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                      <span key={key} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
                         {key}: <strong className="text-[#006B7A]">{val}</strong>
                       </span>
                     ))}
@@ -288,7 +344,7 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           })}
         </div>
 
-        {/* 4. Real-Time Pipeline Terminal Log (Interactive) */}
+        {/* 4. Real-Time Execution Log Box (Self-scrolling internally without window jerk) */}
         <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden text-left shadow-lg">
           <button
             type="button"
@@ -297,7 +353,7 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           >
             <div className="flex items-center gap-2">
               <Terminal className="w-3.5 h-3.5 text-[#02C6E1]" />
-              <span>Live LLM Grounding & GIS Execution Log ({logs.length} events)</span>
+              <span>Live Creation Progress Log ({logs.length} events)</span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
               <span>{showTerminal ? 'Collapse' : 'Expand'}</span>
@@ -306,7 +362,10 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           </button>
 
           {showTerminal && (
-            <div className="p-4 font-mono text-[11px] text-emerald-400 max-h-44 overflow-y-auto space-y-1 bg-slate-950">
+            <div 
+              ref={terminalBoxRef}
+              className="p-4 font-mono text-[11px] text-emerald-400 max-h-40 overflow-y-auto space-y-1 bg-slate-950 scroll-smooth"
+            >
               {logs.map((log, idx) => (
                 <div key={idx} className="leading-relaxed flex items-start gap-2">
                   <span className="text-slate-600 select-none">&gt;</span>
@@ -315,7 +374,6 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
                   </span>
                 </div>
               ))}
-              <div ref={terminalEndRef} />
             </div>
           )}
         </div>

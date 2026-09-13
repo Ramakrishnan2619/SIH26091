@@ -256,7 +256,33 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       exServicemenStatus
     };
 
+    sessionStorage.removeItem(STORAGE_KEY);
     onSubmit(payload);
+  };
+
+  const handleResetForm = () => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    setFormData({
+      currentStep: 1,
+      ownerName: defaultUser?.name || '',
+      marginCapital: 50000,
+      businessCategory: CATEGORIES[0],
+      businessIdeaDescription: '',
+      selectedVillage: {
+        villageName: '',
+        subdistrictName: '',
+        districtName: '',
+        stateName: '',
+        villageLgdCode: null,
+        latitude: 10.0524,
+        longitude: 78.3344
+      },
+      age: 30,
+      socialCategory: 'OBC',
+      gender: 'Female',
+      disabilityStatus: false,
+      exServicemenStatus: false
+    });
   };
 
   return (
@@ -444,8 +470,8 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-[#006B7A]">Step 2: Business Location & Catchment Zone</h2>
-                    <p className="text-xs text-slate-600 font-medium">Pinpoint your revenue village to evaluate local consumer demand within a 5-10 km radius</p>
+                    <h2 className="text-lg font-bold text-[#006B7A]">Step 2: Business Location & Local Market Area</h2>
+                    <p className="text-xs text-slate-600 font-medium">Select your village or town to analyze consumer demand within a 5-10 km radius</p>
                   </div>
                 </div>
 
@@ -548,7 +574,7 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
               ) : (
                 <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs text-slate-700 font-medium flex items-center gap-2">
                   <Info className="w-4 h-4 text-slate-500 shrink-0" />
-                  <span>Search your village name above or use your device's current location to enable the 5-10km catchment zone.</span>
+                  <span>Search your village name above or use your device's location to see your 5-10 km local market area.</span>
                 </div>
               )}
             </motion.div>

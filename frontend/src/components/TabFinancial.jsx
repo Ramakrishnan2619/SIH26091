@@ -80,7 +80,7 @@ export function TabFinancial({ module2Result, onMarginChange, selectedLang = 'en
             ₹{display?.loanAmount ? Number(display.loanAmount).toLocaleString('en-IN') : '0'}
           </div>
           <div className="text-xs text-slate-500 mt-2">
-            @8.0% p.a. • 84 Months ({display?.moratoriumMonths || 6} Months Moratorium)
+            @8.0% p.a. • 84 Months ({display?.moratoriumMonths || 6} Months Grace Period)
           </div>
         </div>
       </div>
@@ -144,11 +144,11 @@ export function TabFinancial({ module2Result, onMarginChange, selectedLang = 'en
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50">
-            <div className="text-xs text-slate-500">Grace Period (Moratorium)</div>
+            <div className="text-xs text-slate-500">Setup Grace Period</div>
             <div className="text-lg font-bold text-slate-900 mt-1">
               {display?.moratoriumMonths || 6} Months
             </div>
-            <div className="text-[11px] text-emerald-700 font-medium mt-1">Pay only interest during setup</div>
+            <div className="text-[11px] text-emerald-700 font-medium mt-1">Pay only minimal interest during startup</div>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50">

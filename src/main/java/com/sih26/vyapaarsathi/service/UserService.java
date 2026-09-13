@@ -107,4 +107,21 @@ public class UserService {
 
         return summaries;
     }
+
+    @Transactional
+    public void deleteAssessment(User user, Long assessmentId) {
+        assessmentRepository.findById(assessmentId).ifPresent(a -> {
+            if (a.getUser() != null && a.getUser().getUserId().equals(user.getUserId())) {
+                assessmentRepository.delete(a);
+                log.info("Deleted assessment {} for user {}", assessmentId, user.getUserId());
+            }
+        });
+    }
+
+    @Transactional
+    public void clearAllHistory(User user) {
+        List<Assessment> list = assessmentRepository.findByUserOrderByCreatedAtDesc(user);
+        assessmentRepository.deleteAll(list);
+        log.info("Cleared all {} assessments for user {}", list.size(), user.getUserId());
+    }
 }

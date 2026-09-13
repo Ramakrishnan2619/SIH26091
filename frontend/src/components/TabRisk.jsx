@@ -12,20 +12,20 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
 
   const rings = [
     { label: "Credit & Repayment Readiness", value: compositeScore, color: "#006B7A", radius: 88, stroke: 9 },
-    { label: "Market Demand & Catchment", value: 85, color: "#009DB3", radius: 72, stroke: 9 },
-    { label: "Statutory & Document Compliance", value: 92, color: "#02C6E1", radius: 56, stroke: 9 },
+    { label: "Market Demand & Customer Base", value: 85, color: "#009DB3", radius: 72, stroke: 9 },
+    { label: "Required Documents & Eligibility", value: 92, color: "#02C6E1", radius: 56, stroke: 9 },
   ];
 
   const getCircumference = (radius) => 2 * Math.PI * radius;
 
   const riskFactors = [
     {
-      title: "1. Demand Seasonality & Working Capital",
+      title: "1. Demand Seasonality & Daily Cashflow",
       level: "MODERATE",
       levelColor: "bg-amber-100 text-amber-800 border-amber-200",
-      description: "Discretionary spend may contract slightly during peak monsoon or non-harvest months.",
-      mitigation: "Utilize the 6-month loan grace period (moratorium) to build an initial cash reserve buffer.",
-      source: "Rural Demand Survey"
+      description: "Local spending may dip slightly during peak monsoon or non-harvest months.",
+      mitigation: "Utilize the 6-month loan grace period to build a safety cash reserve before full repayments start.",
+      source: "Rural Market Survey"
     },
     {
       title: "2. Monthly Debt Servicing Capacity",
@@ -164,9 +164,9 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis }) {
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-xs text-slate-500">Grace Period (Moratorium)</span>
+                <span className="text-xs text-slate-500">Setup Grace Period</span>
                 <div className="text-2xl font-black text-blue-700 mt-1">6 Months</div>
-                <p className="text-[11px] text-slate-500 mt-1">Interest-only during initial setup</p>
+                <p className="text-[11px] text-slate-500 mt-1">Pay only minimal interest during startup</p>
               </div>
             </div>
 

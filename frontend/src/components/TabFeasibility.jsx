@@ -71,7 +71,7 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
               <Users className="w-4 h-4" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
-              Customer Reach (10 km Catchment)
+              Customer Reach (10 km Market Area)
             </h3>
           </div>
 
@@ -316,10 +316,10 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">
-                Identified Competitor Shops (Live Google Maps Grounding)
+                Nearby Businesses & Competitor Shops
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                All physical competitor establishments discovered within the 10 km market catchment radius. Tap pins to inspect details.
+                All physical competitor businesses discovered within your 10 km local market area. Tap any pin or shop below to view details.
               </p>
             </div>
           </div>
