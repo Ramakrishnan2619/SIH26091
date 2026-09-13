@@ -33,6 +33,8 @@ function App() {
   // Page Routing: 'home' | 'assess' | 'processing' | 'report' | 'login'
   const [currentPage, setCurrentPage] = useState(() => {
     const path = window.location.pathname.toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('token') || path.includes('/callback')) return 'assess';
     if (path.startsWith('/login')) return 'login';
     // If not authenticated, strictly allow only home or login
     try {
@@ -65,13 +67,88 @@ function App() {
 
   const t = getTranslation(selectedLang);
 
+  // Handle Google OAuth 2.0 callback URL (/login/callback?token=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const path = window.location.pathname.toLowerCase();
+
+    if (urlToken || path.includes('/callback')) {
+      const token = urlToken || localStorage.getItem('vyapaarsathi_token');
+      if (token) {
+        localStorage.setItem('vyapaarsathi_token', token);
+        
+        // Fetch user profile from backend using the JWT token
+        fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+          .then(res => {
+            if (res.ok) return res.json();
+            throw new Error('Profile fetch failed');
+          })
+          .then(userData => {
+            const userObj = {
+              userId: userData.userId,
+              name: userData.name || 'Beneficiary',
+              email: userData.email,
+              role: userData.role || 'beneficiary'
+            };
+            localStorage.setItem('vyapaarsathi_user', JSON.stringify(userObj));
+            setCurrentUser(userObj);
+            if (userData.preferredLanguage) {
+              setSelectedLang(userData.preferredLanguage);
+            }
+            // Clear URL query parameters and redirect to assess
+            window.history.replaceState({}, '', '/assess');
+            setCurrentPage('assess');
+          })
+          .catch(err => {
+            console.warn('OAuth profile retrieval notice:', err);
+            // Fallback decode from JWT
+            try {
+              const base64Url = token.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(
+                atob(base64)
+                  .split('')
+                  .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                  .join('')
+              );
+              const payload = JSON.parse(jsonPayload);
+              const fallbackUser = {
+                email: payload.sub,
+                name: payload.name || (payload.sub ? payload.sub.split('@')[0] : 'Beneficiary'),
+                role: payload.role || 'beneficiary'
+              };
+              localStorage.setItem('vyapaarsathi_user', JSON.stringify(fallbackUser));
+              setCurrentUser(fallbackUser);
+              window.history.replaceState({}, '', '/assess');
+              setCurrentPage('assess');
+            } catch (decodeErr) {
+              handleNavigate('login');
+            }
+          });
+      }
+    }
+  }, []);
+
   // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
+      let effectiveUser = currentUser;
+      if (!effectiveUser) {
+        try {
+          const stored = localStorage.getItem('vyapaarsathi_user');
+          if (stored) effectiveUser = JSON.parse(stored);
+        } catch {}
+      }
+
       if (path.startsWith('/login')) {
         setCurrentPage('login');
-      } else if (!currentUser) {
+      } else if (!effectiveUser) {
         setCurrentPage('home');
       } else if (path.startsWith('/assess')) {
         setCurrentPage('assess');
@@ -95,9 +172,17 @@ function App() {
     }
   }, []);
 
-  const handleNavigate = (page) => {
+  const handleNavigate = (page, activeUser = currentUser) => {
     let targetPage = page;
-    if (!currentUser && page !== 'home' && page !== 'login') {
+    let effectiveUser = activeUser;
+    if (!effectiveUser) {
+      try {
+        const stored = localStorage.getItem('vyapaarsathi_user');
+        if (stored) effectiveUser = JSON.parse(stored);
+      } catch {}
+    }
+
+    if (!effectiveUser && page !== 'home' && page !== 'login') {
       targetPage = 'login';
     }
     setCurrentPage(targetPage);
@@ -171,7 +256,7 @@ function App() {
 
   const handleLoginSuccess = (user, token) => {
     setCurrentUser(user);
-    handleNavigate('assess');
+    handleNavigate('assess', user);
   };
 
   const handleLogout = async () => {
