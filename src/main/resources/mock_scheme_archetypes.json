@@ -1,0 +1,122 @@
+[
+  {
+    "scheme_id": "NSFDC_MAHILA_SAMRIDDHI",
+    "scheme_name": "NSFDC Mahila Samriddhi Yojana (Illustrative)",
+    "category": "loan_type_specific",
+    "target_demographic": "Scheduled Caste (SC) Women Entrepreneurs",
+    "max_loan_limit": "₹1,40,000",
+    "indicative_interest_rate": "4.0% p.a. concessional",
+    "participating_institutions": "State Channelizing Agencies (SCAs) / NSFDC / RRBs",
+    "illustrative_benefit": "Micro-credit support with dedicated 1.5% interest rebate for female SC beneficiaries in rural areas.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "MICRO_WOMEN_DAIRY",
+    "scheme_name": "Women Rural Dairy Cooperative Scheme (Illustrative)",
+    "category": "business_linked",
+    "target_demographic": "Women Dairy Farmers & Cattle Rearers",
+    "max_loan_limit": "₹2,00,000",
+    "indicative_interest_rate": "5.0% - 6.5% p.a.",
+    "participating_institutions": "District Cooperative Milk Producers Union / NABARD",
+    "illustrative_benefit": "Working capital and milch cattle financing with milk collection tie-up and 25% back-ended capital subsidy.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "NBCFDC_GENERAL_TERM_LOAN",
+    "scheme_name": "NBCFDC General Term Loan Scheme (Illustrative)",
+    "category": "bank_specific",
+    "target_demographic": "Other Backward Classes (OBC) families below double poverty line",
+    "max_loan_limit": "₹50,00,000",
+    "indicative_interest_rate": "8.0% p.a. (reducing balance)",
+    "participating_institutions": "State Backward Classes Economic Development Corporation / Canara Bank",
+    "illustrative_benefit": "90% project cost financing for establishing grocery stores, tailoring units, and retail shops.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "NSKFDC_SWACCHTA_UDYAMI",
+    "scheme_name": "NSKFDC Swacchta Udyami Yojana (Illustrative)",
+    "category": "loan_type_specific",
+    "target_demographic": "Safai Karamcharis and Manual Scavengers & Dependents",
+    "max_loan_limit": "₹15,00,000",
+    "indicative_interest_rate": "4.0% - 6.0% p.a.",
+    "participating_institutions": "NSKFDC Apex Corporation / State Channelizing Agencies",
+    "illustrative_benefit": "Zero guarantor requirement with capital subsidy up to ₹3,25,000 for sanitation and utility vehicles.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "MUDRA_SHISHU_RETAIL",
+    "scheme_name": "Pradhan Mantri MUDRA Yojana - Shishu (Illustrative)",
+    "category": "business_linked",
+    "target_demographic": "First-time micro-traders and provision store operators",
+    "max_loan_limit": "₹50,000",
+    "indicative_interest_rate": "7.5% - 9.0% p.a.",
+    "participating_institutions": "All Public Sector Banks, Regional Rural Banks, Small Finance Banks",
+    "illustrative_benefit": "Collateral-free instant working capital loan with Mudra RuPay debit card for inventory stock replenishment.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "PMEGP_RURAL_ARTISAN",
+    "scheme_name": "Prime Minister Employment Generation Programme (PMEGP)",
+    "category": "loan_type_specific",
+    "target_demographic": "Rural micro-producers, artisans, and agro-processing entrepreneurs",
+    "max_loan_limit": "₹25,00,000 (Manufacturing) / ₹10,00,000 (Service)",
+    "indicative_interest_rate": "Standard bank lending rate with capital subsidy",
+    "participating_institutions": "KVIC / KVIB / District Industries Centre (DIC)",
+    "illustrative_benefit": "Up to 35% margin money government subsidy in rural areas for special category beneficiaries.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "NHFDC_DIVYANGJAN_SWAVALAMBAN",
+    "scheme_name": "Divyangjan Swavalamban Yojana (Illustrative)",
+    "category": "bank_specific",
+    "target_demographic": "Persons with Disabilities (PwD) with 40%+ benchmark disability",
+    "max_loan_limit": "₹5,00,000",
+    "indicative_interest_rate": "5.0% p.a. (0.5% women rebate)",
+    "participating_institutions": "National Handicapped Finance and Development Corporation (NHFDC)",
+    "illustrative_benefit": "100% concessional credit for assistive commercial equipment, mobile kiosks, and stationery shops.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "DRI_SCHEME",
+    "scheme_name": "Differential Rate of Interest (DRI) Scheme (Illustrative)",
+    "category": "bank_specific",
+    "target_demographic": "Rural families with annual income below ₹18,000",
+    "max_loan_limit": "₹15,000",
+    "indicative_interest_rate": "4.0% p.a. flat concessional",
+    "participating_institutions": "Scheduled Commercial Banks",
+    "illustrative_benefit": "Emergency micro capital without collateral or margins for ultra-low-income rural cottage producers.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "STANDUP_INDIA_SC_WOMEN",
+    "scheme_name": "Stand-Up India Scheme (Illustrative)",
+    "category": "bank_specific",
+    "target_demographic": "Scheduled Caste (SC), Scheduled Tribe (ST), or Woman Entrepreneur",
+    "max_loan_limit": "₹10,00,000 to ₹1,00,00,000",
+    "indicative_interest_rate": "MCLR + 3% + Tenor Premium",
+    "participating_institutions": "All Commercial Banks branches (Mandated 2 loans per branch)",
+    "illustrative_benefit": "Composite term and working capital finance for greenfield trading or manufacturing enterprises.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  },
+  {
+    "scheme_id": "NMDFC_VIRASAT",
+    "scheme_name": "NMDFC Virasat Craft Concession (Illustrative)",
+    "category": "business_linked",
+    "target_demographic": "Artisans & Weavers from Notified Minority Communities",
+    "max_loan_limit": "₹10,00,000",
+    "indicative_interest_rate": "5.0% p.a. for male, 4.0% p.a. for female craftspersons",
+    "participating_institutions": "National Minorities Development and Finance Corporation (NMDFC)",
+    "illustrative_benefit": "Working capital loan for raw materials, modern tools, and participation in national craft exhibitions.",
+    "is_illustrative": true,
+    "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
+  }
+]

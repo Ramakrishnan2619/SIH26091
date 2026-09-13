@@ -96,7 +96,8 @@ This schema does not exist yet and needs to be created. Proposed structure:
 | `moratorium_months` | 3 | 6 |
 | `repayment_frequency` | Quarterly | Quarterly |
 
-> Confirm quarterly cadence in implementation — an earlier reference dataset in this project mislabeled Micro Finance as "Quarterly" while computing on a monthly schedule; do not repeat that bug. Build and unit-test both the calculator and its amortization table against the boundary cases (exactly ₹1.4L and ₹50L project cost) before trusting any output.
+> **Moratorium & Quarterly Amortization Policy (Option B — Serviced Interest):**
+> In accordance with NSFDC / SCA concessional credit standards, simple interest is **serviced quarterly during the moratorium** (Quarter 1 for Micro Finance; Quarters 1–2 for Term Loan) with zero principal repayment. Interest is **not capitalized** into the principal balance. Post-moratorium, equal quarterly installments (EQI) amortize the constant principal to exactly ₹0.00 over the remaining repayment quarters (11 quarters for Micro Finance, 26 quarters for Term Loan).
 
 ### `eligibility_matrix` (Dynamic Eligibility Matrix feature)
 Static lookup table: `{social_category, gender, disability_status, ex_servicemen_status, income_band} → {applicable_corporation_hint, concession_flag}`. Small, hand-authored table — not sourced from an external dataset; label it as such in the Data Dictionary comments.

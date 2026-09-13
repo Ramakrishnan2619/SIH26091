@@ -151,6 +151,7 @@ The goal of this module is to demonstrate how progressive household questioning 
 
 ## 8. Acceptance Criteria
 - [ ] Overview section of this PRD explicitly identifies Search for Schemes as a simulated feature.
+- [ ] Primary applicant eligibility demographics (`age`, `gender`, `social_category`, `disability_status`, `ex_servicemen_status`) MUST be pre-filled automatically from the assessment record (Intake Step 3) and NOT re-prompted as blank fields. Only novel household/income parameters are queried fresh.
 - [ ] Progressive questionnaire breaks questions into 3 distinct, manageable steps without presenting a 30-field wall of inputs.
 - [ ] Grounding prompt enforces the use of the static mock scheme archetype catalog.
 - [ ] Backend response JSON strictly contains `"is_illustrative": true` and `"mandatory_disclosure"` on every returned scheme object.

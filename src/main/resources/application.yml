@@ -1,0 +1,72 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: vyapaarsathi
+
+  # Database configuration
+  datasource:
+    # Cloud SQL MySQL connection
+    # For Cloud Run / Unix socket:
+    #   jdbc:mysql:///${DB_NAME:sih26_app_db}?cloudSqlInstance=${CLOUD_SQL_CONNECTION_NAME:sih26-508313:asia-south1:sih26-mysql}&socketFactory=com.google.cloud.sql.mysql.SocketFactory
+    # For direct TCP IP connection (public IP / local dev):
+    #   jdbc:mysql://${DB_HOST:34.93.230.76}:${DB_PORT:3306}/${DB_NAME:sih26_app_db}?sslMode=REQUIRED
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql:///${DB_NAME:sih26_app_db}?cloudSqlInstance=${CLOUD_SQL_CONNECTION_NAME:sih26-508313:asia-south1:sih26-mysql}&socketFactory=com.google.cloud.sql.mysql.SocketFactory&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:sih26-root-pwd}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+
+  # Google OAuth 2.0 Client
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:your-google-oauth-client-id}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:your-google-oauth-client-secret}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+# Application-specific configurations
+app:
+  jwt:
+    secret: ${JWT_SECRET:vyapaarsathi-sih26091-super-secure-jwt-signing-secret-key-32-chars-minimum}
+    expiration-ms: 3600000 # 1 hour (strict PRD-01 requirement)
+  gcp:
+    project-id: ${GCP_PROJECT_ID:sih26-508313}
+    location: ${GCP_LOCATION:asia-south1}
+    vertex-model: ${VERTEX_MODEL:gemini-2.5-flash}
+    vertex-voice-model: ${VERTEX_VOICE_MODEL:gemini-live-2.5-flash-native-audio}
+    maps-api-key: ${GOOGLE_MAPS_API_KEY:}
+  layer2:
+    db-path: ${LAYER2_DB_PATH:Optimized DB for Layer 2/layer2_demand_economics.db}
+  quota:
+    daily-limit: 100 # 100 queries per user per 24 hours (PRD-01 FR-1.12)
+
+# Management / Actuator endpoints for Cloud Run health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized

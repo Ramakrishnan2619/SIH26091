@@ -1,0 +1,445 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  FileSpreadsheet, Calculator, ShieldAlert, Building2, 
+  Printer, Share2, Sparkles, AlertCircle, CheckCircle, RefreshCw, MessageSquare,
+  FileText, PlusCircle, ArrowRight, Download, Bot
+} from 'lucide-react';
+import { Header } from './components/Header';
+import { LandingPage } from './components/LandingPage';
+import { AssessmentForm } from './components/AssessmentForm';
+import { ProcessingScreen } from './components/ProcessingScreen';
+import { LoginPage } from './components/LoginPage';
+import { TabFeasibility } from './components/TabFeasibility';
+import { TabFinancial } from './components/TabFinancial';
+import { TabRisk } from './components/TabRisk';
+import { TabSchemes } from './components/TabSchemes';
+import { ChatDrawer } from './components/ChatDrawer';
+import { LiveVoiceModal } from './components/LiveVoiceModal';
+import { SchemeSearchModal } from './components/SchemeSearchModal';
+import { PageFooter } from './components/common/PageFooter';
+import { getTranslation } from './utils/translations';
+
+function App() {
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('vyapaarsathi_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Page Routing: 'home' | 'assess' | 'processing' | 'report' | 'login'
+  const [currentPage, setCurrentPage] = useState(() => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.startsWith('/login')) return 'login';
+    // If not authenticated, strictly allow only home or login
+    try {
+      const stored = localStorage.getItem('vyapaarsathi_user');
+      if (!stored) return 'home';
+    } catch {
+      return 'home';
+    }
+    if (path.startsWith('/assess')) return 'assess';
+    if (path.startsWith('/report')) return 'report';
+    return 'home';
+  });
+
+  const [activeTab, setActiveTab] = useState('feasibility');
+  const [selectedLang, setSelectedLang] = useState('en');
+  
+  // Clean initialization without demo reports
+  const [reportData, setReportData] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('vyapaarsathi_report');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [assessmentPayload, setAssessmentPayload] = useState(null);
+  const [showLiveVoice, setShowLiveVoice] = useState(false);
+  const [showSchemeModal, setShowSchemeModal] = useState(false);
+
+  const t = getTranslation(selectedLang);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      if (path.startsWith('/login')) {
+        setCurrentPage('login');
+      } else if (!currentUser) {
+        setCurrentPage('home');
+      } else if (path.startsWith('/assess')) {
+        setCurrentPage('assess');
+      } else if (path.startsWith('/report')) {
+        setCurrentPage('report');
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentUser]);
+
+  // Sync tab from URL query parameter if on report page
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && ['feasibility', 'financial', 'risk', 'schemes'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, []);
+
+  const handleNavigate = (page) => {
+    let targetPage = page;
+    if (!currentUser && page !== 'home' && page !== 'login') {
+      targetPage = 'login';
+    }
+    setCurrentPage(targetPage);
+    const targetPath = targetPage === 'home' ? '/' : `/${targetPage}`;
+    window.history.pushState({}, '', targetPath);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tab);
+    window.history.pushState({}, '', url);
+  };
+
+  const handleStartProcessing = (payload) => {
+    setAssessmentPayload(payload);
+    setCurrentPage('processing');
+    window.history.pushState({}, '', '/assess');
+  };
+
+  const handleAssessmentComplete = (unifiedReport) => {
+    const vc = unifiedReport.villageContext || {};
+    const kpis = unifiedReport.dashboardKpis || {};
+    const m1 = unifiedReport.module1Report || {};
+    const m2 = unifiedReport.module2Result || {};
+
+    const normalizedReport = {
+      assessment_id: unifiedReport.assessmentId,
+      dashboard_kpis: {
+        assessment_id: unifiedReport.assessmentId,
+        village_name: vc.villageName || vc.village_name || 'Selected Village',
+        subdistrict_name: vc.subdistrictName || vc.subdistrict_name || '',
+        district_name: vc.districtName || vc.district_name || 'District',
+        state_name: vc.stateName || 'India',
+        enterprise_type: unifiedReport.businessCategory || 'Micro Enterprise',
+        project_cost: kpis.totalProjectCost || m2.projectCost || 1000000,
+        margin_money: kpis.marginMoney || m2.marginCapital || 100000,
+        loan_amount: kpis.concessionalLoan || m2.loanAmount || 900000,
+        scheme_name: kpis.schemeName || m2.schemeName || 'Term Loan Scheme',
+        foir_badge: kpis.foirBadgeColor || m2.foirBadgeColor || 'GREEN',
+        foir_verdict: kpis.foirVerdictLabel || m2.foirVerdictLabel || 'SAFE',
+        composite_readiness_score: kpis.readinessRings?.compositeScorePct || 78,
+        monthly_installment: m2.monthlyEquivalentInstallment || 13500,
+        generated_at: unifiedReport.createdAt || new Date().toISOString()
+      },
+      applicantDetails: {
+        ownerName: assessmentPayload?.ownerName || unifiedReport.ownerName || 'Applicant',
+        age: assessmentPayload?.age || unifiedReport.age || 32,
+        gender: assessmentPayload?.gender || unifiedReport.gender || 'Female',
+        socialCategory: assessmentPayload?.socialCategory || unifiedReport.socialCategory || 'OBC',
+        disabilityStatus: assessmentPayload?.disabilityStatus ?? unifiedReport.disabilityStatus ?? false,
+        exServicemenStatus: assessmentPayload?.exServicemenStatus ?? unifiedReport.exServicemenStatus ?? false,
+      },
+      module1_feasibility: {
+        village_context: vc,
+        marketReach: m1.marketReach,
+        opportunityAnalysis: m1.opportunityAnalysis,
+        swotAnalysis: m1.swotAnalysis,
+        productMarketValue: m1.productMarketValue,
+        competitorDensity: m1.competitorDensity
+      },
+      module2_financial: m2
+    };
+
+    sessionStorage.setItem('vyapaarsathi_report', JSON.stringify(normalizedReport));
+    setReportData(normalizedReport);
+    setCurrentPage('report');
+    window.history.pushState({}, '', '/report');
+  };
+
+  const handleLoginSuccess = (user, token) => {
+    setCurrentUser(user);
+    handleNavigate('assess');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    localStorage.removeItem('vyapaarsathi_token');
+    localStorage.removeItem('vyapaarsathi_user');
+    setCurrentUser(null);
+    handleNavigate('home');
+  };
+
+  const handleDownloadPdf = () => {
+    window.print();
+  };
+
+  const { dashboard_kpis, module1_feasibility, module2_financial } = reportData || {};
+
+  return (
+    <div className="min-h-screen w-full max-w-full bg-[#F6FCFD] text-slate-900 flex flex-col font-sans overflow-x-hidden">
+      {/* 1. Global Sovereign Header */}
+      <Header
+        currentUser={currentUser}
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
+        selectedLang={selectedLang}
+        onLangChange={setSelectedLang}
+        onDownloadPdf={handleDownloadPdf}
+        onOpenAiChat={() => setShowLiveVoice(true)}
+        onLogout={handleLogout}
+      />
+
+      {/* 2. Main Page Content */}
+      <main className="flex-1 flex flex-col w-full max-w-full overflow-x-hidden">
+        {currentPage === 'home' && (
+          <LandingPage
+            currentUser={currentUser}
+            selectedLang={selectedLang}
+            onStartAssessment={() => handleNavigate('assess')}
+            onGoToLogin={() => handleNavigate('login')}
+          />
+        )}
+
+        {currentPage === 'login' && (
+          <LoginPage
+            selectedLang={selectedLang}
+            onLoginSuccess={handleLoginSuccess}
+            onCancel={() => handleNavigate('home')}
+          />
+        )}
+
+        {currentPage === 'assess' && (
+          <AssessmentForm
+            defaultUser={currentUser}
+            selectedLang={selectedLang}
+            onSubmit={handleStartProcessing}
+            onCancel={() => handleNavigate('home')}
+          />
+        )}
+
+        {currentPage === 'processing' && (
+          <ProcessingScreen
+            payload={assessmentPayload}
+            onSuccess={handleAssessmentComplete}
+            onError={() => setCurrentPage('assess')}
+          />
+        )}
+
+        {/* Report View: Empty State */}
+        {currentPage === 'report' && !reportData && (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 bg-slate-50 min-h-[550px]">
+            <div className="max-w-md w-full p-8 rounded-2xl bg-white border border-slate-200 shadow-sm text-center">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-[#0B2545] flex items-center justify-center mx-auto mb-4 border border-blue-100">
+                <FileText className="w-7 h-7" />
+              </div>
+              <h2 className="text-xl font-black text-slate-900 mb-1">
+                {t.noReportTitle}
+              </h2>
+              <h3 className="text-sm font-semibold text-slate-600 mb-4">
+                {t.noReportSubtitle}
+              </h3>
+              <p className="text-xs text-slate-500 mb-8 leading-relaxed">
+                {t.noReportDesc}
+              </p>
+              <button
+                type="button"
+                onClick={() => handleNavigate('assess')}
+                className="w-full py-3.5 rounded-xl bg-[#0B2545] hover:bg-[#133E68] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4 text-amber-400" />
+                <span>{t.btnStartAssessment}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Report View: Active Generated Report */}
+        {currentPage === 'report' && reportData && (
+          <div className="flex-1 flex flex-col">
+            {/* Top Dossier Summary Banner */}
+            <section className="bg-white border-b border-slate-200 py-6 px-6 shadow-xs">
+              <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
+                      {t.dossierLabel}{dashboard_kpis?.assessment_id || '101'}
+                    </span>
+                    <h1 className="text-xl font-black text-slate-900">
+                      {dashboard_kpis?.enterprise_type || 'Micro Enterprise Assessment'}
+                    </h1>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {t.verifiedReport}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-2">
+                    Applicant: <strong>{dashboard_kpis?.owner_name || currentUser?.name || 'Applicant'}</strong> • Village: <strong>{dashboard_kpis?.village_name}, {dashboard_kpis?.district_name}</strong> • Scheme: <strong>{dashboard_kpis?.scheme_name}</strong>
+                  </p>
+                </div>
+
+                {/* Key Financial Badges */}
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <div className="text-xs text-slate-500">{t.totalCostLabel}</div>
+                    <div className="text-lg font-black text-slate-900 mt-0.5">
+                      ₹{Number(dashboard_kpis?.project_cost || 1000000).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  <div className="h-8 w-px bg-slate-200" />
+                  <div className="text-right">
+                    <div className="text-xs text-slate-500">{t.loanAmountLabel}</div>
+                    <div className="text-lg font-black text-blue-700 mt-0.5">
+                      ₹{Number(dashboard_kpis?.loan_amount || 900000).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+                  <div className="text-right hidden sm:block">
+                    <div className="text-xs text-slate-500">{t.marginLabel}</div>
+                    <div className="text-lg font-black text-emerald-700 mt-0.5">
+                      ₹{Number(dashboard_kpis?.margin_money || 100000).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Sticky Dossier Tabs Navigation */}
+            <nav className="sticky top-28 z-40 bg-white border-b border-slate-200 px-6 shadow-xs no-print">
+              <div className="max-w-7xl mx-auto flex overflow-x-auto gap-3 py-3">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('feasibility')}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    activeTab === 'feasibility'
+                      ? 'bg-[#0B2545] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>{t.tabFeasibility}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('financial')}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    activeTab === 'financial'
+                      ? 'bg-[#0B2545] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Calculator className="w-4 h-4" />
+                  <span>{t.tabFinancial}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('risk')}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    activeTab === 'risk'
+                      ? 'bg-[#0B2545] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>{t.tabRisk}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('schemes')}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    activeTab === 'schemes'
+                      ? 'bg-[#0B2545] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Building2 className="w-4 h-4" />
+                  <span>{t.tabSchemes}</span>
+                </button>
+              </div>
+            </nav>
+
+            {/* Main Tab Content Area with Breathing Space */}
+            <main className="max-w-7xl mx-auto w-full px-6 py-8 flex-1">
+              {activeTab === 'feasibility' && (
+                <TabFeasibility
+                  reportData={module1_feasibility}
+                  dashboardKpis={dashboard_kpis}
+                  selectedLang={selectedLang}
+                />
+              )}
+
+              {activeTab === 'financial' && (
+                <TabFinancial
+                  module2Result={module2_financial}
+                  selectedLang={selectedLang}
+                  onMarginChange={(newMargin) => {}}
+                />
+              )}
+
+              {activeTab === 'risk' && (
+                <TabRisk
+                  module1Report={module1_feasibility}
+                  module2Result={module2_financial}
+                  dashboardKpis={dashboard_kpis}
+                  selectedLang={selectedLang}
+                />
+              )}
+
+              {activeTab === 'schemes' && (
+                <TabSchemes
+                  module2Result={module2_financial}
+                  selectedLang={selectedLang}
+                  onOpenSchemeSearch={() => setShowSchemeModal(true)}
+                />
+              )}
+            </main>
+
+            {/* AI Assistant Drawer & Voice Modal */}
+            <ChatDrawer
+              assessmentId={dashboard_kpis?.assessment_id || 101}
+              preferredLang={selectedLang}
+              onOpenLiveVoice={() => setShowLiveVoice(true)}
+            />
+
+            <LiveVoiceModal
+              assessmentId={dashboard_kpis?.assessment_id || 101}
+              isOpen={showLiveVoice}
+              onClose={() => setShowLiveVoice(false)}
+              preferredLang={selectedLang}
+            />
+
+            {/* Schemes Recommendation Modal */}
+            <SchemeSearchModal
+              assessmentId={dashboard_kpis?.assessment_id || 101}
+              isOpen={showSchemeModal}
+              onClose={() => setShowSchemeModal(false)}
+              defaultCategory={reportData?.applicantDetails?.socialCategory || dashboard_kpis?.socialCategory || 'OBC'}
+              applicantDetails={reportData?.applicantDetails || assessmentPayload}
+            />
+          </div>
+        )}
+      </main>
+
+      {/* 3. Official Sovereign Government PageFooter */}
+      <PageFooter selectedLang={selectedLang} />
+    </div>
+  );
+}
+
+export default App;

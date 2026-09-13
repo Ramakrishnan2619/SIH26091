@@ -1,0 +1,58 @@
+================================================================================
+VyapaarSathi (SIH 26091) — Workflow & Calculation Spec: Module 1 & Module 2
+================================================================================
+
+1. MODULE 1 — HYPER-LOCAL FEASIBILITY WORKFLOW
+--------------------------------------------------------------------------------
+- User inputs: Margin Capital, Category, Age, Description, Village/GPS.
+- Layer 1 Query:
+  * Google Area Insights API (POST areainsights.googleapis.com/v1:computeInsights) as primary.
+  * Google Places API (New) for POI details and locations.
+  * Fallback: If live competitors < 2, calculate modeled estimate using:
+    ceil((Village Population / 250) * Sector Ratio).
+  * Flag: is_modeled_estimate is nested directly inside module1_report.competitor_mapping.
+- Layer 2 Query: Local SQLite lookup on village_lgd_code.
+- Layer 3 Synthesis: Vertex AI Gemini 2.5 Flash grounded in Layer 1 + Layer 2 data.
+
+2. MODULE 2 — FINANCIAL STRUCTURING & AMORTIZATION SPEC
+--------------------------------------------------------------------------------
+- Project Cost Derivation:
+  Project Cost = Margin Capital / 0.10
+
+- Scheme Routing:
+  * If Project Cost <= 1,40,000.00:
+    -> Micro Finance Scheme (NSFDC Mahila Samriddhi / Micro-credit)
+    -> Interest Rate = 6.5% p.a.
+    -> Loan Cap = min(0.90 * Project Cost, 1,25,000.00)
+    -> Tenure = 36 months (12 quarters)
+    -> Moratorium = 3 months (1 quarter)
+    -> Repayment Quarters (n) = 12 - 1 = 11 quarters
+  * If 1,40,000.00 < Project Cost <= 50,00,000.00:
+    -> Term Loan Scheme
+    -> Interest Rate = 8.0% p.a.
+    -> Loan Cap = min(0.90 * Project Cost, 45,00,000.00)
+    -> Tenure = 84 months (28 quarters)
+    -> Moratorium = 6 months (2 quarters)
+    -> Repayment Quarters (n) = 28 - 2 = 26 quarters
+  * If Project Cost > 50,00,000.00:
+    -> Ineligible (Exceeds maximum scheme ceiling)
+
+- Moratorium Interest Policy (OPTION B — SERVICED INTEREST):
+  * During moratorium quarters, the beneficiary pays quarterly accrued interest:
+    Interest_Due = Principal * r (where r = annual_rate / 4 / 100)
+    Principal_Paid = 0.00
+    Total_Installment = Interest_Due
+    Closing_Balance = Opening_Balance
+  * Interest is SERVICED quarterly, NOT capitalized into principal.
+  * Post-moratorium, Equal Quarterly Installments (EQI) begin:
+    EQI = P * [ r * (1 + r)^n ] / [ (1 + r)^n - 1 ]
+    Where P = Loan Amount, n = Total Quarters - Moratorium Quarters.
+  * Closing balance reaches exactly 0.00 at the final quarter.
+
+- Canonical FOIR & Verdict Mapping:
+  * Monthly Debt = EQI / 3
+  * FOIR % = (Monthly Debt / Monthly Net Profit) * 100
+  * Bands:
+    <= 35.00%           -> code: "SAFE",                  badge: "GREEN",  label: "Safe Affordability"
+    35.01% to 50.00%    -> code: "TIGHT",                 badge: "YELLOW", label: "Moderate Caution"
+    > 50.00%            -> code: "HIGH_FINANCIAL_BURDEN", badge: "RED",    label: "High Financial Burden"

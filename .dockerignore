@@ -1,0 +1,11 @@
+.git
+.gitignore
+.venv
+target
+frontend/node_modules
+frontend/dist
+client_secret_*.json
+sih26-app-sa-key.json
+.env
+.env.local
+*.log

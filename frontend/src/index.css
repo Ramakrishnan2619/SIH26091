@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  /* Aqua Blue (UX4G Digital India Standard) */
+  --eagle-green: #006B7A;
+  --wintergreen-dream: #009DB3;
+  --powder-blue: #02C6E1;
+  --columbia-blue: #79E4F3;
+  --azureish-white: #A8EFF9;
+  --azureish-white-bg: #CBF9FF;
+  --page-bg-tint: #F4FCFD;
+
+  /* Global Base Tokens */
+  --deep-blue: #1D0A69;
+  --bright-gray: #EBEAEA;
+  --anti-flash-white: #F1F1F1;
+  --rhythm: #3D4043;
+  --white: #FFFFFF;
+  --black: #150202;
+  --profile-border: #D5CBBD;
+  --profile-card-secondary: #DBEBEB;
+
+  /* Semantic Verdict Tokens */
+  --status-safe: #15803D;
+  --status-caution: #B45309;
+  --status-risk: #B91C1C;
+
+  /* Sizing & Typography */
+  --font-family-base: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', sans-serif;
+  --touch-target-min-height: 48px;
+
+  font-family: var(--font-family-base);
+  color: #150202;
+  background-color: #F6FCFD;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #F6FCFD;
+  color: #150202;
+  font-family: var(--font-family-base);
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+/* Enforce 48px Minimum Touch Target on interactive elements */
+.touch-target {
+  min-height: 48px;
+}
+
+/* Custom Card Utilities with Aqua-Tinted Elevation */
+.aqua-card {
+  background: #FFFFFF;
+  border: 1px solid #79E4F3;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 107, 122, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease-in-out;
+}
+
+.aqua-card:hover {
+  box-shadow: 0 8px 20px -4px rgba(0, 107, 122, 0.14);
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Print Styling for PDF Dossier */
+@media print {
+  body {
+    background: #FFF;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

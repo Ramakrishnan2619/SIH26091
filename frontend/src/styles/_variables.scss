@@ -1,0 +1,33 @@
+// --- Global Base ---
+$deep-blue: #1D0A69;
+$bright-gray: #EBEAEA;
+$anti-flash-white: #f1f1f1;
+$rhythm: #3D4043;
+$white: #FFFFFF;
+$black: #150202;
+$black-pure: #000000;
+$profile-border-color: #D5CBBD;
+$profile-card-secondary: #DBEBEB;
+
+// --- Active Mode: Aqua Blue (UX4G Digital India Standard) ---
+$banner-transparency: rgba(0, 157, 179, 0.95);
+$eagle-green: #006B7A;          // Primary Headers, Top Gov Banner, Brand Title
+$wintergreen-dream: #009DB3;    // Primary Action Buttons & CTAs
+$powder-blue: #02C6E1;          // Hover states, focus rings, link highlights
+$columbia-blue: #79E4F3;        // Subtle borders, card dividers
+$azureish-white: #A8EFF9;       // Soft badge backgrounds, active pill highlights
+$azureish-white-bg: #CBF9FF;    // Page background tint
+
+// --- Semantic Verdict Tokens ---
+$status-safe: #15803D;          // 🟢 Safe Affordability
+$status-caution: #B45309;       // 🟡 Caution / Moderate Risk
+$status-risk: #B91C1C;          // 🔴 High Financial Burden / Saturated
+
+// --- Typography ---
+$font-family-base: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', sans-serif;
+$touch-target-min-height: 48px;  // Essential for rural touchscreens
+$border-radius-sm: 8px;
+$border-radius-md: 12px;
+$border-radius-full: 9999px;
+$shadow-card: 0 1px 3px rgba(0, 107, 122, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+$shadow-hover: 0 8px 16px -4px rgba(0, 107, 122, 0.15);
