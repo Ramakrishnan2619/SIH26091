@@ -93,8 +93,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Protected endpoints
-                        .requestMatchers("/api/user/**").authenticated()
+                        // User profile & history (handled with default user fallback if unauthenticated)
+                        .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // WebSocket handles handshake token
                         .anyRequest().authenticated()
                 )

@@ -12,8 +12,21 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
   const sm = supplyMetrics || m1?.supply_metrics || compData?.supplyMetrics || {};
   const nearbyShops = sm?.nearbyPlaces || compData?.nearbyPlaces || m1?.nearbyPlaces || [];
 
-  const lat = Number(vc?.latitude || dashboardKpis?.latitude) || 10.0524;
-  const lng = Number(vc?.longitude || dashboardKpis?.longitude) || 78.3344;
+  const lat = Number(
+    vc?.latitude ||
+    dashboardKpis?.latitude ||
+    m1?.latitude ||
+    reportData?.latitude ||
+    (nearbyShops && nearbyShops.length > 0 ? nearbyShops[0].latitude : null)
+  ) || 10.0524;
+
+  const lng = Number(
+    vc?.longitude ||
+    dashboardKpis?.longitude ||
+    m1?.longitude ||
+    reportData?.longitude ||
+    (nearbyShops && nearbyShops.length > 0 ? nearbyShops[0].longitude : null)
+  ) || 78.3344;
 
   return (
     <div className="space-y-8">
@@ -285,14 +298,14 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-xs text-slate-500">Total Nearby Shops:</span>
               <div className="text-xl font-black text-slate-900 mt-1">
-                {compData?.totalNearbyShops || 12}
+                {nearbyShops.length > 0 ? nearbyShops.length : (compData?.total_nearby_shops ?? compData?.totalNearbyShops ?? 6)}
               </div>
               <span className="text-[11px] text-slate-400">Within 10 km zone</span>
             </div>
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-xs text-slate-500">Direct Competitors:</span>
               <div className="text-xl font-black text-amber-700 mt-1">
-                {compData?.directCompetitors || 3}
+                {compData?.direct_competitors ?? compData?.directCompetitors ?? Math.min(3, Math.max(1, Math.floor((nearbyShops.length || 6) * 0.3)))}
               </div>
               <span className="text-[11px] text-slate-400">Same business type</span>
             </div>
@@ -324,7 +337,7 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
             </div>
           </div>
           <span className="text-xs font-bold text-[#006B7A] bg-[#E5F6F8] px-3 py-1.5 rounded-xl border border-[#79E4F3]">
-            {compData?.totalNearbyShops || nearbyShops.length || 4} Shops Mapped
+            {nearbyShops.length > 0 ? nearbyShops.length : (compData?.total_nearby_shops ?? compData?.totalNearbyShops ?? 6)} Shops Mapped
           </span>
         </div>
 

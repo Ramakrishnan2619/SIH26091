@@ -95,6 +95,8 @@ public class AssessmentService {
                 .createdAt(assessment.getCreatedAt())
                 .ownerName(request.getOwnerName())
                 .businessCategory(request.getBusinessCategory())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .villageContext(m1Resp.getVillageContext())
                 .supplyMetrics(m1Resp.getSupplyMetrics())
                 .module1Report(m1Resp.getModule1Report())

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 @Slf4j
@@ -175,15 +176,19 @@ public class GoogleMapsService {
                 nearbyPlaces = generateCategorySpecificShops(lat, lng, businessCategory, modeledCount);
             }
 
+            int finalCount = nearbyPlaces != null && !nearbyPlaces.isEmpty() ? nearbyPlaces.size() : modeledCount;
+
             return FeasibilityReportResponse.SupplyMetricsDto.builder()
-                    .competitorDensityCount(modeledCount)
+                    .competitorDensityCount(finalCount)
                     .dataSource("Government Enterprise Density Records (10 km Catchment)")
                     .nearbyPlaces(nearbyPlaces)
                     .build();
         }
 
+        int finalLiveCount = nearbyPlaces != null && !nearbyPlaces.isEmpty() ? nearbyPlaces.size() : competitorCount;
+
         return FeasibilityReportResponse.SupplyMetricsDto.builder()
-                .competitorDensityCount(competitorCount)
+                .competitorDensityCount(finalLiveCount)
                 .dataSource("Google Maps Business Directory")
                 .nearbyPlaces(nearbyPlaces)
                 .build();
@@ -220,6 +225,7 @@ public class GoogleMapsService {
         if (cat.contains("textile") || cat.contains("tailor") || cat.contains("apparel")) return "clothing_store";
         if (cat.contains("repair")) return "car_repair";
         if (cat.contains("metal") || cat.contains("carpentry")) return "hardware_store";
+        if (cat.contains("craft") || cat.contains("handloom") || cat.contains("artisan")) return "art_gallery";
         return "store";
     }
 
@@ -300,6 +306,57 @@ public class GoogleMapsService {
                     new String[]{"Balaji Agro Dairy Equipment", "Dairy Equipment", "North Gate"},
                     new String[]{"Murugan Farm Milk Center", "Milk Retail", "Car Street"},
                     new String[]{"Sakthi Pure Cow Milk Point", "Dairy Depot", "West Line"}
+            );
+        } else if (cat.contains("craft") || cat.contains("handloom") || cat.contains("artisan") || cat.contains("pottery")) {
+            directTemplates = List.of(
+                    new String[]{"Sri Meenakshi Handloom & Weaving Center", "Handloom Weaving Unit", "Temple Sannathi Street"},
+                    new String[]{"Gramin Clay & Pottery Craft Workshop", "Artisan Pottery Works", "Lake Bund Road"},
+                    new String[]{"Kaveri Bamboo & Cane Craft Works", "Handicrafts & Basketry", "Weekly Shandy Corner"}
+            );
+            alliedTemplates = List.of(
+                    new String[]{"Khadi & Village Industries Sales Depot", "Khadi & Handloom", "Panchayat Office Link"},
+                    new String[]{"Sri Ram Artisan Tool & Raw Material Mart", "Artisan Supplies", "Market Cross Road"},
+                    new String[]{"Panchayat Traditional Weavers Cooperative", "Cooperative Society", "Main Bazaar"},
+                    new String[]{"Tamil Nadu Handicraft Development Counter", "Handicraft Emporium", "Bus Stand Road"},
+                    new String[]{"Muthu Natural Dyes & Cotton Yarn Depot", "Yarn Supplier", "East Car Street"},
+                    new String[]{"Murugan Brass Artware & Metal Crafts", "Metal Handicrafts", "North Street"},
+                    new String[]{"Kisan Jute & Eco Bags Workshop", "Eco Crafts", "Station Road"},
+                    new String[]{"Sakthi Terracotta & Decorative Crafts", "Terracotta Works", "Taluk Link Road"},
+                    new String[]{"Annamalai Wooden Toy & Sculpture Center", "Wood Carving", "Bypass Junction"}
+            );
+        } else if (cat.contains("metal") || cat.contains("carpentry") || cat.contains("wood")) {
+            directTemplates = List.of(
+                    new String[]{"Selvam Carpentry & Wooden Furniture Mart", "Carpentry & Furniture", "Main Road"},
+                    new String[]{"Sri Balaji Grill & Metal Fabrication Works", "Metal Fabrication", "Industrial Link"},
+                    new String[]{"Arun Wood Works & Door Framing Unit", "Woodworking Workshop", "Bazaar Street"}
+            );
+            alliedTemplates = List.of(
+                    new String[]{"Kisan Timber & Teak Wood Depot", "Timber Yard", "Bypass Road"},
+                    new String[]{"Sri Ram Hardware, Screws & Power Tools", "Hardware Supplies", "Market Cross"},
+                    new String[]{"Panchayat Welding Electrodes & Gas Center", "Welding Supplies", "Station Road"},
+                    new String[]{"Muthu Plywood & Sheet Glass Mart", "Building Materials", "Bus Stand Road"},
+                    new String[]{"Kaveri Steel Rods & Metal Profiles", "Steel Mart", "Taluk Road"},
+                    new String[]{"Murugan Paints & Wood Polish Depot", "Paints & Finish", "East Street"},
+                    new String[]{"Sakthi Cutting Blades & Machine Tools", "Tools & Machinery", "North Gate"},
+                    new String[]{"Annamalai Lathe & Fitting Works", "Machining Services", "Car Street"},
+                    new String[]{"Balaji Iron & Hardware Store", "Iron & Hardware", "West Street"}
+            );
+        } else if (cat.contains("repair") || cat.contains("service")) {
+            directTemplates = List.of(
+                    new String[]{"Sri Murugan Auto & Two-Wheeler Service", "Motorcycle Repair", "Main Junction"},
+                    new String[]{"Selvam Motor Pump & Electrical Rewinding", "Electrical & Pump Repair", "Panchayat Line"},
+                    new String[]{"QuickFix Electronics & Home Appliance Care", "Appliance Service", "Bus Stand Road"}
+            );
+            alliedTemplates = List.of(
+                    new String[]{"Kisan Two-Wheeler Genuine Spare Parts", "Auto Spares", "Station Road"},
+                    new String[]{"Sri Ram Electrical Wires & Hardware Mart", "Electrical Goods", "Market Cross"},
+                    new String[]{"Panchayat Battery & Inverter Sales/Service", "Battery Care", "Taluk Link"},
+                    new String[]{"Muthu Mobil Oil & Lubricants Depot", "Lubricants", "Bypass Road"},
+                    new String[]{"Kaveri Tool Kit & Bearing Center", "Machinery Spares", "East Street"},
+                    new String[]{"Murugan Welding & Patchwork Point", "Fast Repair", "North Gate"},
+                    new String[]{"Sakthi Mobile Phone & Screen Repair", "Electronics Service", "Car Street"},
+                    new String[]{"Annamalai Tube Vulcanizing & Air Care", "Tyre Service", "West Street"},
+                    new String[]{"Balaji Agro Sprayer & Engine Service", "Agri Machine Repair", "Hospital Road"}
             );
         } else {
             directTemplates = List.of(

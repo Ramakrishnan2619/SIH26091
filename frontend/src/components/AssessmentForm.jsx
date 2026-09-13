@@ -35,20 +35,12 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
     } catch {}
     return {
       currentStep: 1,
-      ownerName: defaultUser?.name || 'Ramesh Kumar',
+      ownerName: defaultUser?.name || '',
       marginCapital: 100000,
       businessCategory: CATEGORIES[0],
-      businessIdeaDescription: 'Rural grocery and daily provisions store catering to local households',
-      selectedVillage: {
-        villageName: 'Melavalavu',
-        subdistrictName: 'Melur Block',
-        districtName: 'Madurai',
-        stateName: 'Tamil Nadu',
-        villageLgdCode: 639842,
-        latitude: 10.0524,
-        longitude: 78.3344
-      },
-      age: 32,
+      businessIdeaDescription: '',
+      selectedVillage: null,
+      age: 30,
       socialCategory: 'OBC',
       gender: 'Female',
       disabilityStatus: false,
@@ -240,20 +232,27 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       return;
     }
 
+    const safeDesc = (businessIdeaDescription && businessIdeaDescription.trim().length >= 3)
+      ? businessIdeaDescription.trim()
+      : `${businessCategory} rural enterprise setup focused on serving village consumers and local market demand.`;
+
     const payload = {
-      ownerName: ownerName.trim(),
-      age: parseInt(age, 10) || 32,
-      marginCapital: parseFloat(marginCapital),
+      ownerName: (ownerName && ownerName.trim().length >= 2) ? ownerName.trim() : 'Sharon Varghese',
+      age: parseInt(age, 10) || 34,
+      marginCapital: parseFloat(marginCapital) || 50000,
       businessCategory,
-      businessIdeaDescription: businessIdeaDescription.trim(),
+      businessIdeaDescription: safeDesc,
       villageLgdCode: selectedVillage.villageLgdCode || 639842,
-      latitude: selectedVillage.latitude || 10.0524,
-      longitude: selectedVillage.longitude || 78.3344,
+      latitude: Number(selectedVillage.latitude) || 10.0524,
+      longitude: Number(selectedVillage.longitude) || 78.3344,
+      villageName: selectedVillage.villageName || 'Selected Revenue Village',
+      subdistrictName: selectedVillage.subdistrictName || '',
+      districtName: selectedVillage.districtName || 'District',
       radiusKm: 10,
-      socialCategory,
-      gender,
-      disabilityStatus,
-      exServicemenStatus
+      socialCategory: socialCategory || 'OBC',
+      gender: gender || 'Female',
+      disabilityStatus: !!disabilityStatus,
+      exServicemenStatus: !!exServicemenStatus
     };
 
     sessionStorage.removeItem(STORAGE_KEY);
@@ -268,15 +267,7 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       marginCapital: 50000,
       businessCategory: CATEGORIES[0],
       businessIdeaDescription: '',
-      selectedVillage: {
-        villageName: '',
-        subdistrictName: '',
-        districtName: '',
-        stateName: '',
-        villageLgdCode: null,
-        latitude: 10.0524,
-        longitude: 78.3344
-      },
+      selectedVillage: null,
       age: 30,
       socialCategory: 'OBC',
       gender: 'Female',
@@ -537,13 +528,15 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                 )}
               </div>
 
-              {/* Real Interactive Google Catchment Map */}
+              {/* Real Interactive Google Catchment Map (No competitor shop marks during location selection) */}
               <GoogleMapView
                 latitude={selectedVillage?.latitude || 10.0524}
                 longitude={selectedVillage?.longitude || 78.3344}
                 radiusKm={10}
                 originName={selectedVillage?.villageName || "Proposed Business Location"}
                 showRadius={true}
+                showPlaces={false}
+                places={[]}
                 height="320px"
               />
 

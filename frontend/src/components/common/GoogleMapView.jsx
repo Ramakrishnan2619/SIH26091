@@ -32,6 +32,7 @@ export function GoogleMapView({
   longitude = 78.3344,
   radiusKm = 10,
   places = [],
+  showPlaces = true,
   originName = "Proposed Enterprise",
   interactive = true,
   height = "360px",
@@ -50,37 +51,8 @@ export function GoogleMapView({
   const latNum = Number(latitude) || 10.0524;
   const lngNum = Number(longitude) || 78.3344;
 
-  // Synthesize realistic nearby shops if places array is empty (for rural demonstrations)
-  const displayPlaces = places && places.length > 0 ? places : [
-    {
-      name: "Sri Krishna Rural Provisions & Store",
-      address: "Main Market Junction, Near Gram Panchayat",
-      latitude: latNum + 0.0065,
-      longitude: lngNum + 0.0082,
-      types: ["grocery_or_supermarket", "retail_store"]
-    },
-    {
-      name: "Shree Murugan Daily Needs & Supplies",
-      address: "Bus Stand Road, Ward 4",
-      latitude: latNum - 0.0084,
-      longitude: lngNum + 0.0071,
-      types: ["general_store", "convenience_store"]
-    },
-    {
-      name: "Lakshmi Enterprise & Collection Centre",
-      address: "Opposite Primary Agricultural Cooperative Bank",
-      latitude: latNum + 0.0121,
-      longitude: lngNum - 0.0094,
-      types: ["hardware_store", "wholesale"]
-    },
-    {
-      name: "Kaveri Agro & Consumer Mart",
-      address: "Taluk Highway Link, Melavalavu",
-      latitude: latNum - 0.0142,
-      longitude: lngNum - 0.0062,
-      types: ["agro_service", "store"]
-    }
-  ];
+  // Only display shops if explicitly requested and places are provided
+  const displayPlaces = (showPlaces && Array.isArray(places) && places.length > 0) ? places : [];
 
   // Initialize and update Leaflet Map
   useEffect(() => {
@@ -127,27 +99,27 @@ export function GoogleMapView({
       }).addTo(map);
     }
 
-    // Custom HTML Marker Icons
+    // Custom HTML Marker Icons: Proposed Enterprise marked with Red Star Circle as requested
     const originIcon = L.divIcon({
       className: 'custom-origin-icon',
       html: `
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-          <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(0, 157, 179, 0.25); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-          <div style="width: 24px; height: 24px; border-radius: 50%; background: #006B7A; border: 3px solid #FFFFFF; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 11px;">
+          <div style="position: absolute; width: 40px; height: 40px; border-radius: 50%; background: rgba(239, 68, 68, 0.35); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="width: 26px; height: 26px; border-radius: 50%; background: #DC2626; border: 3px solid #FFFFFF; box-shadow: 0 4px 12px rgba(220,38,38,0.5); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 13px;">
             ★
           </div>
         </div>
       `,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     });
 
     const originMarker = L.marker([latNum, lngNum], { icon: originIcon }).addTo(map);
     originMarker.bindPopup(`
       <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 4px; min-width: 180px;">
-        <div style="font-size: 13px; font-weight: 800; color: #006B7A;">${originName}</div>
-        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Proposed Enterprise Center</div>
-        <div style="margin-top: 6px; font-size: 10px; background: #E5F6F8; color: #006B7A; padding: 3px 6px; border-radius: 6px; font-weight: 700; display: inline-block;">
+        <div style="font-size: 13px; font-weight: 800; color: #DC2626;">${originName}</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Your Enterprise Location (GPS Center)</div>
+        <div style="margin-top: 6px; font-size: 10px; background: #FEE2E2; color: #DC2626; padding: 3px 6px; border-radius: 6px; font-weight: 700; display: inline-block;">
           Center of ${radiusKm}km Catchment
         </div>
       </div>
@@ -245,10 +217,12 @@ export function GoogleMapView({
       <div className="bg-white px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 z-10">
         <div className="flex items-center gap-2 text-xs font-bold text-[#006B7A]">
           <Compass className="w-4 h-4 text-[#009DB3]" />
-          <span>Nearby Business Density & Market Map ({radiusKm} km)</span>
-          <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-            {displayPlaces.length} Mapped Shops
-          </span>
+          <span>{displayPlaces.length > 0 ? `Nearby Business Density & Market Map (${radiusKm} km)` : `Local Market Area (${radiusKm} km Radius)`}</span>
+          {displayPlaces.length > 0 && (
+            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+              {displayPlaces.length} Mapped Shops
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -361,9 +335,9 @@ export function GoogleMapView({
       {/* 4. Bottom Legend Strip */}
       <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600 z-10">
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#006B7A]" />
-            <span>Proposed Enterprise</span>
+          <span className="flex items-center gap-1.5 font-bold text-slate-800">
+            <span className="w-3.5 h-3.5 rounded-full bg-[#DC2626] border border-white shadow-xs flex items-center justify-center text-[8px] text-white font-bold">★</span>
+            <span>Your Business Location</span>
           </span>
           <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#EA4335]" />

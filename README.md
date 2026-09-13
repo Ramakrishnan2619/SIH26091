@@ -1,12 +1,17 @@
 # VyapaarSathi
 
-National Rural Enterprise Feasibility Assessment & Concessional Credit Portal  
+National Rural Enterprise Feasibility Assessment & Concessional Credit Portal
 Developed for the Ministry of Social Justice and Empowerment (MoSJE), Government of India.
+
+### Live Demo
+
+**[https://vyapaarsathi-862234198628.asia-south1.run.app](https://vyapaarsathi-862234198628.asia-south1.run.app)**
 
 ---
 
 ## Table of Contents
 
+- [Live Demo](#-live-demo)
 - [About The Project](#about-the-project)
 - [Key Features](#key-features)
 - [System Architecture](#system-architecture)
@@ -63,6 +68,7 @@ The application is structured into a modern decoupled architecture:
 ## Technology Stack
 
 ### Frontend
+
 - React 18
 - Vite
 - Tailwind CSS
@@ -70,6 +76,7 @@ The application is structured into a modern decoupled architecture:
 - Canvas Confetti
 
 ### Backend
+
 - Java 21
 - Spring Boot 3.3
 - Spring Security (JWT & Google OAuth 2.0)
@@ -78,6 +85,7 @@ The application is structured into a modern decoupled architecture:
 - Maven
 
 ### Cloud & DevOps
+
 - Google Cloud Run (Serverless Container Runtime)
 - Google Artifact Registry
 - Docker Multi-Stage Builds
@@ -127,34 +135,34 @@ LAYER2_DB_PATH=Optimized DB for Layer 2/village_census.db
 ### Running the Backend
 
 1. Navigate to the project root directory:
+
    ```bash
    cd SIH
    ```
-
 2. Build and run the Spring Boot application using Maven:
+
    ```bash
    mvn clean spring-boot:run
    ```
-
 3. The backend service will start on `http://localhost:8080`.
 
 ### Running the Frontend
 
 1. Navigate to the frontend directory:
+
    ```bash
    cd frontend
    ```
-
 2. Install client dependencies:
+
    ```bash
    npm install
    ```
-
 3. Start the Vite development server:
+
    ```bash
    npm run dev
    ```
-
 4. Open your browser and access `http://localhost:5173`. The Vite dev server proxies `/api` requests to the configured backend.
 
 ---
@@ -195,17 +203,17 @@ gcloud run deploy vyapaarsathi \
 
 ## API Reference
 
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/auth/register` | `POST` | Register new citizen or field officer account |
-| `/api/auth/login` | `POST` | Authenticate with email/password and receive JWT |
-| `/oauth2/authorization/google` | `GET` | Initiate Google OAuth 2.0 authentication flow |
-| `/api/assess/autocomplete` | `GET` | Autocomplete village by prefix and state/district |
-| `/api/assess/metrics` | `POST` | Fetch village demographics, population, and competitor density |
-| `/api/assess/complete` | `POST` | Execute full feasibility assessment and loan structuring |
-| `/api/finance/calculate` | `POST` | Compute 20-quarter amortization table and financial KPIs |
-| `/api/schemes/search` | `POST` | Search matching apex corporation concessional schemes |
-| `/api/chat/message` | `POST` | Send conversational query to AI Credit Sahayak |
+| Endpoint                         | Method   | Description                                                    |
+| :------------------------------- | :------- | :------------------------------------------------------------- |
+| `/api/auth/register`           | `POST` | Register new citizen or field officer account                  |
+| `/api/auth/login`              | `POST` | Authenticate with email/password and receive JWT               |
+| `/oauth2/authorization/google` | `GET`  | Initiate Google OAuth 2.0 authentication flow                  |
+| `/api/assess/autocomplete`     | `GET`  | Autocomplete village by prefix and state/district              |
+| `/api/assess/metrics`          | `POST` | Fetch village demographics, population, and competitor density |
+| `/api/assess/complete`         | `POST` | Execute full feasibility assessment and loan structuring       |
+| `/api/finance/calculate`       | `POST` | Compute 20-quarter amortization table and financial KPIs       |
+| `/api/schemes/search`          | `POST` | Search matching apex corporation concessional schemes          |
+| `/api/chat/message`            | `POST` | Send conversational query to AI Credit Sahayak                 |
 
 ---
 
@@ -229,5 +237,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-VyapaarSathi Project Team  
+VyapaarSathi Project Team
 Repository: [https://github.com/Varghese778/SIH26091](https://github.com/Varghese778/SIH26091)

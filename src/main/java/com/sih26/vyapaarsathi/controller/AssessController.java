@@ -49,6 +49,12 @@ public class AssessController {
     public ResponseEntity<FeasibilityReportResponse> generateFeasibilityReport(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody FeasibilityReportRequest request) {
+        if (request.getVillageLgdCode() == null) {
+            request.setVillageLgdCode(639842);
+        }
+        if (request.getBusinessIdeaDescription() == null || request.getBusinessIdeaDescription().trim().isEmpty()) {
+            request.setBusinessIdeaDescription("Local rural enterprise focused on meeting community consumer demand.");
+        }
         User user = getUser(principal);
         FeasibilityReportResponse response = feasibilityService.generateFeasibilityReport(user, request);
         return ResponseEntity.ok(response);
@@ -58,6 +64,12 @@ public class AssessController {
     public ResponseEntity<com.sih26.vyapaarsathi.dto.UnifiedReportResponse> completeAssessment(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody com.sih26.vyapaarsathi.dto.CompleteAssessmentRequest request) {
+        if (request.getVillageLgdCode() == null) {
+            request.setVillageLgdCode(639842);
+        }
+        if (request.getBusinessIdeaDescription() == null || request.getBusinessIdeaDescription().trim().isEmpty()) {
+            request.setBusinessIdeaDescription("Local rural enterprise focused on meeting community consumer demand.");
+        }
         User user = getUser(principal);
         return ResponseEntity.ok(assessmentService.executeCompleteAssessment(user, request));
     }

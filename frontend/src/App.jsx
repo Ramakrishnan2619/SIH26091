@@ -64,6 +64,7 @@ function App() {
   });
 
   const [assessmentPayload, setAssessmentPayload] = useState(null);
+  const [assessmentFormKey, setAssessmentFormKey] = useState(1);
   const [showLiveVoice, setShowLiveVoice] = useState(false);
   const [showSchemeModal, setShowSchemeModal] = useState(false);
 
@@ -191,9 +192,15 @@ function App() {
     }
 
     if (targetPage === 'assess') {
-      // If user is opening assessment fresh or requested reset, clear stale draft
+      // If user is opening assessment fresh or requested reset, close previous assessment and start fresh
       if (resetAssess) {
-        sessionStorage.removeItem('vyapaarsathi_assess_draft_v2');
+        try {
+          sessionStorage.removeItem('vyapaarsathi_assess_draft_v2');
+          sessionStorage.removeItem('vyapaarsathi_report');
+        } catch {}
+        setReportData(null);
+        setAssessmentPayload(null);
+        setAssessmentFormKey(k => k + 1);
       }
     }
 
@@ -222,14 +229,21 @@ function App() {
     const m1 = unifiedReport.module1Report || {};
     const m2 = unifiedReport.module2Result || {};
 
+    const targetLat = Number(assessmentPayload?.latitude || unifiedReport.latitude || vc.latitude) || 10.0524;
+    const targetLng = Number(assessmentPayload?.longitude || unifiedReport.longitude || vc.longitude) || 78.3344;
+
     const normalizedReport = {
       assessment_id: unifiedReport.assessmentId,
+      latitude: targetLat,
+      longitude: targetLng,
       dashboard_kpis: {
         assessment_id: unifiedReport.assessmentId,
         village_name: vc.villageName || vc.village_name || 'Selected Village',
         subdistrict_name: vc.subdistrictName || vc.subdistrict_name || '',
         district_name: vc.districtName || vc.district_name || 'District',
         state_name: vc.stateName || 'India',
+        latitude: targetLat,
+        longitude: targetLng,
         enterprise_type: unifiedReport.businessCategory || 'Micro Enterprise',
         project_cost: kpis.totalProjectCost || m2.projectCost || 1000000,
         margin_money: kpis.marginMoney || m2.marginCapital || 100000,
@@ -250,7 +264,13 @@ function App() {
         exServicemenStatus: assessmentPayload?.exServicemenStatus ?? unifiedReport.exServicemenStatus ?? false,
       },
       module1_feasibility: {
-        village_context: vc,
+        latitude: targetLat,
+        longitude: targetLng,
+        village_context: {
+          ...vc,
+          latitude: targetLat,
+          longitude: targetLng
+        },
         marketReach: m1.marketReach,
         opportunityAnalysis: m1.opportunityAnalysis,
         swotAnalysis: m1.swotAnalysis,
@@ -262,6 +282,23 @@ function App() {
     };
 
     sessionStorage.setItem('vyapaarsathi_report', JSON.stringify(normalizedReport));
+
+    try {
+      const historyItem = {
+        assessmentId: normalizedReport.assessment_id || Date.now(),
+        businessCategory: normalizedReport.dashboard_kpis?.enterprise_type || 'Micro Enterprise',
+        villageName: normalizedReport.dashboard_kpis?.village_name || vc?.village_name || 'Melavalavu',
+        districtName: normalizedReport.dashboard_kpis?.district_name || vc?.district_name || 'Madurai',
+        compositeReadinessScore: normalizedReport.dashboard_kpis?.composite_readiness_score || 78,
+        totalProjectCost: normalizedReport.dashboard_kpis?.project_cost || 1000000,
+        createdAt: new Date().toISOString()
+      };
+      const existingHistory = JSON.parse(localStorage.getItem('vyapaarsathi_local_history') || '[]');
+      const filtered = existingHistory.filter(h => h.assessmentId !== historyItem.assessmentId);
+      filtered.unshift(historyItem);
+      localStorage.setItem('vyapaarsathi_local_history', JSON.stringify(filtered));
+    } catch {}
+
     setReportData(normalizedReport);
     setCurrentPage('report');
     window.history.pushState({}, '', '/report');
@@ -269,7 +306,7 @@ function App() {
 
   const handleLoginSuccess = (user, token) => {
     setCurrentUser(user);
-    handleNavigate('assess', user);
+    handleNavigate('assess', user, true);
   };
 
   const handleLogout = async () => {
@@ -308,7 +345,7 @@ function App() {
           <LandingPage
             currentUser={currentUser}
             selectedLang={selectedLang}
-            onStartAssessment={() => handleNavigate('assess')}
+            onStartAssessment={() => handleNavigate('assess', currentUser, true)}
             onGoToLogin={() => handleNavigate('login')}
           />
         )}
@@ -323,6 +360,7 @@ function App() {
 
         {currentPage === 'assess' && (
           <AssessmentForm
+            key={assessmentFormKey}
             defaultUser={currentUser}
             selectedLang={selectedLang}
             onSubmit={handleStartProcessing}
@@ -356,10 +394,10 @@ function App() {
               </p>
               <button
                 type="button"
-                onClick={() => handleNavigate('assess')}
-                className="w-full py-3.5 rounded-xl bg-[#0B2545] hover:bg-[#133E68] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => handleNavigate('assess', currentUser, true)}
+                className="w-full py-3.5 rounded-xl bg-[#006B7A] hover:bg-[#00525E] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <PlusCircle className="w-4 h-4 text-amber-400" />
+                <PlusCircle className="w-4 h-4 text-[#A8EFF9]" />
                 <span>{t.btnStartAssessment}</span>
               </button>
             </div>

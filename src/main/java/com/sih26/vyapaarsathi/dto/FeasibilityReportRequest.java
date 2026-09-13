@@ -30,11 +30,7 @@ public class FeasibilityReportRequest {
     @NotBlank(message = "Business category is required")
     private String businessCategory;
 
-    @NotBlank(message = "Business idea description is required")
-    @Size(min = 10, max = 2000, message = "Description must be between 10 and 2000 characters")
     private String businessIdeaDescription;
-
-    @NotNull(message = "Village LGD code is required")
     private Integer villageLgdCode;
 
     @NotNull(message = "Latitude is required")

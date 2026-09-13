@@ -12,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowRight,
+  ArrowLeft,
+  RefreshCw,
   Clock
 } from 'lucide-react';
 
@@ -81,12 +83,10 @@ const PIPELINE_STAGES = [
 export function ProcessingScreen({ payload, onSuccess, onError }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [elapsedMs, setElapsedMs] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [logs, setLogs] = useState([]);
   const [showTerminal, setShowTerminal] = useState(true);
   const [completedReport, setCompletedReport] = useState(null);
-  const [autoRedirectSecs, setAutoRedirectSecs] = useState(15);
-  const [countdownPaused, setCountdownPaused] = useState(false);
 
   const terminalBoxRef = useRef(null);
 
@@ -94,13 +94,60 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
   const businessCategory = payload?.businessCategory || 'Micro Enterprise';
   const villageName = payload?.villageName || 'Selected Revenue Village';
 
+  const runAssessment = async () => {
+    setIsRetrying(true);
+    setErrorMsg(null);
+    setLogs(prev => [...prev, `[INFO] Submitting evaluation request to AI business engine...`]);
+    try {
+      const token = localStorage.getItem('vyapaarsathi_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Sanitize payload so brief descriptions or missing codes never cause validation errors
+      const sanitizedPayload = {
+        ...payload,
+        ownerName: payload?.ownerName || 'Applicant',
+        age: Number(payload?.age) || 34,
+        gender: payload?.gender || 'Female',
+        socialCategory: payload?.socialCategory || 'OBC',
+        marginCapital: Number(payload?.marginCapital) || 100000,
+        businessCategory: payload?.businessCategory || 'Grocery & Daily Provisions',
+        businessIdeaDescription: (payload?.businessIdeaDescription && payload.businessIdeaDescription.trim().length >= 3)
+          ? payload.businessIdeaDescription.trim()
+          : `${payload?.businessCategory || 'Rural'} micro-enterprise setup providing essential local services and goods.`,
+        villageLgdCode: payload?.villageLgdCode || 639842,
+        latitude: Number(payload?.latitude) || 10.0524,
+        longitude: Number(payload?.longitude) || 78.3344
+      };
+
+      const res = await fetch('/api/assess/complete', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(sanitizedPayload)
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `Server responded with status ${res.status}`);
+      }
+
+      const data = await res.json();
+      setCurrentStep(PIPELINE_STAGES.length);
+      setLogs(prev => [...prev, `[SUCCESS] Complete assessment report ready!`]);
+      setCompletedReport(data);
+    } catch (err) {
+      console.error('Assessment execution failed:', err);
+      setErrorMsg(err.message || 'Failed to generate assessment. Please check network connectivity or try again.');
+      setLogs(prev => [...prev, `[ERROR] Process halted: ${err.message}`]);
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   // Dynamic log emitter with plain language
   useEffect(() => {
-    const startTime = Date.now();
-    const timer = setInterval(() => {
-      setElapsedMs(Date.now() - startTime);
-    }, 100);
-
     const logTemplates = [
       { time: 200, step: 0, text: `Starting business analysis for ${applicantName} (${businessCategory})` },
       { time: 600, step: 0, text: `Target village coordinates set: lat=${payload?.latitude || '10.0524'}, lng=${payload?.longitude || '78.3344'}` },
@@ -121,40 +168,9 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
       }, item.time);
     });
 
-    const runAssessment = async () => {
-      try {
-        const token = localStorage.getItem('vyapaarsathi_token');
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const res = await fetch('/api/assess/complete', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.message || `Server responded with status ${res.status}`);
-        }
-
-        const data = await res.json();
-        setCurrentStep(PIPELINE_STAGES.length);
-        setLogs(prev => [...prev, `[SUCCESS] Complete assessment report ready!`]);
-        setCompletedReport(data);
-      } catch (err) {
-        console.error('Assessment execution failed:', err);
-        setErrorMsg(err.message || 'Failed to generate assessment. Please check network connectivity or try again.');
-        setLogs(prev => [...prev, `[ERROR] Process halted: ${err.message}`]);
-      }
-    };
-
     runAssessment();
 
     return () => {
-      clearInterval(timer);
       logTimeouts.forEach(clearTimeout);
     };
   }, []);
@@ -166,22 +182,8 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
     }
   }, [logs]);
 
-  // Gentle countdown timer when report is ready (user can pause or click immediately)
-  useEffect(() => {
-    if (!completedReport || countdownPaused) return;
-
-    if (autoRedirectSecs <= 0) {
-      onSuccess(completedReport);
-      return;
-    }
-
-    const cd = setInterval(() => {
-      setAutoRedirectSecs(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(cd);
-  }, [completedReport, autoRedirectSecs, countdownPaused]);
-
+  // Gentle progress percentage
+  const isFinished = completedReport || currentStep >= PIPELINE_STAGES.length;
   const progressPct = completedReport 
     ? 100 
     : Math.min(95, Math.round(((currentStep + 1) / (PIPELINE_STAGES.length + 1)) * 100));
@@ -192,9 +194,8 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
         {/* 1. Header Banner */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12 rounded-2xl bg-[#006B7A] flex items-center justify-center text-white shadow-md">
-              <Brain className="w-6 h-6 text-[#79E4F3] animate-pulse" />
-              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-ping" />
+            <div className="w-12 h-12 rounded-2xl bg-[#006B7A] flex items-center justify-center shadow-md shrink-0">
+              <img src="/favicon.svg" alt="VyapaarSathi" className="w-8 h-8 rounded-full" />
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900 tracking-tight">
@@ -207,21 +208,25 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-xs font-bold text-slate-700">Time Elapsed</div>
-              <div className="text-xs font-mono text-[#006B7A] font-semibold">
-                {(elapsedMs / 1000).toFixed(1)}s
-              </div>
-            </div>
-            <div className="w-14 h-14 rounded-full border-4 border-[#CBF9FF] border-t-[#006B7A] flex items-center justify-center animate-spin">
-              <span className="text-xs font-black text-[#006B7A]">{progressPct}%</span>
+            {/* Stationary percentage text with circular ring (stops spinning when 100%) */}
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              <div
+                className={`absolute inset-0 rounded-full border-4 ${
+                  isFinished
+                    ? 'border-emerald-500'
+                    : 'border-[#CBF9FF] border-t-[#006B7A] animate-spin'
+                }`}
+              />
+              <span className={`relative text-xs font-black ${isFinished ? 'text-emerald-700' : 'text-[#006B7A]'}`}>
+                {progressPct}%
+              </span>
             </div>
           </div>
         </div>
 
-        {/* 2. Completion Banner & Action Button when 100% Ready */}
+        {/* 2. Completion Banner & Action Button when 100% Ready (Requires user click) */}
         {completedReport && (
-          <div className="my-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-sm flex flex-wrap items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-300">
+          <div className="my-5 p-5 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-sm flex flex-wrap items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-300">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <CheckCircle2 className="w-6 h-6" />
@@ -231,30 +236,19 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
                   Project Report Completed Successfully!
                 </h4>
                 <p className="text-xs text-emerald-800 mt-0.5">
-                  All 5 evaluation steps verified. Take your time to review the logs below.
+                  All evaluation steps verified. Tap below to view your full feasibility report.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setCountdownPaused(!countdownPaused)}
-                className="text-xs text-slate-600 hover:text-slate-900 font-semibold px-2 py-1 rounded cursor-pointer"
-                title="Pause or resume auto-view"
-              >
-                {countdownPaused ? "▶ Resume Timer" : `⏸ Auto-opens in ${autoRedirectSecs}s`}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onSuccess(completedReport)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#006B7A] hover:bg-[#005561] text-white text-xs font-bold shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95"
-              >
-                <span>View Project Report</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => onSuccess(completedReport)}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#006B7A] hover:bg-[#005561] text-white text-sm font-bold shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95"
+            >
+              <span>View Project Report</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         )}
 
@@ -378,11 +372,41 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           )}
         </div>
 
-        {/* Error Alert */}
+        {/* Error Alert & Retry Action Bar */}
         {errorMsg && (
-          <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMsg}</span>
+          <div className="mt-5 p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 shadow-sm space-y-3 animate-in fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-bold text-rose-950">Evaluation Paused</h4>
+                <p className="text-xs text-rose-800 mt-0.5 leading-relaxed">
+                  {errorMsg.includes('validation')
+                    ? 'Some input fields required adjustment. You can retry now with standard village market defaults, or return to edit your details.'
+                    : errorMsg}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-rose-200">
+              <button
+                type="button"
+                onClick={runAssessment}
+                disabled={isRetrying}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                <span>{isRetrying ? 'Retrying Evaluation...' : 'Retry Evaluation'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onError}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold shadow-2xs transition cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Edit Assessment Details</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

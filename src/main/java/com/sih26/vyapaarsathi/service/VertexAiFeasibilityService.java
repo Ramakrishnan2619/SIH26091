@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Service
@@ -76,7 +77,14 @@ public class VertexAiFeasibilityService {
         assessment.setBusinessIdeaDescription(request.getBusinessIdeaDescription());
         assessment.setCreatedAt(Instant.now());
 
+        if (villageContext != null) {
+            villageContext.setLatitude(request.getLatitude());
+            villageContext.setLongitude(request.getLongitude());
+        }
+
         FeasibilityReportResponse response = FeasibilityReportResponse.builder()
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .villageContext(villageContext)
                 .supplyMetrics(supplyMetrics)
                 .module1Report(module1Report)
@@ -149,7 +157,7 @@ public class VertexAiFeasibilityService {
                 RISK PATTERNS: Market: %s, Seasonal: %s, Operational: %s
 
                 IMPORTANT: Ensure all pricing, distribution channels, and market niches strictly match the exact business category: "%s".
-                For example, if the business is "Poultry & Livestock", do NOT mention dairy or milk; focus on poultry birds, broiler meat, eggs, feed, and veterinary care.
+                For example, if the business is "Poultry & Livestock", focus on poultry birds, broiler meat, and eggs. If "Handicrafts & Handloom", focus on handloom weaving, pottery, and artisan crafts. Do NOT mix categories or mention unrelated sectors.
 
                 Format as JSON with keys:
                 market_reach (consumer_base_population, consumer_base_households, primary_distribution_channels, data_attribution)
@@ -262,6 +270,45 @@ public class VertexAiFeasibilityService {
             );
             priceRange = "₹42.00 - ₹48.00 per litre";
             dailyUnits = 55;
+        } else if (cat.contains("craft") || cat.contains("handloom") || cat.contains("artisan") || cat.contains("pottery")) {
+            channels = List.of(
+                    "Direct counter sales at artisan workshop and local temple market stalls",
+                    "Weekly panchayat haat craft exhibitions and festive pop-up fairs",
+                    "Supply tie-ups with district khadi emporiums and handicraft cooperatives"
+            );
+            niches = List.of(
+                    "High unfulfilled demand for authentic handmade sarees, pottery, and decorative crafts",
+                    "Custom handcrafted ritual items and festival idols for local village celebrations",
+                    "Direct artisan-to-buyer sales eliminating town middleman commission"
+            );
+            priceRange = "₹250.00 - ₹1,800.00 per handmade artisan piece";
+            dailyUnits = 8;
+        } else if (cat.contains("metal") || cat.contains("carpentry") || cat.contains("wood")) {
+            channels = List.of(
+                    "Direct client orders for customized wooden furniture and door frames",
+                    "Local residential safety grill and metal gate fabrication contracts",
+                    "Repair and refurbishment services for farm carts, implements, and household tools"
+            );
+            niches = List.of(
+                    "Reliable local carpentry and welding eliminating costly transport from distant towns",
+                    "Customized durable storage boxes and grain bins for farming families",
+                    "Fast doorstep hinge, lock, and furniture repair services"
+            );
+            priceRange = "₹450.00 - ₹3,500.00 per custom fabrication / furniture piece";
+            dailyUnits = 4;
+        } else if (cat.contains("repair") || cat.contains("service")) {
+            channels = List.of(
+                    "Walk-in workshop repair for two-wheelers, tractors, and agricultural pump motors",
+                    "On-call doorstep electrical wiring, motor rewinding, and appliance maintenance",
+                    "Preventive seasonal servicing for agricultural machinery prior to harvest"
+            );
+            niches = List.of(
+                    "Absence of affordable doorstep mechanic services within the immediate village cluster",
+                    "Emergency breakdown assistance for farm equipment and two-wheelers on rural links",
+                    "Genuine spare parts replacement at transparent village rates"
+            );
+            priceRange = "₹80.00 - ₹650.00 per service / repair order";
+            dailyUnits = 14;
         } else {
             channels = List.of(
                     "Direct walk-in counter sales to local village and hamlet residents",

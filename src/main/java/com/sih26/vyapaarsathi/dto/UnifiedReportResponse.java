@@ -18,6 +18,8 @@ public class UnifiedReportResponse {
     private Instant createdAt;
     private String ownerName;
     private String businessCategory;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
     private FeasibilityReportResponse.VillageContextDto villageContext;
     private FeasibilityReportResponse.SupplyMetricsDto supplyMetrics;
     private FeasibilityReportResponse.Module1ReportDto module1Report;
@@ -40,6 +42,8 @@ public class UnifiedReportResponse {
         private String foirVerdictLabel;
         private String foirBadgeColor;
         private ReadinessRingsDto readinessRings;
+        private BigDecimal latitude;
+        private BigDecimal longitude;
     }
 
     @Data

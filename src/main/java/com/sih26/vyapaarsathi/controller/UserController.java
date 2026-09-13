@@ -26,6 +26,7 @@ public class UserController {
     private final UserService userService;
     private final QuotaService quotaService;
     private final UserRepository userRepository;
+    private final com.sih26.vyapaarsathi.service.AuthService authService;
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
@@ -69,9 +70,9 @@ public class UserController {
 
     private User getUser(UserPrincipal principal) {
         if (principal == null) {
-            throw new ResourceNotFoundException("User not authenticated");
+            return authService.getOrCreateDefaultUser();
         }
         return userRepository.findById(principal.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseGet(authService::getOrCreateDefaultUser);
     }
 }

@@ -120,30 +120,49 @@ export function SettingsPage({
           });
         }
 
-        // 2. Fetch Assessment History
+        // 2. Fetch Assessment History (Merge backend + local persistence so reports are never lost)
+        let mergedHistory = [];
         const historyRes = await fetch('/api/user/history', { headers }).catch(() => null);
         if (historyRes && historyRes.ok) {
           const historyData = await historyRes.json();
-          setHistory(Array.isArray(historyData) ? historyData : []);
-        } else {
-          const cached = sessionStorage.getItem('vyapaarsathi_report');
-          if (cached) {
-            try {
-              const rep = JSON.parse(cached);
-              setHistory([
-                {
-                  assessmentId: rep.assessment_id || 101,
-                  businessCategory: rep.dashboard_kpis?.enterprise_type || 'Micro Enterprise',
-                  villageName: rep.dashboard_kpis?.village_name || 'Melavalavu',
-                  districtName: rep.dashboard_kpis?.district_name || 'Madurai',
-                  compositeReadinessScore: rep.dashboard_kpis?.composite_readiness_score || 78,
-                  totalProjectCost: rep.dashboard_kpis?.project_cost || 1000000,
-                  createdAt: rep.dashboard_kpis?.generated_at || new Date().toISOString()
-                }
-              ]);
-            } catch {}
+          if (Array.isArray(historyData)) {
+            mergedHistory.push(...historyData);
           }
         }
+
+        // Also merge local storage history
+        try {
+          const localHist = JSON.parse(localStorage.getItem('vyapaarsathi_local_history') || '[]');
+          if (Array.isArray(localHist)) {
+            for (const item of localHist) {
+              if (!mergedHistory.some(m => String(m.assessmentId) === String(item.assessmentId))) {
+                mergedHistory.push(item);
+              }
+            }
+          }
+        } catch {}
+
+        // Also merge active session report if not already present
+        const cached = sessionStorage.getItem('vyapaarsathi_report');
+        if (cached) {
+          try {
+            const rep = JSON.parse(cached);
+            const aId = rep.assessment_id || 101;
+            if (!mergedHistory.some(m => String(m.assessmentId) === String(aId))) {
+              mergedHistory.unshift({
+                assessmentId: aId,
+                businessCategory: rep.dashboard_kpis?.enterprise_type || 'Micro Enterprise',
+                villageName: rep.dashboard_kpis?.village_name || 'Melavalavu',
+                districtName: rep.dashboard_kpis?.district_name || 'Madurai',
+                compositeReadinessScore: rep.dashboard_kpis?.composite_readiness_score || 78,
+                totalProjectCost: rep.dashboard_kpis?.project_cost || 1000000,
+                createdAt: rep.dashboard_kpis?.generated_at || new Date().toISOString()
+              });
+            }
+          } catch {}
+        }
+
+        setHistory(mergedHistory);
 
         // 3. Fetch Quota Usage
         const usageRes = await fetch('/api/user/usage', { headers }).catch(() => null);
@@ -217,7 +236,13 @@ export function SettingsPage({
       });
     } catch {}
 
-    setHistory(prev => prev.filter(item => item.assessmentId !== assessmentId));
+    setHistory(prev => prev.filter(item => String(item.assessmentId) !== String(assessmentId)));
+    try {
+      const localHist = JSON.parse(localStorage.getItem('vyapaarsathi_local_history') || '[]');
+      const filtered = localHist.filter(item => String(item.assessmentId) !== String(assessmentId));
+      localStorage.setItem('vyapaarsathi_local_history', JSON.stringify(filtered));
+    } catch {}
+
     setSuccessMsg(`Assessment #${assessmentId} deleted.`);
     setTimeout(() => setSuccessMsg(null), 3000);
   };
@@ -235,6 +260,7 @@ export function SettingsPage({
 
     setHistory([]);
     sessionStorage.removeItem('vyapaarsathi_report');
+    localStorage.removeItem('vyapaarsathi_local_history');
     setSuccessMsg("All past assessment history deleted.");
     setTimeout(() => setSuccessMsg(null), 3000);
   };

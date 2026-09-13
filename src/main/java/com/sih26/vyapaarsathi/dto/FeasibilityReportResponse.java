@@ -19,6 +19,8 @@ import java.util.List;
 public class FeasibilityReportResponse {
 
     private Long assessmentId;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
     private VillageContextDto villageContext;
     private SupplyMetricsDto supplyMetrics;
     private Module1ReportDto module1Report;
@@ -40,6 +42,8 @@ public class FeasibilityReportResponse {
         private BigDecimal districtNdpPerCapita;
         private BigDecimal stateAvgHouseholdSpend;
         private String confidence;
+        private BigDecimal latitude;
+        private BigDecimal longitude;
     }
 
     @Data
