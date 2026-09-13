@@ -1,0 +1,79 @@
+SIH Project 
+
+GCP Project Id : sih26-508313  {its a new id so enable all the IAM access for all the GCP resources which will be used in the project} 
+
+Tech Stack ""
+
+	Framework : Spring Boot with cloud GCP
+	lang : Java 21
+	Build Tool : Maven
+	LLM : Chat - gemini-2.5-flash, live - gemini-live-2.5-flash-native-audio (Applied Rate limits)
+	Database : Google Cloud SQL (MySQL 8.0)
+	Serverless : Unified Docker Container deployed on Google Cloud Run
+        Testing : Only audit the codebase and directly deploy and manual testing will be done on the live interface. 
+	Authentication & Authorization : google's OAuth 2.0 {JWT Session life : 1hr}
+	Logging : Cloud logging 
+""
+
+
+User Flow : 
+
+1. The User logins using the google's Oauth2.0 framework along with normal Sign-up and login options, If google sign then the system retrieves the Profile        pic, Username and Gmail ID.  
+
+2. After Successful login the user is taken to the home page where a brief descriptions of the system is displayed along with try out button at the end of the page.
+
+3. When Clicked on the try out button the page renders and opens up a form for the user to fill along with a button to give access to the User location, which are the inputs for the LLM to process the Module 1 and 2, the form contents "Name, Available Margin Capital, Business Category, Business Idea Description.
+
+4. when the user allows the location the form drags down and the map shows up with users real location shown with a User centered circle of radius 10km.
+
+5. when the user clicks the submit button the loading display renders showing the llm researching and working on the Result, it should show step-to-step process along with the resourced resource which the llm uses 
+
+6. after the output generation "6-Point Report, Scheme + EMI Table, Affordability Verdict (🟢🟡🔴), Break-even target, Base vs Stress-case comparison,  Sources shown" the system saves the results to DB and opens a chat interface at bottom of the result so that the user can ask follow up questions, along with an option to switch to live session (the chat and audio transcripts are saved in db so the user can retrieve the session history. the output should also display all the related business and competitors listed in the 10km location radius.
+
+7. After the results are displayed add "Search for Schemes" button at top corner, when clicked the system asks the user these inputs
+""""
+Primary applicant
+Age
+Gender
+Social category
+Annual/family income
+Education
+Disability status
+Ex-serviceman status
+Residence/domicile
+Existing business
+Previous government subsidy/loan
+Household
+
+For each relevant member:
+
+Relationship
+Age
+Gender
+Social category
+Income
+Disability
+Ex-serviceman status
+Existing business
+Previous scheme benefits
+
+But don't make the user fill 30 fields immediately.
+
+Use progressive questioning.
+
+For example:
+
+Who will own/run this business?
+
+○ Me
+○ My spouse
+○ Joint/family enterprise
+○ Not decided  """" 
+
+
+after the form is filled the llm uses the previous generated output for full context and searches for the government schemes which and identify which eligible household member can legitimately be the beneficiary for the proposed enterprise and which scheme gives the best eligible financial outcome.
+
+8. when the user submits the form the loading screen appears and shows where all the system is researching on to find the Schemes and then provides the respective recommended schemes
+
+9. the user can use the settings page to edit his/her profile, see the llm usage, log out 
+

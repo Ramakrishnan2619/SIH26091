@@ -1,0 +1,43 @@
+# 🎨 Frontend UI/UX Master Checklist (100% Complete & Ready for Handoff)
+
+- [x] **Phase 1: Global Setup, Theming, & Accessibility**
+  - [x] Design Tokens: Aqua Blue Mode (`$eagle-green`, `$wintergreen-dream`, `$powder-blue`, `$azureish-white-bg`)
+  - [x] Typography: Plus Jakarta Sans + Noto Sans (Devanagari, Tamil, Telugu)
+  - [x] Accessibility Toolbar (`Ctrl+F2` modal: Dyslexia mode, ADHD, Invert Colors, Text Resizing, Text-to-Speech, Hide Images)
+  - [x] Language Switcher (EN, HI, TA, TE)
+  - [x] 2G/3G Low-Latency optimizations (pure SVG icons, CSS transforms, fast CDN fonts)
+- [x] **Phase 2: Authentication & Navigation**
+  - [x] Morphic Navbar + Mega Menu (`@motion/nav-mega-menu`)
+  - [x] Google OAuth 2.0 Button with KokonutUI attract-hover effect
+  - [x] Form inputs (48px touch targets, focus rings)
+  - [x] Profile Dropdown (Avatar, JWT 1-hr session countdown, Token usage, Logout)
+  - [x] Toast Stack notifications (`@motion/overlay-toast-stack`)
+- [x] **Phase 3: Home Page & Storytelling**
+  - [x] Hero Section with Staggered Feature Bento (`@motion/bento-staggered`)
+  - [x] 3D Card Flip for Business Stages (Seed -> Launch -> Repay -> Grow)
+  - [x] Testimonials Card Stack (`@motion/testimonials-stack`)
+  - [x] FAQ Section with plus-to-minus morph (`@motion/faq-plus-minus`)
+  - [x] Large "Try Out" CTA button with KokonutUI attract physics
+  - [x] Sticky Reveal Footer (`@motion/footer-sticky-reveal`)
+- [x] **Phase 4: Intake Form & Rapido-Style Map**
+  - [x] Dynamic Calendar for Age selection ([Peanav Interactive Date Picker](https://codepen.io/peanav/pen/DmZEEp))
+  - [x] Floating AI Voice Assistant bar (Waveform & Timer)
+  - [x] Rapido-style Top-Corner Map Component (5km-10km radius circle & competitor pins)
+  - [x] Form submission button (Activated only when all `*` fields confirmed)
+  - [x] Transparent Rotating Ring Loader with step-by-step Gemini status
+- [x] **Phase 5: Unified Advisory Dashboard (Recreated from Reference Image)**
+  - [x] Top Header: User Greeting, Download PDF, AI Support Live Toggle
+  - [x] Smooth Tab Switcher (General Feasibility, Financials & EMI, Risk Matrix, Schemes)
+  - [x] 3-KPI Financial Cards (Project Cost, Margin 10%, Loan 90%)
+  - [x] Break-Even & Revenue Projection Graph (Curve Graph)
+  - [x] Apple Activity Rings for Application Readiness (85%) & Affordability Verdict Badge (🟢 Safe)
+  - [x] Competitor Density & Supplier Contact List (with Carousel Zoom)
+  - [x] 6-Point Risk Matrix Cards
+  - [x] Bottom AI Chat Interface with Native Audio Live Session toggle
+- [x] **Phase 6: Progressive Scheme Search**
+  - [x] Accordion / Slide Questioning (One family member at a time)
+  - [x] Scheme Recommendation Cards with best financial outcome highlighted
+- [x] **Phase 7: Settings & Supporting Pages**
+  - [x] History of Sessions view (offline/interrupted session recovery)
+  - [x] Profile & Gemini Token Usage Analytics
+  - [x] About, Error (404/500), and Contact Pages
