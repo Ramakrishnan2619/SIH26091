@@ -35,6 +35,7 @@ public class FeasibilityReportResponse {
         private String villageName;
         private String subdistrictName;
         private String districtName;
+        private String stateName;
         private Integer population;
         private Integer households;
         private Double literacyRate;

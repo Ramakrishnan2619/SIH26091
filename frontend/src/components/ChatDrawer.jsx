@@ -36,11 +36,25 @@ function formatMessageContent(raw) {
 
 export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const getInitialGreeting = (lang) => {
+    switch (lang) {
+      case 'ta':
+        return "வணக்கம்! நான் வியாபார்சாதி, உங்கள் AI கடன் மற்றும் வணிக உதவியாளர். உங்கள் திட்ட அறிக்கை, தவணை அட்டவணை அல்லது அரசு மானியம் குறித்து என்னிடம் கேளுங்கள்.";
+      case 'hi':
+        return "नमस्ते! मैं व्यापारसाथी, आपका AI क्रेडिट और बिज़नेस सहायक हूँ। अपनी व्यवहार्यता रिपोर्ट, चुकौती अनुसूची या सरकारी सब्सिडी के बारे में कुछ भी पूछें।";
+      case 'te':
+        return "నమస్కారం! నేను వ్యాపార్‌సాథి, మీ AI క్రెడిట్ & బిజినెస్ సహాయకుడిని. మీ నివేదిక, వాయిదాల షెడ్యూల్ లేదా సబ్సిడీల గురించి నన్ను అడగండి.";
+      default:
+        return "Namaste! I am VyapaarSathi, your AI Business & Credit Sahayak. Ask me anything about your feasibility report, repayment schedule, or government subsidies.";
+    }
+  };
+
   const [messages, setMessages] = useState([
     {
       id: 'init-1',
       sender: 'assistant',
-      content: "Namaste! I am VyapaarSathi, your AI Business & Credit Sahayak. Ask me anything about your feasibility report, repayment schedule, or government subsidies.",
+      content: getInitialGreeting(preferredLang),
       isVoice: false,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -48,9 +62,52 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [speakingId, setSpeakingId] = useState(null);
+  const [voices, setVoices] = useState([]);
   const messagesEndRef = useRef(null);
 
-  const suggestionChips = [
+  useEffect(() => {
+    const updateVoices = () => {
+      if ('speechSynthesis' in window) {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) setVoices(v);
+      }
+    };
+    updateVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    setMessages(prev => {
+      if (prev.length === 1 && prev[0].id === 'init-1') {
+        return [{ ...prev[0], content: getInitialGreeting(preferredLang) }];
+      }
+      return prev;
+    });
+  }, [preferredLang]);
+
+  const suggestionChips = preferredLang === 'ta' ? [
+    "முதல் காலாண்டில் வட்டி மட்டும் செலுத்துவது ஏன்?",
+    "முன்கூட்டியே கடனை அடைத்தால் அபராதம் உண்டா?",
+    "இலவச உத்யம் பதிவு செய்வது எப்படி?",
+    "பெண்கள் மற்றும் OBC பிரிவினருக்கு என்ன மானியம் உண்டு?"
+  ] : preferredLang === 'hi' ? [
+    "Q1 में केवल ब्याज का भुगतान क्यों?",
+    "क्या समय से पहले ऋण चुकाने पर पेनल्टी है?",
+    "मुफ्त उद्यम प्रमाणपत्र कैसे प्राप्त करें?",
+    "महिला/ओबीसी हेतु क्या सब्सिडी उपलब्ध है?"
+  ] : preferredLang === 'te' ? [
+    "మొదటి త్రైమాసికంలో వడ్డీ మాత్రమే ఎందుకు?",
+    "ముందుగానే రుణం చెల్లిస్తే జరిమానా ఉంటుందా?",
+    "ఉచిత ఉద్యమ్ సర్టిఫికేట్ ఎలా పొందాలి?",
+    "మహిళలకు/బీసీలకు ఏ సబ్సిడీలు వర్తిస్తాయి?"
+  ] : [
     "Why is my Q1 payment only interest?",
     "Can I repay early without penalty?",
     "How to get free Udyam certificate?",
@@ -103,11 +160,28 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
     const cleanText = text.replace(/[*_#`•]/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
-    utterance.rate = 1.0;
+    utterance.rate = 0.95;
     utterance.pitch = 1.0;
 
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => v.lang.startsWith(preferredLang) || v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
+    const langCode = preferredLang === 'ta' ? 'ta-IN' : preferredLang === 'hi' ? 'hi-IN' : preferredLang === 'te' ? 'te-IN' : 'en-IN';
+    utterance.lang = langCode;
+
+    const allVoices = (voices && voices.length > 0) ? voices : window.speechSynthesis.getVoices();
+    let preferredVoice = allVoices.find(v => {
+      const l = (v.lang || '').replace('_', '-').toLowerCase();
+      const n = (v.name || '').toLowerCase();
+      if (preferredLang === 'ta') {
+        return l === 'ta-in' || l.startsWith('ta') || n.includes('tamil') || n.includes('valluvar') || n.includes('தமிழ்');
+      }
+      if (preferredLang === 'hi') {
+        return l === 'hi-in' || l.startsWith('hi') || n.includes('hindi') || n.includes('हिन्दी') || n.includes('kalpana') || n.includes('hemant');
+      }
+      if (preferredLang === 'te') {
+        return l === 'te-in' || l.startsWith('te') || n.includes('telugu') || n.includes('తెలుగు');
+      }
+      return l === 'en-in' || l.startsWith('en');
+    });
+
     if (preferredVoice) {
       utterance.voice = preferredVoice;
     }
@@ -124,7 +198,7 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
     if (!text || !text.trim()) return;
 
     const trimmed = text.trim();
-    const cleanLower = trimmed.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cleanLower = trimmed.toLowerCase().trim();
 
     const userMessage = {
       id: Date.now().toString(),
@@ -137,12 +211,27 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
 
+    const isGreetingWord = [
+      'hello', 'hi', 'hey', 'namaste', 'vanakkam', 'namaskaram',
+      'வணக்கம்', 'ஹலோ', 'வணக்கங்க',
+      'नमस्ते', 'हेलो', 'नमस्कार',
+      'నమస్కారం', 'హలో'
+    ].includes(cleanLower) || cleanLower.startsWith('வணக்கம்') || cleanLower.startsWith('नमस्ते');
+
     // Fast-path simple greetings without long financial dump
-    if (['hello', 'hi', 'hey', 'namaste', 'vanakkam', 'namaskaram'].includes(cleanLower)) {
+    if (isGreetingWord) {
+      const greetingContent = preferredLang === 'ta' || ['வணக்கம்', 'ஹலோ', 'வணக்கங்க', 'vanakkam'].includes(cleanLower)
+        ? "வணக்கம்! நான் வியாபார்சாதி, உங்கள் AI கடன் மற்றும் வணிக உதவியாளர். உங்கள் தொழில் அறிக்கை, கடன் தவணை அல்லது அரசு திட்டங்கள் குறித்து என்னிடம் கேளுங்கள்."
+        : preferredLang === 'hi' || ['नमस्ते', 'हेलो', 'नमस्कार', 'namaste'].includes(cleanLower)
+        ? "नमस्ते! मैं व्यापारसाथी, आपका AI क्रेडिट और बिज़नेस सहायक हूँ। मैं आपकी रिपोर्ट, ऋण चुकौती या सरकारी योजनाओं में किस प्रकार सहायता कर सकता हूँ?"
+        : preferredLang === 'te' || ['నమస్కారం', 'హలో', 'namaskaram'].includes(cleanLower)
+        ? "నమస్కారం! నేను వ్యాపార్‌సాథి, మీ AI బిజినెస్ మరియు క్రెడిట్ సహాయకుడిని. మీ ప్రాజెక్ట్ నివేదిక లేదా ప్రభుత్వ పథకాల గురించి நான் మీకు ఎలా సహాయపడగలను?"
+        : "Namaste! I am VyapaarSathi, your AI Credit & Business Sahayak. How can I assist you with your business report or loan scheme today?";
+
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'assistant',
-        content: "Namaste! I am VyapaarSathi, your AI Credit & Business Sahayak. How can I assist you with your business report or loan scheme today?",
+        content: greetingContent,
         isVoice: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
@@ -157,7 +246,8 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           assessment_id: assessmentId || 101,
-          content: trimmed
+          content: trimmed,
+          preferred_language: preferredLang || 'en'
         })
       });
 
@@ -183,15 +273,27 @@ export function ChatDrawer({ assessmentId, preferredLang = 'en', onOpenLiveVoice
 
   const fallbackReply = (userQuery) => {
     const lower = userQuery.toLowerCase();
-    let reply = "Based on your verified feasibility report, your loan installment is structured with a 6-month moratorium to protect your working capital.";
-    if (lower.includes("q1") || lower.includes("interest") || lower.includes("moratorium")) {
-      reply = "During your initial 6-month moratorium period, you only service simple interest so your working capital is protected while setting up operations.";
-    } else if (lower.includes("early") || lower.includes("prepay") || lower.includes("penalty")) {
-      reply = "Under MoSJE apex corporations (NSFDC / NBCFDC), there is zero foreclosure or prepayment penalty. You can clear your principal faster anytime.";
-    } else if (lower.includes("udyam") || lower.includes("register")) {
-      reply = "Udyam Registration is 100% free online using your Aadhaar. Along with a Gram Panchayat trade NOC, this completes your statutory eligibility for disbursement.";
-    } else if (lower.includes("subsidy") || lower.includes("women") || lower.includes("sc") || lower.includes("obc")) {
-      reply = "Eligible women entrepreneurs receive a 0.5% interest concession, and back-ended capital subsidies are credited directly into your loan account upon verification.";
+    const isTa = preferredLang === 'ta';
+    let reply = isTa
+      ? "உங்கள் சரிபார்க்கப்பட்ட திட்ட அறிக்கையின்படி, ஆரம்ப 6 மாத கால அவகாசத்துடன் மூலதனச் சுமையைக் குறைக்கும் வகையில் கடன் தவணை அமைக்கப்பட்டுள்ளது."
+      : "Based on your verified feasibility report, your loan installment is structured with a 6-month moratorium to protect your working capital.";
+    
+    if (lower.includes("q1") || lower.includes("interest") || lower.includes("moratorium") || lower.includes("வட்டி")) {
+      reply = isTa
+        ? "ஆரம்ப 6 மாத கால அவகாசத்தில் நீங்கள் குறைந்த எளிய வட்டியை மட்டுமே செலுத்த வேண்டும், இதனால் தொடக்க காலத்தில் மூலதனப் பாதுகாப்பு கிடைக்கும்."
+        : "During your initial 6-month moratorium period, you only service simple interest so your working capital is protected while setting up operations.";
+    } else if (lower.includes("early") || lower.includes("prepay") || lower.includes("penalty") || lower.includes("அபராதம்") || lower.includes("முன்கூட்டியே")) {
+      reply = isTa
+        ? "MoSJE உச்ச நிறுவனங்களின் (NSFDC / NBCFDC) கீழ், கடனை முன்கூட்டியே அடைப்பதற்கு பூஜ்ஜிய அபராதம் (zero foreclosure penalty). நீங்கள் எப்போது வேண்டுமானாலும் அசலை விரைவாகச் செலுத்தலாம்."
+        : "Under MoSJE apex corporations (NSFDC / NBCFDC), there is zero foreclosure or prepayment penalty. You can clear your principal faster anytime.";
+    } else if (lower.includes("udyam") || lower.includes("register") || lower.includes("பதிவு")) {
+      reply = isTa
+        ? "ஆதார் அட்டை மூலம் உத்யம் பதிவு (Udyam Registration) 100% இலவசம். கிராம பஞ்சாயத்து வணிக தடையில்லா சான்றிதழுடன் இது கடன் வழங்கலுக்கான தகுதியை நிறைவு செய்கிறது."
+        : "Udyam Registration is 100% free online using your Aadhaar. Along with a Gram Panchayat trade NOC, this completes your statutory eligibility for disbursement.";
+    } else if (lower.includes("subsidy") || lower.includes("women") || lower.includes("sc") || lower.includes("obc") || lower.includes("மானியம்")) {
+      reply = isTa
+        ? "தகுதியான பெண் தொழில்முனைவோருக்கு 0.5% வட்டி சலுகை மற்றும் சரிபார்ப்புக்குப் பின் பின்னேற்பு மூலதன மானியம் நேரடியாக உங்கள் கடன் கணக்கில் வரவு வைக்கப்படும்."
+        : "Eligible women entrepreneurs receive a 0.5% interest concession, and back-ended capital subsidies are credited directly into your loan account upon verification.";
     }
 
     setMessages(prev => [...prev, {

@@ -26,6 +26,21 @@ public class SchemeSearchRequest {
     public static class QuestionnaireDto {
         private String ownership; // "Me (Primary Applicant)", "My Spouse", "Joint / Family Enterprise", "Not Decided Yet"
 
+        @JsonProperty("applicant_name")
+        private String applicantName;
+
+        @JsonProperty("preferred_language")
+        private String preferredLanguage;
+
+        @JsonProperty("village_name")
+        private String villageName;
+
+        @JsonProperty("district_name")
+        private String districtName;
+
+        @JsonProperty("state_name")
+        private String stateName;
+
         @JsonProperty("primary_applicant")
         private PrimaryApplicantDto primaryApplicant;
 

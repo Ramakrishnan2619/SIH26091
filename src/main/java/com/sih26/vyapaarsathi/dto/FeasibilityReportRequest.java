@@ -41,4 +41,12 @@ public class FeasibilityReportRequest {
 
     @Builder.Default
     private Integer radiusKm = 10;
+
+    private String villageName;
+    private String subdistrictName;
+    private String districtName;
+    private String stateName;
+
+    @Builder.Default
+    private String preferredLanguage = "en";
 }

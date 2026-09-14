@@ -11,16 +11,23 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'https://vyapaarsathi-862234198628.asia-south1.run.app',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        secure: true
+        secure: false
       },
       '/oauth2': {
-        target: 'https://vyapaarsathi-862234198628.asia-south1.run.app',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        secure: true
+        secure: false
+      },
+      '/ws': {
+        target: 'http://localhost:8080',
+        ws: true,
+        changeOrigin: true,
+        secure: false
       }
     }
   }

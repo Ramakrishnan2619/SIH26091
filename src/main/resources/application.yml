@@ -5,6 +5,8 @@ server:
 spring:
   application:
     name: vyapaarsathi
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   # Database configuration
   datasource:
@@ -61,6 +63,9 @@ app:
     db-path: ${LAYER2_DB_PATH:Optimized DB for Layer 2/layer2_demand_economics.db}
   quota:
     daily-limit: 100 # 100 queries per user per 24 hours (PRD-01 FR-1.12)
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
 
 # Management / Actuator endpoints for Cloud Run health checks
 management:

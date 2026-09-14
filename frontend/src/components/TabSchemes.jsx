@@ -1,45 +1,191 @@
 import React from 'react';
 import { 
   Building2, CheckCircle, ExternalLink, ArrowRight, 
-  FileText, Landmark, ShieldCheck, Sparkles, AlertCircle
+  FileText, Landmark, ShieldCheck, Sparkles, AlertCircle, Heart
 } from 'lucide-react';
 
-export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = 'en' }) {
+const SCHEME_TRANSLATIONS = {
+  ta: {
+    headerTitle: "அரசு கடன் திட்டங்கள் & தேசிய நிதி நிறுவனங்கள்",
+    headerSubtitle: "மத்திய சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகத்தின் (MoSJE) கீழ் உள்ள தகுதியான திட்டங்கள்",
+    exploreBtn: "கூடுதல் திட்டங்களை ஆராய்க",
+    primaryTitle: "முதன்மையாக பரிந்துரைக்கப்பட்ட கடன் திட்டம்",
+    interestRate: "வட்டி விகிதம்",
+    subsidizedRate: "அரசு மானிய சலுகை வட்டி",
+    loanShare: "அரசு கடன் பங்கு",
+    ofProjectCost: "திட்ட மதிப்பீட்டில் 90%",
+    promoterMargin: "விண்ணப்பதாரர் பங்களிப்பு",
+    marginMoney: "10% சொந்த முதலீடு",
+    repaymentTenure: "திருப்பிச் செலுத்தும் காலம்",
+    gracePeriod: "தொடக்க சலுகை காலம்",
+    moratoriumMonths: "மாதங்கள் அசல் விலக்கு",
+    apexTitle: "தேசிய நிதி நிறுவனங்களின் நேரடி தொடர்பு",
+    eligibleBadge: "நேரடி தகுதி",
+    notEligibleBadge: "பிற சமூகப் பிரிவு",
+    maxLoan: "அதிகபட்ச கடன்:",
+    concessionalRate: "சலுகை வட்டி:",
+    womenBenefitTitle: "மகளிர் சிறப்பு சலுகை (மகிளா சம்ரித்தி யோஜனா):",
+    womenBenefitDesc: "பெண் தொழில்முனைவோருக்கு கூடுதல் 1% வட்டி தள்ளுபடி மற்றும் முன்னுரிமை ஒதுக்கீடு பொருந்தும்.",
+    termLoanDesc: "₹1.40 லட்சம் முதல் ₹50.00 லட்சம் வரையிலான வணிகங்களுக்கு 8% வட்டி, 7 ஆண்டுகள் அவகாசம் மற்றும் 6 மாத சலுகை காலத்துடன் வழங்கப்படுகிறது.",
+    microFinanceDesc: "₹1.40 லட்சம் வரையிலான குறுந்தொழில்களுக்கு பிணையில்லா கடன், 6.5% குறைந்த வட்டி மற்றும் 3 ஆண்டு தவணையில் வழங்கப்படுகிறது."
+  },
+  hi: {
+    headerTitle: "सरकारी ऋण योजनाएं एवं राष्ट्रीय विकास निगम",
+    headerSubtitle: "सामाजिक न्याय और अधिकारिता मंत्रालय (MoSJE) के अंतर्गत रियायती क्रेडिट योजनाएं",
+    exploreBtn: "अन्य योजनाएं खोजें",
+    primaryTitle: "प्राथमिक रूप से अनुशंसित ऋण योजना",
+    interestRate: "ब्याज दर",
+    subsidizedRate: "सरकारी रियायती ब्याज दर",
+    loanShare: "सरकारी ऋण का हिस्सा",
+    ofProjectCost: "कुल लागत का 90%",
+    promoterMargin: "लाभार्थी अंशदान",
+    marginMoney: "10% स्वयं का मार्जिन",
+    repaymentTenure: "ऋण चुकौती अवधि",
+    gracePeriod: "प्रारंभिक छूट अवधि",
+    moratoriumMonths: "महीने मोराटोरियम",
+    apexTitle: "राष्ट्रीय शीर्ष निगमों के साथ संबद्धता",
+    eligibleBadge: "पूर्णतः पात्र",
+    notEligibleBadge: "अन्य सामाजिक वर्ग",
+    maxLoan: "अधिकतम ऋण सीमा:",
+    concessionalRate: "रियायती ब्याज:",
+    womenBenefitTitle: "महिला विशेष लाभ (महिला समृद्धि योजना):",
+    womenBenefitDesc: "महिला उद्यमियों के लिए 1% अतिरिक्त ब्याज छूट और प्राथमिकता ऋण आवंटन लागू है।",
+    termLoanDesc: "₹1.40 लाख से ₹50.00 लाख तक के मध्यम ग्रामीण उद्यमों के लिए 8% वार्षिक ब्याज दर, 7 वर्ष की अवधि और 6 महीने की प्रारंभिक छूट।",
+    microFinanceDesc: "₹1.40 लाख तक के सूक्ष्म उद्यमों के लिए बिना किसी गारंटी के 6.5% रियायती ब्याज दर और 36 महीने की आसान चुकौती।"
+  },
+  te: {
+    headerTitle: "ప్రభుత్వ రుణ పథకాలు & జాతీయ అభివృద్ధి సంస్థలు",
+    headerSubtitle: "సామాజిక న్యాయ మరియు సాధికారత మంత్రిత్వ శాఖ (MoSJE) కింద రాయితీ పథకాలు",
+    exploreBtn: "మరిన్ని పథకాలను చూడండి",
+    primaryTitle: "ప్రాథమిక సిఫార్సు చేయబడిన రుణ పథకం",
+    interestRate: "వడ్డీ రేటు",
+    subsidizedRate: "ప్రభుత్వ రాయితీ వడ్డీ",
+    loanShare: "ప్రభుత్వ రుణ వాటా",
+    ofProjectCost: "మొత్తం ఖర్చులో 90%",
+    promoterMargin: "లబ్ధిదారుని వాటా",
+    marginMoney: "10% స్వంత పెట్టుబడి",
+    repaymentTenure: "రుణ కాలపరిమితి",
+    gracePeriod: "ప్రారంభ గడువు కాలం",
+    moratoriumMonths: "నెలలు అసలు మినహాయింపు",
+    apexTitle: "జాతీయ సంస్థల ప్రత్యక్ష వర్తింపు",
+    eligibleBadge: "అర్హత ఉంది",
+    notEligibleBadge: "ఇతర సామాజిక వర్గం",
+    maxLoan: "గరిష్ట రుణం:",
+    concessionalRate: "రాయితీ వడ్డీ:",
+    womenBenefitTitle: "మహిళా ప్రత్యేక ప్రయోజనం (మహిళా సమృద్ధి యోజన):",
+    womenBenefitDesc: "మహిళా పారిశ్రామికవేత్తలకు అదనంగా 1% వడ్డీ రాయితీ మరియు ప్రాధాన్యత లభిస్తుంది.",
+    termLoanDesc: "₹1.40 లక్షల నుండి ₹50.00 లక్షల వరకు ప్రాజెక్టులకు 8% వడ్డీతో, 7 సంవత్సరాల వ్యవధి మరియు 6 నెలల గడువుతో లభిస్తుంది.",
+    microFinanceDesc: "₹1.40 లక్షల వరకు ఉన్న చిన్న వ్యాపారాలకు షూరిటీ లేకుండా 6.5% వడ్డీతో, 36 నెలల సులభ వాయిదాలలో లభిస్తుంది."
+  },
+  en: {
+    headerTitle: "Government Credit Schemes & Corporations",
+    headerSubtitle: "Eligible schemes under the Ministry of Social Justice and Empowerment (MoSJE)",
+    exploreBtn: "Explore More Schemes",
+    primaryTitle: "Primary Recommended Scheme",
+    interestRate: "Interest Rate",
+    subsidizedRate: "Subsidized Concessional Rate",
+    loanShare: "Government Loan Share",
+    ofProjectCost: "90% of Project Cost",
+    promoterMargin: "Beneficiary Contribution",
+    marginMoney: "10% Margin Money",
+    repaymentTenure: "Repayment Tenure",
+    gracePeriod: "Setup Grace Period",
+    moratoriumMonths: "Months Moratorium",
+    apexTitle: "National Apex Corporations Alignment",
+    eligibleBadge: "Eligible",
+    notEligibleBadge: "Other Category",
+    maxLoan: "Maximum Outlay:",
+    concessionalRate: "Concessional Rate:",
+    womenBenefitTitle: "Women Beneficiary Advantage (Mahila Samriddhi Yojana):",
+    womenBenefitDesc: "Eligible for an additional 1.0% interest rebate and priority SCA processing quota.",
+    termLoanDesc: "Structured for small enterprise outlays between ₹1.40 Lakh and ₹50.00 Lakh. Offers 8.0% interest rate p.a., 84-month tenure (7 years), and 6-month grace period for stable enterprise ramp-up.",
+    microFinanceDesc: "Tailored for micro-scale rural enterprises requiring up to ₹1.40 Lakh project outlay. Collateral-free lending with 6.5% interest rate, 36-month tenure, and 3-month grace period."
+  }
+};
+
+export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = 'en', applicantDetails }) {
+  const t = SCHEME_TRANSLATIONS[selectedLang] || SCHEME_TRANSLATIONS.en;
+
   const schemeName = module2Result?.financial_summary?.scheme_name || module2Result?.schemeName || "Term Loan Scheme";
   const isMicro = schemeName.includes("Micro");
+
+  const socialCategory = (
+    applicantDetails?.socialCategory ||
+    module2Result?.socialCategory ||
+    'OBC'
+  ).toUpperCase();
+
+  const gender = (
+    applicantDetails?.gender ||
+    module2Result?.gender ||
+    'Female'
+  ).toLowerCase();
+
+  const isFemale = gender === 'female';
+  const isPwD = Boolean(applicantDetails?.disabilityStatus || module2Result?.disabilityStatus);
+
+  // Dynamically calculate eligibility based on applicant demographics
+  const isNbcfdcEligible = socialCategory.includes('OBC') || socialCategory.includes('BACKWARD') || socialCategory === 'OBC';
+  const isNsfdcEligible = socialCategory.includes('SC') || socialCategory.includes('SCHEDULED CASTE');
+  const isNskfdcEligible = socialCategory.includes('SAFAI') || socialCategory.includes('SANITATION') || socialCategory.includes('KARAMCHARI');
+  const isNdfdcEligible = isPwD;
 
   const corporations = [
     {
       code: "NBCFDC",
-      name: "National Backward Classes Finance & Development Corporation",
-      eligible: true,
+      name: selectedLang === 'ta' ? "தேசிய பிற்படுத்தப்பட்டோர் நிதி மற்றும் மேம்பாட்டுக் கழகம்" :
+            selectedLang === 'hi' ? "राष्ट्रीय पिछड़ा वर्ग वित्त एवं विकास निगम" :
+            selectedLang === 'te' ? "జాతీయ వెనుకబడిన తరగతుల ఆర్థిక & అభివృద్ధి సంస్థ" :
+            "National Backward Classes Finance & Development Corporation",
+      eligible: isNbcfdcEligible,
       interestRate: isMicro ? "6.5% p.a." : "8.0% p.a.",
       maxAmount: "₹50.00 Lakh",
-      description: "Concessional credit for Other Backward Classes (OBC) entrepreneurs with annual family income under ₹3.00 Lakh."
+      description: selectedLang === 'ta' ? "ஆண்டு வருமானம் ₹3.00 லட்சத்திற்குள் உள்ள இதர பிற்படுத்தப்பட்ட (OBC) தொழில்முனைவோருக்கான சலுகைக் கடன்." :
+                   selectedLang === 'hi' ? "₹3.00 लाख से कम वार्षिक पारिवारिक आय वाले अन्य पिछड़ा वर्ग (OBC) उद्यमियों हेतु रियायती ऋण।" :
+                   selectedLang === 'te' ? "వార్షిక ఆదాయం ₹3.00 లక్షల లోపు ఉన్న బీసీ (OBC) పారిశ్రామికవేత్తలకు రాయితీ రుణాలు." :
+                   "Concessional credit for Other Backward Classes (OBC) entrepreneurs with annual family income under ₹3.00 Lakh."
     },
     {
       code: "NSFDC",
-      name: "National Scheduled Castes Finance & Development Corporation",
-      eligible: true,
+      name: selectedLang === 'ta' ? "தேசிய ஆதிதிராவிடர் நிதி மற்றும் மேம்பாட்டுக் கழகம்" :
+            selectedLang === 'hi' ? "राष्ट्रीय अनुसूचित जाति वित्त एवं विकास निगम" :
+            selectedLang === 'te' ? "జాతీయ షెడ్యూల్డ్ కులాల ఆర్థిక & అభివృద్ధి సంస్థ" :
+            "National Scheduled Castes Finance & Development Corporation",
+      eligible: isNsfdcEligible,
       interestRate: isMicro ? "6.0% p.a." : "7.5% p.a.",
       maxAmount: "₹50.00 Lakh",
-      description: "Dedicated credit facilitation and capital subsidy for Scheduled Caste beneficiaries with priority for women."
+      description: selectedLang === 'ta' ? "பட்டியலின (SC) பயனாளிகளுக்கான மூலதன மானியம் மற்றும் பிரத்யேக கடன் வசதி (மகளிருக்கு முன்னுரிமை)." :
+                   selectedLang === 'hi' ? "अनुसूचित जाति (SC) लाभार्थियों के लिए समर्पित ऋण सुविधा एवं पूंजीगत अनुदान, महिलाओं को विशेष प्राथमिकता।" :
+                   selectedLang === 'te' ? "షెడ్యూల్డ్ కులాల (SC) లబ్ధిదారులకు ప్రత్యేక మూలధన సబ్సిడీ మరియు రుణ సౌకర్యం (మహిళలకు ప్రాధాన్యత)." :
+                   "Dedicated credit facilitation and capital subsidy for Scheduled Caste beneficiaries with priority for women."
     },
     {
       code: "NSKFDC",
-      name: "National Safai Karamcharis Finance & Development Corporation",
-      eligible: false,
+      name: selectedLang === 'ta' ? "தேசிய தூய்மைப் பணியாளர் நிதி மற்றும் மேம்பாட்டுக் கழகம்" :
+            selectedLang === 'hi' ? "राष्ट्रीय सफाई कर्मचारी वित्त एवं विकास निगम" :
+            selectedLang === 'te' ? "జాతీయ సఫాయీ కర్మచారుల ఆర్థిక & అభివృద్ధి సంస్థ" :
+            "National Safai Karamcharis Finance & Development Corporation",
+      eligible: isNskfdcEligible,
       interestRate: "6.0% p.a.",
       maxAmount: "₹15.00 Lakh",
-      description: "Specialized rehabilitation credit for sanitation workers, manual scavengers, and their dependents."
+      description: selectedLang === 'ta' ? "தூய்மைப் பணியாளர்கள் மற்றும் அவர்களது குடும்பத்தினரின் வாழ்வாதார மறுவாழ்வுக்கான சிறப்பு கடன்." :
+                   selectedLang === 'hi' ? "सफाई कर्मचारियों, स्वच्छता कर्मियों एवं उनके आश्रितों के आर्थिक पुनर्वास हेतु समर्पित ऋण।" :
+                   selectedLang === 'te' ? "పారిశుద్ధ్య కార్మికులు మరియు వారి కుటుంబాల ఆర్థిక పునరావాసం కోసం ప్రత్యేక రుణాలు." :
+                   "Specialized rehabilitation credit for sanitation workers, manual scavengers, and their dependents."
     },
     {
       code: "NDFDC",
-      name: "National Divyangjan Finance & Development Corporation",
-      eligible: false,
+      name: selectedLang === 'ta' ? "தேசிய மாற்றுத்திறனாளிகள் நிதி மற்றும் மேம்பாட்டுக் கழகம்" :
+            selectedLang === 'hi' ? "राष्ट्रीय दिव्यांगजन वित्त एवं विकास निगम" :
+            selectedLang === 'te' ? "జాతీయ దివ్యాంగుల ఆర్థిక & అభివృద్ధి సంస్థ" :
+            "National Divyangjan Finance & Development Corporation",
+      eligible: isNdfdcEligible,
       interestRate: "5.0% - 6.0% p.a.",
       maxAmount: "₹25.00 Lakh",
-      description: "Concessional loans for self-employment ventures initiated by Persons with Disabilities (PwD)."
+      description: selectedLang === 'ta' ? "மாற்றுத்திறனாளி தொழில்முனைவோரின் சுயதொழில் முயற்சிகளுக்கான அதீத சலுகை கடன் திட்டம்." :
+                   selectedLang === 'hi' ? "दिव्यांग व्यक्तियों (PwD) द्वारा संचालित स्वरोजगार उद्यमों के लिए विशेष कम ब्याज ऋण।" :
+                   selectedLang === 'te' ? "దివ్యాంగులు (PwD) ప్రారంభించే స్వయం ఉపాధి వ్యాపారాలకు ప్రత్యేక రాయితీ రుణాలు." :
+                   "Concessional loans for self-employment ventures initiated by Persons with Disabilities (PwD)."
     }
   ];
 
@@ -50,10 +196,10 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
         <div>
           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
             <Building2 className="w-5 h-5 text-blue-700" />
-            <span>Government Credit Schemes & Corporations</span>
+            <span>{t.headerTitle}</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Eligible schemes under the Ministry of Social Justice and Empowerment (MoSJE)
+            {t.headerSubtitle}
           </p>
         </div>
 
@@ -62,7 +208,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0B2545] hover:bg-[#133E68] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Explore More Schemes</span>
+          <span>{t.exploreBtn}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -72,54 +218,201 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-              Primary Recommended Scheme
+              {t.primaryTitle}
             </span>
             <h3 className="text-2xl font-black text-slate-900 mt-3">
               {schemeName}
             </h3>
             <p className="text-sm text-slate-600 mt-2 max-w-2xl leading-relaxed">
-              {isMicro ? (
-                "Tailored for micro-scale rural enterprises requiring up to ₹1.40 Lakh project outlay. Collateral-free lending with 6.5% interest rate, 36-month tenure, and 3-month grace period."
-              ) : (
-                "Structured for small enterprise outlays between ₹1.40 Lakh and ₹50.00 Lakh. Offers 8.0% interest rate p.a., 84-month tenure (7 years), and 6-month grace period for stable enterprise ramp-up."
-              )}
+              {isMicro ? t.microFinanceDesc : t.termLoanDesc}
             </p>
           </div>
 
           <div className="text-right">
-            <div className="text-xs text-slate-400 font-medium">Interest Rate</div>
+            <div className="text-xs text-slate-400 font-medium">{t.interestRate}</div>
             <div className="text-3xl font-black text-emerald-700 mt-1">
               {isMicro ? '6.5%' : '8.0%'} <span className="text-xs font-normal text-slate-500">p.a.</span>
             </div>
-            <div className="text-xs text-slate-500 mt-1">Subsidized Concessional Rate</div>
+            <div className="text-xs text-slate-500 mt-1">{t.subsidizedRate}</div>
           </div>
         </div>
 
+        {/* Female Beneficiary Highlight */}
+        {isFemale && (
+          <div className="mt-6 p-4 rounded-xl bg-pink-50 border border-pink-200 text-pink-900 flex items-center gap-3">
+            <Heart className="w-5 h-5 text-pink-600 shrink-0" />
+            <div className="text-xs">
+              <strong className="font-bold">{t.womenBenefitTitle} </strong>
+              <span>{t.womenBenefitDesc}</span>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-8 pt-6 border-t border-slate-100">
           <div>
-            <div className="text-xs text-slate-500">Government Loan Share</div>
-            <div className="text-lg font-black text-slate-900 mt-1">90% of Project Cost</div>
+            <div className="text-xs text-slate-500">{t.loanShare}</div>
+            <div className="text-lg font-black text-slate-900 mt-1">{t.ofProjectCost}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Beneficiary Contribution</div>
-            <div className="text-lg font-black text-blue-700 mt-1">10% Margin Money</div>
+            <div className="text-xs text-slate-500">{t.promoterMargin}</div>
+            <div className="text-lg font-black text-blue-700 mt-1">{t.marginMoney}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Repayment Tenure</div>
-            <div className="text-lg font-black text-slate-900 mt-1">{isMicro ? '36' : '84'} Months</div>
+            <div className="text-xs text-slate-500">{t.repaymentTenure}</div>
+            <div className="text-lg font-black text-slate-900 mt-1">{isMicro ? '36' : '84'} {selectedLang === 'ta' ? 'மாதங்கள்' : selectedLang === 'hi' ? 'महीने' : selectedLang === 'te' ? 'నెలలు' : 'Months'}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Setup Grace Period</div>
-            <div className="text-lg font-black text-emerald-700 mt-1">{isMicro ? '3' : '6'} Months Moratorium</div>
+            <div className="text-xs text-slate-500">{t.gracePeriod}</div>
+            <div className="text-lg font-black text-emerald-700 mt-1">{isMicro ? '3' : '6'} {t.moratoriumMonths}</div>
           </div>
+        </div>
+
+        {/* Why this scheme was recommended */}
+        <div className="mt-6 pt-6 border-t border-slate-100">
+          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
+            {selectedLang === 'ta' ? "இந்த திட்டம் உங்களுக்கு ஏன் பரிந்துரைக்கப்பட்டது?" :
+             selectedLang === 'hi' ? "यह योजना आपके लिए क्यों अनुशंसित की गई?" :
+             selectedLang === 'te' ? "ఈ పథకం మీకు ఎందుకు సిఫార్సు చేయబడింది?" :
+             "Why Was This Primary Scheme Recommended for You?"}
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600">
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>{selectedLang === 'ta' ? "சமூக பிரிவு தகுதி:" : "Demographic Match:"}</strong> {selectedLang === 'ta' ? `உங்கள் ${socialCategory} சமூக தகுதி மற்றும் கிராமப்புற அமைவிடத்தின் அடிப்படையில் MoSJE நேரடி சலுகை வட்டி பொருந்துகிறது.` : `Direct MoSJE statutory mandate for ${socialCategory} applicants with priority SCA allocation.`}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>{selectedLang === 'ta' ? "சலுகை வட்டி விகிதம்:" : "Concessional Rate:"}</strong> {selectedLang === 'ta' ? "வணிக வங்கிகளின் 12%-14% வட்டிக்கு பதிலாக வெறும் 8.0% ஆண்டு வட்டி (குறைந்துவரும் இருப்பு)." : "8.0% p.a. reducing balance rate vs 12%-14% standard commercial bank micro-enterprise loans."}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>{selectedLang === 'ta' ? "அதிகபட்ச கடன் பங்கு:" : "90% Loan Share:"}</strong> {selectedLang === 'ta' ? "மொத்த திட்ட செலவில் 90% வரை கடன் வழங்கப்படுவதால் விண்ணப்பதாரர் வெறும் 10% முதலீடு செய்தால் போதுமானது." : "Only 10% promoter margin required, with 90% financed via State Channelizing Agency."}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>{selectedLang === 'ta' ? "தொடக்க கால அவகாசம்:" : "6-Month Moratorium:"}</strong> {selectedLang === 'ta' ? "வணிகத்தை நிலைநிறுத்த 6 மாதங்கள் அசல் விலக்கு வழங்கப்படுகிறது." : "6 months principal moratorium to establish retail cash flow before amortization begins."}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2.5 Multi-Scheme Comparative Decision Matrix (3 Schemes Compared) */}
+      <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-700" />
+              <span>
+                {selectedLang === 'ta' ? "அரசு கடன் திட்டங்களின் ஒப்பீட்டு அட்டவணை (3 முதன்மை திட்டங்கள்)" :
+                 selectedLang === 'hi' ? "सरकारी ऋण योजनाओं की तुलना (3 प्रमुख योजनाएं)" :
+                 selectedLang === 'te' ? "ప్రభుత్వ పథకాల పోలిక పట్టిక (3 ముఖ్య పథకాలు)" :
+                 "Government Schemes Comparative Decision Matrix (Top 3 Schemes)"}
+              </span>
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              {selectedLang === 'ta' 
+                ? "உங்கள் வணிக தேவை, கடன் அளவு மற்றும் திருப்பிச் செலுத்தும் திறனுக்கேற்ப பொருத்தமான திட்டத்தை ஒப்பிட்டு தேர்வு செய்யுங்கள்."
+                : "Compare loan ceilings, interest subvention, subsidies, and tenure across 3 central government credit schemes."}
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+            Side-by-Side Comparison
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                <th className="p-3.5 border-r border-slate-200">Feature / Metric</th>
+                <th className="p-3.5 border-r border-slate-200 bg-blue-50/50 text-blue-900">
+                  <div className="font-extrabold text-sm">Term Loan Scheme</div>
+                  <div className="text-[11px] font-normal text-slate-500">NSFDC / NBCFDC (Recommended)</div>
+                </th>
+                <th className="p-3.5 border-r border-slate-200">
+                  <div className="font-extrabold text-sm">Micro Finance Scheme</div>
+                  <div className="text-[11px] font-normal text-slate-500">NBCFDC / NSFDC Micro Credit</div>
+                </th>
+                <th className="p-3.5">
+                  <div className="font-extrabold text-sm">PMEGP Subsidy Scheme</div>
+                  <div className="text-[11px] font-normal text-slate-500">KVIC / DIC Capital Subsidy</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Maximum Project Outlay</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">Up to ₹50.00 Lakh</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">Up to ₹1.40 Lakh</td>
+                <td className="p-3.5 font-bold text-slate-900">Up to ₹20.00 Lakh (Trade) / ₹50.00 Lakh (Mfg)</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Concessional Interest Rate</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-emerald-700">8.0% p.a. (7.0% for Women)</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-emerald-700">6.0% - 6.5% p.a.</td>
+                <td className="p-3.5 text-slate-700">Bank Lending Rate (9% - 11%)</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Government Credit Share</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">90% of Project Cost</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">100% of Micro Outlay</td>
+                <td className="p-3.5 text-slate-700">60% - 75% Bank Loan</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Beneficiary Margin Required</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">10% Margin Money</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">0% (Nil Collateral)</td>
+                <td className="p-3.5 text-slate-700">5% (Special / Rural) to 10% (General)</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Government Capital Subsidy</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 text-slate-600">Interest Subvention & Concession</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-600">Low interest micro credit</td>
+                <td className="p-3.5 font-bold text-emerald-700">35% Rural Special Category Grant</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Repayment Tenure & Grace</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 text-slate-800">84 Months (7 Years) • 6-mo Grace</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-800">36 Months (3 Years) • 3-mo Grace</td>
+                <td className="p-3.5 text-slate-800">36 to 84 Months as per Bank norms</td>
+              </tr>
+              <tr className="hover:bg-slate-50/60 bg-slate-50/30">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Best Suited For</td>
+                <td className="p-3.5 border-r border-slate-200 bg-blue-50/50 font-semibold text-blue-900">
+                  Full physical enterprise setup, machinery & commercial shop outlays up to ₹50 Lakh.
+                </td>
+                <td className="p-3.5 border-r border-slate-200 font-semibold text-slate-700">
+                  Small provision counters, low financial risk, debt payments under ₹2,200/mo.
+                </td>
+                <td className="p-3.5 font-semibold text-slate-700">
+                  Beneficiaries seeking non-repayable cash grants (up to ₹3.5 Lakh free capital).
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* 3. Apex Corporations Grid */}
       <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
-        <h3 className="text-base font-bold text-slate-900 mb-6">
-          National Apex Corporations Alignment
-        </h3>
+        <div className="mb-6">
+          <h3 className="text-base font-bold text-slate-900">
+            {t.apexTitle}
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            {selectedLang === 'ta'
+              ? "மத்திய அரசின் சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகம் (MoSJE) நான்கு பிரத்யேக தேசிய நிதி கழகங்களை நடத்துகிறது. இக்கழகங்கள் மாநில பிற்படுத்தப்பட்டோர் மற்றும் ஆதிதிராவிடர் கழகங்கள் (TABCEDCO / TAHDCO) மற்றும் வங்கிகளுக்கு 100% மானிய மறுநிதியளிப்பை வழங்குகின்றன. உங்களின் சாதி மற்றும் சமூக பிரிவிற்கான கழகம் கீழே 'நேரடி தகுதி' என குறிக்கப்பட்டுள்ளது."
+              : "The Ministry of Social Justice and Empowerment (MoSJE) operates four National Apex Corporations. These corporations provide 100% concessional refinance to State Channelizing Agencies (e.g. TABCEDCO, TAHDCO) and Public Sector Banks. The highlighted corporation represents your direct statutory entitlement where your loan is refinanced at subsidized single-digit interest rates without commercial markups."}
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {corporations.map((corp) => (
@@ -127,8 +420,8 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
               key={corp.code} 
               className={`p-6 rounded-2xl border transition-all flex flex-col justify-between ${
                 corp.eligible 
-                  ? 'bg-blue-50/40 border-blue-200 shadow-xs' 
-                  : 'bg-slate-50/60 border-slate-200 opacity-80'
+                  ? 'bg-blue-50/40 border-blue-300 shadow-xs' 
+                  : 'bg-slate-50/60 border-slate-200 opacity-75'
               }`}
             >
               <div>
@@ -138,30 +431,24 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     <h4 className="text-sm font-bold text-slate-900 mt-0.5">{corp.name}</h4>
                   </div>
                   {corp.eligible ? (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      Eligible
+                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 shrink-0">
+                      <CheckCircle className="w-3 h-3 text-emerald-600" />
+                      <span>{t.eligibleBadge}</span>
                     </span>
                   ) : (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-600">
-                      Target Group Specific
+                    <span className="text-[11px] font-semibold px-3 py-1 rounded-full bg-slate-200/70 text-slate-600 border border-slate-300 shrink-0">
+                      {t.notEligibleBadge}
                     </span>
                   )}
                 </div>
-
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                <p className="text-xs text-slate-600 mb-4 leading-relaxed">
                   {corp.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/70 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-slate-500">Interest: </span>
-                  <span className="font-bold text-slate-900">{corp.interestRate}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500">Max Loan: </span>
-                  <span className="font-bold text-slate-900">{corp.maxAmount}</span>
-                </div>
+              <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600 font-medium">
+                <span>{t.maxLoan} <strong className="text-slate-900 font-bold">{corp.maxAmount}</strong></span>
+                <span>{t.concessionalRate} <strong className="text-emerald-700 font-bold">{corp.interestRate}</strong></span>
               </div>
             </div>
           ))}

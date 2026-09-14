@@ -57,4 +57,12 @@ public class CompleteAssessmentRequest {
     private Boolean exServicemenStatus;
 
     private BigDecimal annualHouseholdIncome;
+
+    private String villageName;
+    private String subdistrictName;
+    private String districtName;
+    private String stateName;
+
+    @Builder.Default
+    private String preferredLanguage = "en";
 }

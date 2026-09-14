@@ -97,11 +97,21 @@ export function calculateFinanceClientSide(marginCapital, netProfit = 28500) {
     });
   }
 
+  // Capital Outlay Split: 75% Capital Expenditure (CAPEX) & 25% Working Capital (OPEX)
+  const workingCapitalAllocationPct = 25.0;
+  const capexAllocationPct = 75.0;
+  const workingCapitalAmount = Math.round(projectCost * 0.25 * 100) / 100;
+  const capexAmount = Math.round(projectCost * 0.75 * 100) / 100;
+
   return {
     isEligible: true,
     marginCapital: margin,
     projectCost: projectCost,
     loanAmount: loanAmount,
+    capexAmount: capexAmount,
+    workingCapitalAmount: workingCapitalAmount,
+    workingCapitalAllocationPct: workingCapitalAllocationPct,
+    capexAllocationPct: capexAllocationPct,
     schemeName: schemeName,
     schemeType: schemeType,
     interestRatePa: ratePa,

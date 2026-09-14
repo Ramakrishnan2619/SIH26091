@@ -262,6 +262,10 @@ function App() {
         socialCategory: assessmentPayload?.socialCategory || unifiedReport.socialCategory || 'OBC',
         disabilityStatus: assessmentPayload?.disabilityStatus ?? unifiedReport.disabilityStatus ?? false,
         exServicemenStatus: assessmentPayload?.exServicemenStatus ?? unifiedReport.exServicemenStatus ?? false,
+        villageName: vc.villageName || vc.village_name || assessmentPayload?.villageName || '',
+        districtName: vc.districtName || vc.district_name || assessmentPayload?.districtName || '',
+        stateName: vc.stateName || assessmentPayload?.stateName || 'Tamil Nadu',
+        selectedLang: selectedLang
       },
       module1_feasibility: {
         latitude: targetLat,
@@ -543,6 +547,7 @@ function App() {
                 <TabSchemes
                   module2Result={module2_financial}
                   selectedLang={selectedLang}
+                  applicantDetails={reportData?.applicantDetails || assessmentPayload}
                   onOpenSchemeSearch={() => setShowSchemeModal(true)}
                 />
               )}
@@ -555,6 +560,7 @@ function App() {
               onClose={() => setShowSchemeModal(false)}
               defaultCategory={reportData?.applicantDetails?.socialCategory || dashboard_kpis?.socialCategory || 'OBC'}
               applicantDetails={reportData?.applicantDetails || assessmentPayload}
+              selectedLang={selectedLang}
             />
           </div>
         )}
@@ -568,6 +574,39 @@ function App() {
             selectedLang={selectedLang}
             onLangChange={setSelectedLang}
             onLoadReport={(historyItem) => {
+              if (historyItem) {
+                const cached = sessionStorage.getItem('vyapaarsathi_report');
+                if (cached) {
+                  try {
+                    const parsed = JSON.parse(cached);
+                    if (String(parsed.assessment_id) === String(historyItem.assessmentId)) {
+                      setReportData(parsed);
+                      handleNavigate('report');
+                      return;
+                    }
+                  } catch {}
+                }
+                const cost = Number(historyItem.totalProjectCost) || 1000000;
+                setReportData({
+                  assessment_id: historyItem.assessmentId,
+                  latitude: 10.0524,
+                  longitude: 78.3344,
+                  dashboard_kpis: {
+                    assessment_id: historyItem.assessmentId,
+                    village_name: historyItem.villageName || 'Selected Village',
+                    district_name: historyItem.districtName || 'Madurai',
+                    state_name: 'India',
+                    enterprise_type: historyItem.businessCategory || 'Micro Enterprise',
+                    project_cost: cost,
+                    margin_money: Math.round(cost * 0.10),
+                    loan_amount: Math.round(cost * 0.90),
+                    composite_readiness_score: historyItem.compositeReadinessScore || 78,
+                    scheme_name: 'Term Loan Scheme',
+                    interest_rate_pa: 8.0,
+                    tenure_months: 84
+                  }
+                });
+              }
               handleNavigate('report');
             }}
           />

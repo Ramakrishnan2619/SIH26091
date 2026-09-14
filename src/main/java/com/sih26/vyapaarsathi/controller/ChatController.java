@@ -39,7 +39,8 @@ public class ChatController {
         SendChatMessageResponse response = chatService.processChatMessage(
                 request.getAssessmentId(),
                 request.getContent(),
-                user
+                user,
+                request.getPreferredLanguage()
         );
         return ResponseEntity.ok(response);
     }

@@ -12,6 +12,20 @@ export function LoginPage({ onLoginSuccess, onCancel, selectedLang = 'en' }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Instant Demo Access Handler (Bypasses external OAuth credentials for jury/testing)
+  const handleInstantDemoLogin = (roleType, userName) => {
+    const demoUser = {
+      userId: 101,
+      name: userName || (roleType === 'beneficiary' ? 'Ramakrishnan S' : 'SCA Field Officer'),
+      email: roleType === 'beneficiary' ? 'ramakrishnan@vyapaarsathi.gov.in' : 'officer@vyapaarsathi.gov.in',
+      role: roleType
+    };
+    const demoToken = 'demo-jwt-token-sih26';
+    localStorage.setItem('vyapaarsathi_token', demoToken);
+    localStorage.setItem('vyapaarsathi_user', JSON.stringify(demoUser));
+    onLoginSuccess(demoUser, demoToken);
+  };
+
   // Google OAuth 2.0 Handler
   const handleGoogleSignIn = () => {
     window.location.href = '/oauth2/authorization/google';
@@ -70,6 +84,24 @@ export function LoginPage({ onLoginSuccess, onCancel, selectedLang = 'en' }) {
           <p className="text-xs text-slate-600 mt-1">
             {t.ministryName}
           </p>
+        </div>
+
+        {/* Instant One-Click Demo Access */}
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-300">
+          <div className="text-xs font-bold text-emerald-950 mb-2 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">⚡ Instant Demo Sign In</span>
+            <span className="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">One-Click Access</span>
+          </div>
+          <p className="text-[11px] text-slate-600 mb-3">
+            Click to enter immediately as a demonstration applicant:
+          </p>
+          <button
+            type="button"
+            onClick={() => handleInstantDemoLogin('beneficiary', 'Ramakrishnan S')}
+            className="w-full py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-bold text-xs shadow-xs cursor-pointer text-center transition-all"
+          >
+            Demo Sign In (Ramakrishnan S)
+          </button>
         </div>
 
         {/* 1. Google OAuth 2.0 Sign In */}

@@ -22,6 +22,39 @@ const CATEGORIES = [
   "Dairy & Milk Production"
 ];
 
+const CATEGORY_NAMES = {
+  ta: {
+    "Grocery & Daily Provisions": "மளிகை மற்றும் அன்றாடப் பொருட்கள் கடை",
+    "Handicrafts & Handloom": "கைவினைப் பொருட்கள் மற்றும் கைத்தறி",
+    "Poultry & Livestock": "கோழிப்பண்ணை மற்றும் கால்நடை வளர்ப்பு",
+    "Metalwork & Carpentry": "உலோக வேலை மற்றும் தச்சு வேலை",
+    "Food Processing & Snacks": "உணவு பதப்படுத்துதல் மற்றும் தின்பண்டங்கள்",
+    "Apparel & Tailoring": "ஆடை வடிவமைப்பு மற்றும் தையல் கடை",
+    "Repairs & Services": "பழுதுபார்ப்பு மற்றும் சேவை மையம்",
+    "Dairy & Milk Production": "பால் பண்ணை மற்றும் பால் உற்பத்தி"
+  },
+  hi: {
+    "Grocery & Daily Provisions": "किराना एवं दैनिक उपभोग की दुकान",
+    "Handicrafts & Handloom": "हस्तशिल्प एवं हथकरघा",
+    "Poultry & Livestock": "मुर्गी पालन एवं पशुपालन",
+    "Metalwork & Carpentry": "धातु कार्य एवं बढ़ईगीरी",
+    "Food Processing & Snacks": "खाद्य प्रसंस्करण एवं नमकीन",
+    "Apparel & Tailoring": "परिधान एवं सिलाई कार्य",
+    "Repairs & Services": "मरम्मत एवं सेवा केंद्र",
+    "Dairy & Milk Production": "डेयरी एवं दुग्ध उत्पादन"
+  },
+  te: {
+    "Grocery & Daily Provisions": "కిరాణా మరియు నిత్యావసర సరుకుల దుకాణం",
+    "Handicrafts & Handloom": "చేతివృత్తులు మరియు చేనేత",
+    "Poultry & Livestock": "కోళ్ళ పెంపకం మరియు పశుసంవర్ధకం",
+    "Metalwork & Carpentry": "మెటల్ వర్క్ మరియు వడ్రంగి పని",
+    "Food Processing & Snacks": "ఆహార ప్రాసెసింగ్ మరియు స్నాక్స్",
+    "Apparel & Tailoring": "దుస్తులు మరియు టైలరింగ్",
+    "Repairs & Services": "రిపేర్లు మరియు సేవా కేంద్రం",
+    "Dairy & Milk Production": "డైరీ మరియు పాల ఉత్పత్తి"
+  }
+};
+
 const STORAGE_KEY = 'vyapaarsathi_assess_draft_v2';
 
 export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang = 'en' }) {
@@ -33,16 +66,21 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch {}
+    const initialName = defaultUser?.name || '';
+    const isMaleName = /ramakrishnan|kumar|ramanathan|murugan|selvam|suresh|rajesh|mohamed/i.test(initialName);
+    const isFemaleName = /meena|lakshmi|devi|priya|anita|radha|kumari/i.test(initialName);
+    const initialGender = isMaleName ? 'Male' : isFemaleName ? 'Female' : 'Male';
+
     return {
       currentStep: 1,
-      ownerName: defaultUser?.name || '',
+      ownerName: initialName,
       marginCapital: 100000,
       businessCategory: CATEGORIES[0],
       businessIdeaDescription: '',
       selectedVillage: null,
       age: 30,
       socialCategory: 'OBC',
-      gender: 'Female',
+      gender: initialGender,
       disabilityStatus: false,
       exServicemenStatus: false
     };
@@ -252,7 +290,8 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       socialCategory: socialCategory || 'OBC',
       gender: gender || 'Female',
       disabilityStatus: !!disabilityStatus,
-      exServicemenStatus: !!exServicemenStatus
+      exServicemenStatus: !!exServicemenStatus,
+      preferredLanguage: selectedLang || 'en'
     };
 
     sessionStorage.removeItem(STORAGE_KEY);
@@ -261,16 +300,21 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
 
   const handleResetForm = () => {
     sessionStorage.removeItem(STORAGE_KEY);
+    const initialName = defaultUser?.name || '';
+    const isMaleName = /ramakrishnan|kumar|ramanathan|murugan|selvam|suresh|rajesh|mohamed/i.test(initialName);
+    const isFemaleName = /meena|lakshmi|devi|priya|anita|radha|kumari/i.test(initialName);
+    const initialGender = isMaleName ? 'Male' : isFemaleName ? 'Female' : 'Male';
+
     setFormData({
       currentStep: 1,
-      ownerName: defaultUser?.name || '',
+      ownerName: initialName,
       marginCapital: 50000,
       businessCategory: CATEGORIES[0],
       businessIdeaDescription: '',
       selectedVillage: null,
       age: 30,
       socialCategory: 'OBC',
-      gender: 'Female',
+      gender: initialGender,
       disabilityStatus: false,
       exServicemenStatus: false
     });
@@ -281,16 +325,16 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
       {/* 1. Sovereign Government Header & Stepper */}
       <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-2 text-xs font-bold text-[#006B7A] uppercase tracking-wider mb-2">
-          <span>Enterprise Assessment</span>
+          <span>{selectedLang === 'ta' ? 'தொழில் மதிப்பீடு' : selectedLang === 'hi' ? 'उद्यम मूल्यांकन' : selectedLang === 'te' ? 'వ్యాపార అంచనా' : 'Enterprise Assessment'}</span>
           <ChevronRight className="w-3.5 h-3.5 text-[#009DB3]" />
-          <span>Step {currentStep} of 3</span>
+          <span>{selectedLang === 'ta' ? `படி ${currentStep} / 3` : selectedLang === 'hi' ? `चरण ${currentStep} / 3` : selectedLang === 'te' ? `దశ ${currentStep} / 3` : `Step ${currentStep} of 3`}</span>
         </div>
 
         <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#006B7A] tracking-tight">
-          Rural Business Feasibility & Concessional Credit Intake
+          {t.assessHeaderTitle || 'Rural Business Feasibility & Concessional Credit Intake'}
         </h1>
         <p className="text-xs sm:text-sm text-slate-700 mt-1 max-w-2xl font-medium">
-          Complete these 3 progressive steps to check local village demand, calculate your 90% loan eligibility, and synthesize an official bank-ready credit dossier.
+          {t.assessHeaderSubtitle || 'Complete these 3 progressive steps to check local village demand, calculate your 90% loan eligibility, and synthesize an official bank-ready credit dossier.'}
         </p>
 
         {/* 3-Step Visual Progress Bar */}
@@ -308,7 +352,9 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                 stepNumber={1} 
                 size="sm"
               />
-              <span className="text-[11px] sm:text-xs font-bold truncate">1. Idea</span>
+              <span className="text-[11px] sm:text-xs font-bold truncate">
+                1. {selectedLang === 'ta' ? 'தொழில் யோசனை' : selectedLang === 'hi' ? 'व्यवसाय विचार' : selectedLang === 'te' ? 'వ్యాపార ఆలోచన' : 'Idea'}
+              </span>
             </div>
           </div>
 
@@ -325,7 +371,9 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                 stepNumber={2} 
                 size="sm"
               />
-              <span className="text-[11px] sm:text-xs font-bold truncate">2. Location</span>
+              <span className="text-[11px] sm:text-xs font-bold truncate">
+                2. {selectedLang === 'ta' ? 'இருப்பிடம்' : selectedLang === 'hi' ? 'स्थान' : selectedLang === 'te' ? 'ప్రదేశం' : 'Location'}
+              </span>
             </div>
           </div>
 
@@ -340,7 +388,9 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                 stepNumber={3} 
                 size="sm"
               />
-              <span className="text-[11px] sm:text-xs font-bold truncate">3. Profile</span>
+              <span className="text-[11px] sm:text-xs font-bold truncate">
+                3. {selectedLang === 'ta' ? 'சுயவிவரம்' : selectedLang === 'hi' ? 'प्रोफ़ाइल' : selectedLang === 'te' ? 'ప్రొఫైల్' : 'Profile'}
+              </span>
             </div>
           </div>
         </div>
@@ -643,9 +693,9 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                     onChange={e => updateField('gender', e.target.value)}
                     className="w-full px-4 rounded-xl border-2 border-slate-300 focus:border-[#009DB3] bg-white text-sm font-bold text-slate-900 focus:outline-none min-h-[48px] shadow-xs cursor-pointer"
                   >
-                    <option value="Female">Female (Priority Rebate)</option>
-                    <option value="Male">Male</option>
-                    <option value="Other">Other</option>
+                    <option value="Male">{selectedLang === 'ta' ? 'ஆண் (Male)' : selectedLang === 'hi' ? 'पुरुष (Male)' : selectedLang === 'te' ? 'పురుషుడు (Male)' : 'Male'}</option>
+                    <option value="Female">{selectedLang === 'ta' ? 'பெண் (Female - கூடுதல் வட்டி சலுகை)' : selectedLang === 'hi' ? 'महिला (Female - विशेष छूट)' : selectedLang === 'te' ? 'మహిళ (Female - ప్రత్యేక రాయితీ)' : 'Female (Priority Rebate)'}</option>
+                    <option value="Other">{selectedLang === 'ta' ? 'இதர (Other)' : selectedLang === 'hi' ? 'अन्य (Other)' : selectedLang === 'te' ? 'ఇతర (Other)' : 'Other'}</option>
                   </select>
                 </div>
 

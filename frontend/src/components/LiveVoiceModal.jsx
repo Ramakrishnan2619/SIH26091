@@ -11,8 +11,22 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
   const [status, setStatus] = useState('connecting'); // 'connecting' | 'listening' | 'speaking' | 'error'
   const [errorMsg, setErrorMsg] = useState(null);
   const [waveformBars, setWaveformBars] = useState(new Array(16).fill(6));
+
+  const getGreeting = (lang) => {
+    switch (lang) {
+      case 'ta':
+        return "வணக்கம்! நான் உங்கள் நேரலை குரல் வழி ஆலோசகர். உங்கள் திட்ட அறிக்கை, கடன் தவணை அல்லது அரசு மானியம் குறித்து என்னிடம் கேளுங்கள்.";
+      case 'hi':
+        return "नमस्ते! मैं आपका लाइव वॉयस सलाहकार हूँ। आप मुझसे अपनी रिपोर्ट, ऋण चुकौती या सरकारी सब्सिडी के बारे में कुछ भी पूछ सकते हैं।";
+      case 'te':
+        return "నమస్కారం! నేను మీ లైవ్ వాయిస్ అసిస్టెంట్‌ని. మీ ప్రాజెక్ట్ రిపోర్ట్ లేదా ప్రభుత్వ పథకాల గురించి నన్ను అడగవచ్చు.";
+      default:
+        return "Namaste! I am your live voice advisory assistant. You can ask me anything about your project report, loan repayment, or subsidies.";
+    }
+  };
+
   const [transcripts, setTranscripts] = useState([
-    { sender: 'assistant', text: "Namaste! I am your live voice advisory assistant. You can ask me anything about your project report, loan repayment, or subsidies." }
+    { sender: 'assistant', text: getGreeting(preferredLang) }
   ]);
 
   const socketRef = useRef(null);
@@ -22,6 +36,35 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
   const animFrameRef = useRef(null);
   const timerRef = useRef(null);
   const recognitionRef = useRef(null);
+  const isOpenRef = useRef(isOpen);
+  const isSpeakingRef = useRef(false);
+  const [voices, setVoices] = useState([]);
+
+  // Dynamically load system voices when ready
+  useEffect(() => {
+    const updateVoices = () => {
+      if ('speechSynthesis' in window) {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) setVoices(v);
+      }
+    };
+    updateVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+    if (isOpen) {
+      setTranscripts([{ sender: 'assistant', text: getGreeting(preferredLang) }]);
+    }
+  }, [isOpen, preferredLang]);
 
   // Speak text aloud using SpeechSynthesis API
   const speakAloud = (text) => {
@@ -31,26 +74,54 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
     const cleanText = text.replace(/[*_#`{}]/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
 
-    utterance.rate = 1.0;
+    utterance.rate = 0.95;
     utterance.pitch = 1.0;
 
-    // Pick appropriate voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => v.lang.startsWith(preferredLang) || v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
+    // CRITICAL: Explicitly set BCP 47 language code so browser TTS loads the correct accent & language model
+    const langCode = preferredLang === 'ta' ? 'ta-IN' : preferredLang === 'hi' ? 'hi-IN' : preferredLang === 'te' ? 'te-IN' : 'en-IN';
+    utterance.lang = langCode;
+
+    // Pick appropriate voice matching preferred language
+    const allVoices = (voices && voices.length > 0) ? voices : window.speechSynthesis.getVoices();
+    let preferredVoice = allVoices.find(v => {
+      const l = (v.lang || '').replace('_', '-').toLowerCase();
+      const n = (v.name || '').toLowerCase();
+      if (preferredLang === 'ta') {
+        return l === 'ta-in' || l.startsWith('ta') || n.includes('tamil') || n.includes('valluvar') || n.includes('தமிழ்');
+      }
+      if (preferredLang === 'hi') {
+        return l === 'hi-in' || l.startsWith('hi') || n.includes('hindi') || n.includes('हिन्दी') || n.includes('kalpana') || n.includes('hemant');
+      }
+      if (preferredLang === 'te') {
+        return l === 'te-in' || l.startsWith('te') || n.includes('telugu') || n.includes('తెలుగు');
+      }
+      return l === 'en-in' || l.startsWith('en');
+    });
+
     if (preferredVoice) {
       utterance.voice = preferredVoice;
     }
 
     utterance.onstart = () => {
+      isSpeakingRef.current = true;
       setStatus('speaking');
+      try { recognitionRef.current?.stop(); } catch (e) {}
     };
 
     utterance.onend = () => {
+      isSpeakingRef.current = false;
       setStatus('listening');
+      if (isOpenRef.current && !isMuted) {
+        try { recognitionRef.current?.start(); } catch (e) {}
+      }
     };
 
     utterance.onerror = () => {
+      isSpeakingRef.current = false;
       setStatus('listening');
+      if (isOpenRef.current && !isMuted) {
+        try { recognitionRef.current?.start(); } catch (e) {}
+      }
     };
 
     window.speechSynthesis.speak(utterance);
@@ -153,8 +224,21 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
           }
         };
 
+        recognition.onend = () => {
+          if (isOpenRef.current && !isSpeakingRef.current && !isMuted) {
+            try {
+              recognition.start();
+            } catch (e) {}
+          }
+        };
+
         recognition.onerror = (e) => {
           console.warn("Speech recognition warning:", e);
+          if (isOpenRef.current && !isSpeakingRef.current && !isMuted) {
+            try {
+              recognition.start();
+            } catch (err) {}
+          }
         };
 
         try {
@@ -208,7 +292,8 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           assessment_id: assessmentId || 101,
-          content: queryText
+          content: queryText,
+          preferred_language: preferredLang || 'en'
         })
       });
 
@@ -227,13 +312,23 @@ export function LiveVoiceModal({ assessmentId, isOpen, onClose, preferredLang = 
 
   const fallbackVoiceResponse = (queryText) => {
     const lower = queryText.toLowerCase();
-    let reply = "Your assessment report confirms that your enterprise is bank-ready with safe repayment capacity under government schemes.";
-    if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste")) {
-      reply = "Namaste! I am listening. How can I help you with your loan scheme or business report?";
-    } else if (lower.includes("moratorium") || lower.includes("first payment") || lower.includes("interest")) {
-      reply = "During your initial 6-month moratorium, you only service simple interest to protect your working capital.";
-    } else if (lower.includes("early") || lower.includes("prepay")) {
-      reply = "There is zero penalty for early repayment under MoSJE schemes. You can prepay anytime.";
+    const isTa = preferredLang === 'ta';
+    let reply = isTa
+      ? "உங்கள் சரிபார்க்கப்பட்ட திட்ட அறிக்கையின்படி, உங்கள் தொழில் அரசுத் திட்டங்களின் கீழ் பாதுகாப்பான கடன் திருப்பிச் செலுத்தும் திறன் கொண்டதாக உறுதிப்படுத்தப்பட்டுள்ளது."
+      : "Your assessment report confirms that your enterprise is bank-ready with safe repayment capacity under government schemes.";
+    
+    if (lower.includes("hello") || lower.includes("hi") || lower.includes("namaste") || lower.includes("vanakkam") || lower.includes("வணக்கம்")) {
+      reply = isTa
+        ? "வணக்கம்! நான் கேட்கிறேன். உங்கள் கடன் திட்டம் அல்லது திட்ட அறிக்கை குறித்து நான் எவ்வாறு உதவ முடியும்?"
+        : "Namaste! I am listening. How can I help you with your loan scheme or business report?";
+    } else if (lower.includes("moratorium") || lower.includes("first payment") || lower.includes("interest") || lower.includes("வட்டி")) {
+      reply = isTa
+        ? "ஆரம்ப 6 மாத கால அவகாசத்தில், உங்கள் முதலீட்டுச் சுமையைக் குறைக்க எளிய வட்டியை மட்டுமே செலுத்த வேண்டும்."
+        : "During your initial 6-month moratorium, you only service simple interest to protect your working capital.";
+    } else if (lower.includes("early") || lower.includes("prepay") || lower.includes("penalty") || lower.includes("அபராதம்")) {
+      reply = isTa
+        ? "MoSJE திட்டங்களின் கீழ் முன்கூட்டியே கடன் அடைப்பதற்கு எவ்வித அபராதமும் இல்லை. நீங்கள் எப்போது வேண்டுமானாலும் அசலை விரைவாகச் செலுத்தலாம்."
+        : "There is zero penalty for early repayment under MoSJE schemes. You can prepay anytime.";
     }
     setTranscripts(prev => [...prev, { sender: 'assistant', text: reply }]);
     speakAloud(reply);

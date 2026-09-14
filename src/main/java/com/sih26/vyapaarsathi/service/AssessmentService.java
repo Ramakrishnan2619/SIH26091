@@ -23,10 +23,29 @@ public class AssessmentService {
     private final VertexAiFeasibilityService feasibilityService;
     private final FinancialCalculatorService calculatorService;
     private final AssessmentRepository assessmentRepository;
+    private final com.sih26.vyapaarsathi.repository.UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     @Transactional
     public UnifiedReportResponse executeCompleteAssessment(User user, CompleteAssessmentRequest request) {
+        // Sync user profile name and language if provided
+        if (user != null) {
+            boolean userUpdated = false;
+            if (request.getOwnerName() != null && !request.getOwnerName().trim().isEmpty()) {
+                user.setName(request.getOwnerName().trim());
+                userUpdated = true;
+            }
+            if (request.getPreferredLanguage() != null && !request.getPreferredLanguage().trim().isEmpty()) {
+                try {
+                    user.setPreferredLanguage(User.PreferredLanguage.valueOf(request.getPreferredLanguage().trim().toLowerCase()));
+                    userUpdated = true;
+                } catch (Exception ignored) {}
+            }
+            if (userUpdated) {
+                userRepository.save(user);
+            }
+        }
+
         // 1. Run Module 1 Feasibility Study
         FeasibilityReportRequest m1Req = FeasibilityReportRequest.builder()
                 .ownerName(request.getOwnerName())
@@ -38,6 +57,11 @@ public class AssessmentService {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .radiusKm(request.getRadiusKm())
+                .villageName(request.getVillageName())
+                .subdistrictName(request.getSubdistrictName())
+                .districtName(request.getDistrictName())
+                .stateName(request.getStateName())
+                .preferredLanguage(request.getPreferredLanguage())
                 .build();
 
         FeasibilityReportResponse m1Resp = feasibilityService.generateFeasibilityReport(user, m1Req);

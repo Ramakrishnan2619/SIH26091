@@ -6,6 +6,225 @@ import {
   Volume2, Sliders, Mic, Play
 } from 'lucide-react';
 
+const SETTINGS_I18N = {
+  en: {
+    title: "Settings & Preferences",
+    subtitle: "Manage your verified profile, voice assistant preferences, and past business reports",
+    btnNewAssessment: "+ Start New Assessment",
+    googleProfile: "Google Login Profile",
+    verifiedAccount: "Verified Google Account",
+    accountId: "Account ID",
+    registered: "Registered",
+    active: "Active",
+    primaryRole: "Your Primary Role:",
+    businessOwner: "Business Owner",
+    businessOwnerDesc: "Create reports and check government loan schemes",
+    verificationOfficer: "Verification Officer",
+    verificationOfficerDesc: "Review applicant reports and verify eligibility",
+    monthlyUsage: "Free Monthly Usage",
+    reportsCreated: "Reports Created This Month",
+    questionsUsed: "AI Questions & Analysis Used",
+    subsidizedNotice: "Government Subsidized: Free for all rural entrepreneurs. Quotas automatically refresh on the 1st of each month.",
+    voiceControls: "AI Voice & Assistant Controls",
+    testVoice: "Test Voice Aloud",
+    spokenVoice: "Spoken Voice / Accent:",
+    defaultVoice: "Default Indian Regional Voice",
+    voiceSpeed: "Voice Speed:",
+    voicePitch: "Voice Pitch:",
+    answerLength: "AI Answer Length:",
+    shortFast: "Short & Fast",
+    balanced: "Balanced",
+    detailed: "Detailed",
+    assistantStyle: "Assistant Language Style:",
+    simpleFriendly: "Simple & Friendly",
+    simpleDesc: "No difficult financial jargon",
+    officialBanking: "Official Banking",
+    officialDesc: "Formal loan documentation format",
+    pastReports: "Past Business Reports",
+    clearAll: "Clear All History",
+    noReports: "No saved past assessments found",
+    noReportsDesc: "Your generated business feasibility reports and loan dossiers will appear here automatically.",
+    btnCreateFirst: "Create Your First Report",
+    totalCost: "Total Cost",
+    date: "Date",
+    approvalLikelihood: "Approval Likelihood",
+    viewReport: "View Report",
+    deleteReport: "Delete this report",
+    languageRegion: "Language & Region",
+    defaultLang: "Default Portal Language:",
+    langNotice: "Language applies across your business reports, forms, and AI voice conversations.",
+    sessionStorage: "Session & Storage",
+    clearDrafts: "Clear Draft Forms",
+    clearDraftsDesc: "Erase half-filled forms and start fresh",
+    btnClearDrafts: "Clear Drafts",
+    signOut: "Sign Out",
+    signOutDesc: "Safely log out of your account",
+    btnLogOut: "Log Out"
+  },
+  ta: {
+    title: "அமைப்புகள் & விருப்பத்தேர்வுகள்",
+    subtitle: "உங்கள் சரிபார்க்கப்பட்ட சுயவிவரம், AI குரல் உதவியாளர் விருப்பங்கள் மற்றும் முந்தைய தொழில் அறிக்கைகளை நிர்வகிக்கவும்",
+    btnNewAssessment: "+ புதிய திட்ட அறிக்கை தொடங்க",
+    googleProfile: "கூகுள் கணக்கு சுயவிவரம்",
+    verifiedAccount: "சரிபார்க்கப்பட்ட கணக்கு",
+    accountId: "கணக்கு எண்",
+    registered: "பதிவு தேதி",
+    active: "செயல்பாட்டில் உள்ளது",
+    primaryRole: "உங்கள் முதன்மைப் பங்கு:",
+    businessOwner: "தொழில்முனைவோர்",
+    businessOwnerDesc: "திட்ட அறிக்கைகளை உருவாக்கி அரசு கடன் திட்டங்களை சரிபார்க்கவும்",
+    verificationOfficer: "சரிபார்ப்பு அலுவலர்",
+    verificationOfficerDesc: "விண்ணப்பதாரர் அறிக்கைகளை மதிப்பாய்வு செய்து தகுதியை சரிபார்க்கவும்",
+    monthlyUsage: "இலவச மாதாந்திர பயன்பாடு",
+    reportsCreated: "இந்த மாதம் உருவாக்கப்பட்ட அறிக்கைகள்",
+    questionsUsed: "பயன்படுத்தப்பட்ட AI வினாக்கள் & பகுப்பாய்வு",
+    subsidizedNotice: "அரசு மானியம்: அனைத்து கிராமப்புற தொழில்முனைவோருக்கும் 100% இலவசம். ஒதுக்கீடு ஒவ்வொரு மாதமும் 1-ம் தேதி புதுப்பிக்கப்படும்.",
+    voiceControls: "AI குரல் & உதவியாளர் அமைப்புகள்",
+    testVoice: "குரல் மாதிரியைக் கேட்க",
+    spokenVoice: "பேசும் குரல் / உச்சரிப்பு:",
+    defaultVoice: "இயல்புநிலை இந்திய பிராந்தியக் குரல்",
+    voiceSpeed: "குரல் வேகம்:",
+    voicePitch: "குரல் சுருதி (Pitch):",
+    answerLength: "AI பதிலின் நீளம்:",
+    shortFast: "சுருக்கமாகவும் விரைவாகவும்",
+    balanced: "சமநிலையானது",
+    detailed: "விரிவான விளக்கம்",
+    assistantStyle: "உதவியாளரின் மொழி நடை:",
+    simpleFriendly: "எளிய & நட்பான நடை",
+    simpleDesc: "கடினமான வங்கி கலைச்சொற்கள் இன்றி",
+    officialBanking: "அதிகாரப்பூர்வ வங்கி நடை",
+    officialDesc: "முறையான கடன் ஆவண நடை",
+    pastReports: "முந்தைய வணிக அறிக்கைகள்",
+    clearAll: "அனைத்து வரலாற்றையும் நீக்குக",
+    noReports: "சேமிக்கப்பட்ட முந்தைய அறிக்கைகள் எதுவும் இல்லை",
+    noReportsDesc: "நீங்கள் உருவாக்கும் தொழில் சாத்தியக்கூறு அறிக்கைகள் மற்றும் கடன் ஆவணங்கள் தானாகவே இங்கு தோன்றும்.",
+    btnCreateFirst: "முதல் அறிக்கையை உருவாக்கவும்",
+    totalCost: "மொத்த திட்ட செலவு",
+    date: "தேதி",
+    approvalLikelihood: "ஒப்புதல் சாத்தியக்கூறு",
+    viewReport: "அறிக்கையைப் பார்க்க",
+    deleteReport: "இந்த அறிக்கையை நீக்குக",
+    languageRegion: "மொழி மற்றும் பிராந்தியம்",
+    defaultLang: "இயல்புநிலை இணையதள மொழி:",
+    langNotice: "இந்த மொழி உங்கள் தொழில் அறிக்கைகள், படிவங்கள் மற்றும் AI குரல் உரையாடல்களில் பயன்படுத்தப்படும்.",
+    sessionStorage: "அமர்வு மற்றும் சேமிப்பு",
+    clearDrafts: "வரைவுப் படிவங்களை நீக்குக",
+    clearDraftsDesc: "அரைகுறையாக நிரப்பப்பட்ட படிவங்களை அழித்து புதிதாகத் தொடங்க",
+    btnClearDrafts: "வரைவுகளை நீக்குக",
+    signOut: "வெளியேறு (Log Out)",
+    signOutDesc: "உங்கள் கணக்கிலிருந்து பாதுகாப்பாக வெளியேறவும்",
+    btnLogOut: "வெளியேறு"
+  },
+  hi: {
+    title: "सेटिंग्स और प्राथमिकताएं",
+    subtitle: "अपनी सत्यापित प्रोफ़ाइल, वॉइस असिस्टेंट प्राथमिकताओं और पिछली व्यावसायिक रिपोर्टों का प्रबंधन करें",
+    btnNewAssessment: "+ नया मूल्यांकन शुरू करें",
+    googleProfile: "गूगल लॉगिन प्रोफ़ाइल",
+    verifiedAccount: "सत्यापित खाता",
+    accountId: "खाता संख्या",
+    registered: "पंजीकृत",
+    active: "सक्रिय",
+    primaryRole: "आपकी प्राथमिक भूमिका:",
+    businessOwner: "उद्यमी / व्यवसाय मालिक",
+    businessOwnerDesc: "रिपोर्ट बनाएं और सरकारी ऋण योजनाओं की जांच करें",
+    verificationOfficer: "सत्यापन अधिकारी",
+    verificationOfficerDesc: "आवेदक रिपोर्टों की समीक्षा करें और पात्रता सत्यापित करें",
+    monthlyUsage: "निःशुल्क मासिक उपयोग",
+    reportsCreated: "इस महीने बनाई गई रिपोर्टें",
+    questionsUsed: "उपयोग किए गए AI प्रश्न और विश्लेषण",
+    subsidizedNotice: "सरकारी सब्सिडी: सभी ग्रामीण उद्यमियों के लिए 100% निःशुल्क। कोटा प्रत्येक माह की 1 तारीख को स्वतः नवीनीकृत होता है।",
+    voiceControls: "AI वॉइस और असिस्टेंट नियंत्रण",
+    testVoice: "वॉइस परीक्षण सुनें",
+    spokenVoice: "वॉइस / उच्चारण:",
+    defaultVoice: "डिफ़ॉल्ट भारतीय क्षेत्रीय आवाज़",
+    voiceSpeed: "बोलने की गति:",
+    voicePitch: "आवाज़ की पिच:",
+    answerLength: "AI उत्तर की लंबाई:",
+    shortFast: "संक्षिप्त और तीव्र",
+    balanced: "संतुलित",
+    detailed: "विस्तृत",
+    assistantStyle: "सहायक भाषा शैली:",
+    simpleFriendly: "सरल और मित्रवत",
+    simpleDesc: "बिना किसी कठिन वित्तीय शब्दावली के",
+    officialBanking: "आधिकारिक बैंकिंग",
+    officialDesc: "औपचारिक ऋण दस्तावेज़ीकरण प्रारूप",
+    pastReports: "पिछली व्यावसायिक रिपोर्टें",
+    clearAll: "सभी इतिहास साफ़ करें",
+    noReports: "कोई सहेजी गई पिछली रिपोर्ट नहीं मिली",
+    noReportsDesc: "आपकी बनाई गई व्यावसायिक व्यवहार्यता रिपोर्ट और ऋण डोजियर स्वचालित रूप से यहां दिखाई देंगे।",
+    btnCreateFirst: "अपनी पहली रिपोर्ट बनाएं",
+    totalCost: "कुल लागत",
+    date: "तारीख",
+    approvalLikelihood: "स्वीकृति संभावना",
+    viewReport: "रिपोर्ट देखें",
+    deleteReport: "यह रिपोर्ट हटाएं",
+    languageRegion: "भाषा और क्षेत्र",
+    defaultLang: "पोर्टल की डिफ़ॉल्ट भाषा:",
+    langNotice: "यह भाषा आपकी व्यावसायिक रिपोर्टों, फॉर्मों और AI आवाज़ पर लागू होती है।",
+    sessionStorage: "सत्र और भंडारण",
+    clearDrafts: "ड्राफ्ट फ़ॉर्म साफ़ करें",
+    clearDraftsDesc: "आधे-अधूरे फ़ॉर्म मिटाएं और नए सिरे से शुरुआत करें",
+    btnClearDrafts: "ड्राफ्ट साफ़ करें",
+    signOut: "साइन आउट",
+    signOutDesc: "अपने खाते से सुरक्षित रूप से लॉग आउट करें",
+    btnLogOut: "लॉग आउट"
+  },
+  te: {
+    title: "సెట్టింగ్‌లు & ప్రాధాన్యతలు",
+    subtitle: "మీ ప్రొఫైల్, వాయిస్ అసిస్టెంట్ మరియు మునుపటి నివేదికలను నిర్వహించండి",
+    btnNewAssessment: "+ కొత్త నివేదికను ప్రారంభించండి",
+    googleProfile: "గూగుల్ ప్రొఫైల్",
+    verifiedAccount: "ధృవీకరించబడిన ఖాతా",
+    accountId: "ఖాతా ఐడీ",
+    registered: "నమోదైన తేదీ",
+    active: "క్రియాశీలకంగా ఉంది",
+    primaryRole: "మీ ప్రాథమిక పాత్ర:",
+    businessOwner: "వ్యాపార యజమాని",
+    businessOwnerDesc: "నివేదికలను రూపొందించండి మరియు రుణ పథకాలను తనిఖీ చేయండి",
+    verificationOfficer: "ధృవీకరణ అధికారి",
+    verificationOfficerDesc: "దరఖాస్తుదారు నివేదికలను సమీక్షించండి",
+    monthlyUsage: "ఉచిత నెలవారీ కోటా",
+    reportsCreated: "ఈ నెల రూపొందించిన నివేదికలు",
+    questionsUsed: "AI ప్రశ్నలు & విశ్లేషణ కోటా",
+    subsidizedNotice: "ప్రభుత్వ రాయితీ: గ్రామీణ వ్యవస్థాపకులందరికీ ఉచితం.",
+    voiceControls: "AI వాయిస్ నియంత్రణలు",
+    testVoice: "వాయిస్ వినండి",
+    spokenVoice: "ఉచ్చారణ / స్వరం:",
+    defaultVoice: "ప్రాంతీయ స్వరం",
+    voiceSpeed: "మాట్లాడే వేగం:",
+    voicePitch: "స్వర పిచ్:",
+    answerLength: "సమాధానం నిడివి:",
+    shortFast: "సంక్షిప్తంగా",
+    balanced: "సమతుల్యం",
+    detailed: "వివరణాత్మకంగా",
+    assistantStyle: "భాష శైలి:",
+    simpleFriendly: "సరళమైన శైలి",
+    simpleDesc: "కష్టమైన ఆర్థిక పదాలు లేకుండా",
+    officialBanking: "బ్యాంకింగ్ శైలి",
+    officialDesc: "అధికారిక డాక్యుమెంటేషన్ ఫార్మాట్",
+    pastReports: "గత నివేదికలు",
+    clearAll: "చరిత్రను తొలగించండి",
+    noReports: "గత నివేదికలు ఏవీ కనుగొనబడలేదు",
+    noReportsDesc: "మీరు రూపొందించిన నివేదికలు ఇక్కడ కనిపిస్తాయి.",
+    btnCreateFirst: "మొదటి నివేదికను సృష్టించండి",
+    totalCost: "మొత్తం ఖర్చు",
+    date: "తేదీ",
+    approvalLikelihood: "ఆమోద సంభావ్యత",
+    viewReport: "నివేదిక చూడండి",
+    deleteReport: "తొలగించండి",
+    languageRegion: "భాష మరియు ప్రాంతం",
+    defaultLang: "పోర్టల్ భాష:",
+    langNotice: "ఈ భాష నివేదికలు మరియు AI సంభాషణలలో వర్తిస్తుంది.",
+    sessionStorage: "సెషన్ మరియు నిల్వ",
+    clearDrafts: "డ్రాఫ్ట్ తొలగించండి",
+    clearDraftsDesc: "సగం నింపిన ఫారాలను తొలగించి కొత్తగా ప్రారంభించండి",
+    btnClearDrafts: "తొలగించు",
+    signOut: "లాగ్ అవుట్",
+    signOutDesc: "మీ ఖాతా నుండి సురక్షితంగా లాగ్ అవుట్ చేయండి",
+    btnLogOut: "లాగ్ అవుట్"
+  }
+};
+
 export function SettingsPage({
   currentUser,
   onNavigate,
@@ -14,6 +233,8 @@ export function SettingsPage({
   onLangChange,
   onLoadReport
 }) {
+  const t = SETTINGS_I18N[selectedLang] || SETTINGS_I18N.en;
+
   const [profile, setProfile] = useState(null);
   const [history, setHistory] = useState([]);
   const [usage, setUsage] = useState(null);
@@ -27,8 +248,8 @@ export function SettingsPage({
   const [selectedVoiceUri, setSelectedVoiceUri] = useState('');
   const [voiceRate, setVoiceRate] = useState(1.0);
   const [voicePitch, setVoicePitch] = useState(1.0);
-  const [responseLength, setResponseLength] = useState('concise'); // 'concise' | 'balanced' | 'detailed'
-  const [responseTone, setResponseTone] = useState('simple'); // 'simple' | 'official'
+  const [responseLength, setResponseLength] = useState('concise');
+  const [responseTone, setResponseTone] = useState('simple');
 
   const token = localStorage.getItem('vyapaarsathi_token');
 
@@ -69,7 +290,7 @@ export function SettingsPage({
     } catch {}
   };
 
-  // Test AI Voice by speaking sample sentence
+  // Test AI Voice by speaking sample sentence with correct language code
   const handleTestVoice = () => {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
@@ -86,9 +307,28 @@ export function SettingsPage({
     utterance.rate = voiceRate;
     utterance.pitch = voicePitch;
 
-    if (selectedVoiceUri && voices.length > 0) {
-      const matched = voices.find(v => v.voiceURI === selectedVoiceUri);
+    const langCode = selectedLang === 'hi' ? 'hi-IN' : selectedLang === 'ta' ? 'ta-IN' : selectedLang === 'te' ? 'te-IN' : 'en-IN';
+    utterance.lang = langCode;
+
+    const available = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+    if (selectedVoiceUri) {
+      const matched = available.find(v => v.voiceURI === selectedVoiceUri);
       if (matched) utterance.voice = matched;
+    } else {
+      // Find regional voice matching selectedLang
+      const regional = available.find(v => {
+        const l = (v.lang || '').toLowerCase();
+        const n = (v.name || '').toLowerCase();
+        if (selectedLang === 'ta') return l.startsWith('ta') || n.includes('tamil') || n.includes('valluvar');
+        if (selectedLang === 'hi') return l.startsWith('hi') || n.includes('hindi') || n.includes('kalpana') || n.includes('hemant');
+        if (selectedLang === 'te') return l.startsWith('te') || n.includes('telugu');
+        return l.startsWith('en-in') || l.startsWith('en');
+      });
+      // CRITICAL: Only set voice if a real regional voice exists. 
+      // Do NOT set an English voice on Tamil text, which would mute or corrupt Tamil speech!
+      if (regional) {
+        utterance.voice = regional;
+      }
     }
 
     window.speechSynthesis.speak(utterance);
@@ -111,10 +351,10 @@ export function SettingsPage({
           setProfile(profileData);
         } else {
           setProfile(currentUser || {
-            name: "Sharon Varghese",
-            email: "sharon@gmail.com",
-            role: "BENEFICIARY",
-            preferredLanguage: "EN",
+            name: "Ramakrishnan S",
+            email: "ramakrishnan@vyapaarsathi.gov.in",
+            role: "beneficiary",
+            preferredLanguage: (selectedLang || "ta").toLowerCase(),
             profilePicUrl: null,
             createdAt: new Date().toISOString()
           });
@@ -142,29 +382,9 @@ export function SettingsPage({
           }
         } catch {}
 
-        // Also merge active session report if not already present
-        const cached = sessionStorage.getItem('vyapaarsathi_report');
-        if (cached) {
-          try {
-            const rep = JSON.parse(cached);
-            const aId = rep.assessment_id || 101;
-            if (!mergedHistory.some(m => String(m.assessmentId) === String(aId))) {
-              mergedHistory.unshift({
-                assessmentId: aId,
-                businessCategory: rep.dashboard_kpis?.enterprise_type || 'Micro Enterprise',
-                villageName: rep.dashboard_kpis?.village_name || 'Melavalavu',
-                districtName: rep.dashboard_kpis?.district_name || 'Madurai',
-                compositeReadinessScore: rep.dashboard_kpis?.composite_readiness_score || 78,
-                totalProjectCost: rep.dashboard_kpis?.project_cost || 1000000,
-                createdAt: rep.dashboard_kpis?.generated_at || new Date().toISOString()
-              });
-            }
-          } catch {}
-        }
-
         setHistory(mergedHistory);
 
-        // 3. Fetch Quota Usage
+        // 3. Fetch Quota Usage (Dynamically based on real activity)
         const usageRes = await fetch('/api/user/usage', { headers }).catch(() => null);
         if (usageRes && usageRes.ok) {
           const usageData = await usageRes.json();
@@ -172,9 +392,9 @@ export function SettingsPage({
         } else {
           setUsage({
             currentTier: 'STANDARD',
-            assessmentsCreated: 2,
+            assessmentsCreated: mergedHistory.length,
             maxAssessmentsPerMonth: 20,
-            tokensUsed: 1420,
+            tokensUsed: Math.max(120, mergedHistory.length * 350),
             maxTokensPerMonth: 100000
           });
         }
@@ -186,13 +406,15 @@ export function SettingsPage({
     };
 
     fetchUserData();
-  }, [token, currentUser]);
+  }, [token, currentUser, selectedLang]);
 
   // Handle Role Change
   const handleRoleSwitch = async (newRole) => {
     setSavingRole(true);
     setSuccessMsg(null);
     setErrorMsg(null);
+
+    const backendRole = newRole.toLowerCase();
 
     try {
       const res = await fetch('/api/user/profile', {
@@ -203,25 +425,25 @@ export function SettingsPage({
         },
         body: JSON.stringify({
           name: profile?.name || 'User',
-          preferredLanguage: profile?.preferredLanguage || 'EN',
-          role: newRole
+          preferredLanguage: (selectedLang || 'ta').toLowerCase(),
+          role: backendRole
         })
       });
 
       if (res.ok) {
         const updated = await res.json();
         setProfile(updated);
-        setSuccessMsg(`Account role updated to ${newRole === 'SCA_OFFICER' ? 'Verification Officer' : 'Business Owner'}`);
+        setSuccessMsg(backendRole === 'sca_officer' ? "Role: Verification Officer" : "Role: Business Owner");
       } else {
-        setProfile(prev => ({ ...prev, role: newRole }));
-        setSuccessMsg(`Role switched to ${newRole === 'SCA_OFFICER' ? 'Verification Officer' : 'Business Owner'}`);
+        setProfile(prev => ({ ...prev, role: backendRole }));
+        setSuccessMsg(backendRole === 'sca_officer' ? "Role: Verification Officer" : "Role: Business Owner");
       }
     } catch (e) {
-      setProfile(prev => ({ ...prev, role: newRole }));
-      setSuccessMsg(`Role switched to ${newRole === 'SCA_OFFICER' ? 'Verification Officer' : 'Business Owner'}`);
+      setProfile(prev => ({ ...prev, role: backendRole }));
+      setSuccessMsg(backendRole === 'sca_officer' ? "Role: Verification Officer" : "Role: Business Owner");
     } finally {
       setSavingRole(false);
-      setTimeout(() => setSuccessMsg(null), 4000);
+      setTimeout(() => setSuccessMsg(null), 3000);
     }
   };
 
@@ -266,18 +488,24 @@ export function SettingsPage({
   };
 
   const handleClearCache = () => {
-    sessionStorage.removeItem('vyapaarsathi_report');
-    sessionStorage.removeItem('vyapaarsathi_assess_draft_v2');
-    localStorage.removeItem('vyapaarsathi_assessment_step');
-    localStorage.removeItem('vyapaarsathi_assessment_data');
-    setSuccessMsg("Offline drafts and cached reports cleared.");
-    setTimeout(() => setSuccessMsg(null), 3000);
+    try {
+      sessionStorage.clear();
+      sessionStorage.removeItem('vyapaarsathi_assess_draft_v2');
+      sessionStorage.removeItem('vyapaarsathi_report');
+      localStorage.removeItem('vyapaarsathi_assessment_step');
+      localStorage.removeItem('vyapaarsathi_assessment_data');
+      localStorage.removeItem('vyapaarsathi_assess_draft_v2');
+    } catch (e) {}
+
+    setSuccessMsg(selectedLang === 'ta' ? "வரைவுப் படிவங்கள் வெற்றிகரமாக அழிக்கப்பட்டன!" : "Offline drafts and cached forms cleared successfully.");
+    setTimeout(() => setSuccessMsg(null), 4000);
   };
 
-  const effectiveName = profile?.name || currentUser?.name || 'Entrepreneur';
-  const effectiveEmail = profile?.email || currentUser?.email || 'user@vyapaarsathi.gov.in';
+  const effectiveName = profile?.name || currentUser?.name || 'Ramakrishnan S';
+  const effectiveEmail = profile?.email || currentUser?.email || 'ramakrishnan@vyapaarsathi.gov.in';
   const effectivePic = profile?.profilePicUrl || currentUser?.profilePicUrl;
-  const effectiveRole = profile?.role || currentUser?.role || 'BENEFICIARY';
+  const rawRole = (profile?.role || currentUser?.role || 'beneficiary').toLowerCase();
+  const isOfficer = rawRole === 'sca_officer';
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
@@ -286,10 +514,10 @@ export function SettingsPage({
         <div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <SettingsIcon className="w-6 h-6 text-[#006B7A]" />
-            <span>Settings & Preferences</span>
+            <span>{t.title}</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Manage your verified profile, voice assistant preferences, and past business reports
+            {t.subtitle}
           </p>
         </div>
 
@@ -298,7 +526,7 @@ export function SettingsPage({
           onClick={() => onNavigate('assess', currentUser, true)}
           className="px-4 py-2 rounded-xl bg-[#006B7A] hover:bg-[#005561] text-white text-xs font-bold shadow-xs transition cursor-pointer"
         >
-          + Start New Assessment
+          {t.btnNewAssessment}
         </button>
       </div>
 
@@ -323,11 +551,11 @@ export function SettingsPage({
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Google Login Profile
+                {t.googleProfile}
               </span>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                 <Shield className="w-3 h-3" />
-                <span>Verified Google Account</span>
+                <span>{t.verifiedAccount}</span>
               </span>
             </div>
 
@@ -355,10 +583,10 @@ export function SettingsPage({
 
                 <div className="flex flex-wrap items-center gap-2 mt-3">
                   <span className="text-[11px] font-mono text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                    Account ID: #{profile?.userId || '108'}
+                    {t.accountId}: #{profile?.userId || '1'}
                   </span>
                   <span className="text-[11px] text-slate-500">
-                    Registered: {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-IN') : 'Active'}
+                    {t.registered}: {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-IN') : t.active}
                   </span>
                 </div>
               </div>
@@ -368,44 +596,44 @@ export function SettingsPage({
           {/* Role Switcher */}
           <div className="mt-6 pt-5 border-t border-slate-100">
             <label className="block text-xs font-bold text-slate-700 mb-2">
-              Your Primary Role:
+              {t.primaryRole}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => handleRoleSwitch('BENEFICIARY')}
+                onClick={() => handleRoleSwitch('beneficiary')}
                 disabled={savingRole}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                  effectiveRole === 'BENEFICIARY'
+                  !isOfficer
                     ? 'bg-[#E5F6F8] border-[#006B7A] ring-1 ring-[#006B7A]'
                     : 'bg-slate-50 border-slate-200 hover:bg-white'
                 }`}
               >
                 <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
-                  <span>Business Owner</span>
-                  {effectiveRole === 'BENEFICIARY' && <CheckCircle2 className="w-3.5 h-3.5 text-[#006B7A]" />}
+                  <span>{t.businessOwner}</span>
+                  {!isOfficer && <CheckCircle2 className="w-3.5 h-3.5 text-[#006B7A]" />}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">
-                  Create reports and check government loan schemes
+                  {t.businessOwnerDesc}
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleRoleSwitch('SCA_OFFICER')}
+                onClick={() => handleRoleSwitch('sca_officer')}
                 disabled={savingRole}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                  effectiveRole === 'SCA_OFFICER'
+                  isOfficer
                     ? 'bg-[#E5F6F8] border-[#006B7A] ring-1 ring-[#006B7A]'
                     : 'bg-slate-50 border-slate-200 hover:bg-white'
                 }`}
               >
                 <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
-                  <span>Verification Officer</span>
-                  {effectiveRole === 'SCA_OFFICER' && <CheckCircle2 className="w-3.5 h-3.5 text-[#006B7A]" />}
+                  <span>{t.verificationOfficer}</span>
+                  {isOfficer && <CheckCircle2 className="w-3.5 h-3.5 text-[#006B7A]" />}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">
-                  Review applicant reports and verify eligibility
+                  {t.verificationOfficerDesc}
                 </div>
               </button>
             </div>
@@ -417,22 +645,22 @@ export function SettingsPage({
           <div>
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-4 text-slate-900 font-bold text-sm">
               <BarChart3 className="w-4 h-4 text-[#006B7A]" />
-              <span>Free Monthly Usage</span>
+              <span>{t.monthlyUsage}</span>
             </div>
 
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
-                  <span>Reports Created This Month</span>
+                  <span>{t.reportsCreated}</span>
                   <span className="font-mono text-[#006B7A]">
-                    {usage?.assessmentsCreated || 2} / {usage?.maxAssessmentsPerMonth || 20}
+                    {usage?.assessmentsCreated !== undefined ? usage.assessmentsCreated : history.length} / {usage?.maxAssessmentsPerMonth || 20}
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                   <div
                     className="bg-[#006B7A] h-2 rounded-full"
                     style={{
-                      width: `${Math.min(100, ((usage?.assessmentsCreated || 2) / (usage?.maxAssessmentsPerMonth || 20)) * 100)}%`
+                      width: `${Math.min(100, (((usage?.assessmentsCreated !== undefined ? usage.assessmentsCreated : history.length)) / (usage?.maxAssessmentsPerMonth || 20)) * 100)}%`
                     }}
                   />
                 </div>
@@ -440,16 +668,16 @@ export function SettingsPage({
 
               <div>
                 <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
-                  <span>AI Questions & Analysis Used</span>
+                  <span>{t.questionsUsed}</span>
                   <span className="font-mono text-[#006B7A]">
-                    {(usage?.tokensUsed || 1420).toLocaleString()} / {(usage?.maxTokensPerMonth || 100000).toLocaleString()}
+                    {(usage?.tokensUsed || Math.max(150, history.length * 350)).toLocaleString()} / {(usage?.maxTokensPerMonth || 100000).toLocaleString()}
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                   <div
                     className="bg-[#02C6E1] h-2 rounded-full"
                     style={{
-                      width: `${Math.min(100, ((usage?.tokensUsed || 1420) / (usage?.maxTokensPerMonth || 100000)) * 100)}%`
+                      width: `${Math.min(100, (((usage?.tokensUsed || Math.max(150, history.length * 350))) / (usage?.maxTokensPerMonth || 100000)) * 100)}%`
                     }}
                   />
                 </div>
@@ -458,7 +686,7 @@ export function SettingsPage({
           </div>
 
           <div className="mt-6 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600">
-            Government Subsidized: <strong>Free for all rural entrepreneurs</strong>. Quotas automatically refresh on the 1st of each month.
+            {t.subsidizedNotice}
           </div>
         </div>
       </div>
@@ -468,7 +696,7 @@ export function SettingsPage({
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
             <Volume2 className="w-4 h-4 text-[#006B7A]" />
-            <span>AI Voice & Assistant Controls</span>
+            <span>{t.voiceControls}</span>
           </div>
           <button
             type="button"
@@ -476,7 +704,7 @@ export function SettingsPage({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E5F6F8] hover:bg-[#cbf4f9] text-[#006B7A] text-xs font-bold border border-[#79E4F3] transition cursor-pointer"
           >
             <Play className="w-3.5 h-3.5" />
-            <span>Test Voice Aloud</span>
+            <span>{t.testVoice}</span>
           </button>
         </div>
 
@@ -485,7 +713,7 @@ export function SettingsPage({
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Spoken Voice / Accent:
+                {t.spokenVoice}
               </label>
               <select
                 value={selectedVoiceUri}
@@ -495,7 +723,7 @@ export function SettingsPage({
                 }}
                 className="w-full bg-slate-50 text-slate-800 px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#006B7A] cursor-pointer"
               >
-                <option value="">Default Indian Regional Voice</option>
+                <option value="">{t.defaultVoice}</option>
                 {voices.map((v, i) => (
                   <option key={i} value={v.voiceURI}>
                     {v.name} ({v.lang})
@@ -506,15 +734,14 @@ export function SettingsPage({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span>Voice Speed:</span>
-                  <span className="text-[#006B7A] font-mono">{voiceRate.toFixed(1)}x</span>
-                </div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  {t.voiceSpeed} <span className="text-[#006B7A] font-mono">{voiceRate}x</span>
+                </label>
                 <input
                   type="range"
-                  min="0.7"
-                  max="1.4"
-                  step="0.1"
+                  min="0.75"
+                  max="1.5"
+                  step="0.05"
                   value={voiceRate}
                   onChange={(e) => {
                     const r = parseFloat(e.target.value);
@@ -526,15 +753,14 @@ export function SettingsPage({
               </div>
 
               <div>
-                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span>Voice Pitch:</span>
-                  <span className="text-[#006B7A] font-mono">{voicePitch.toFixed(1)}</span>
-                </div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  {t.voicePitch} <span className="text-[#006B7A] font-mono">{voicePitch}</span>
+                </label>
                 <input
                   type="range"
-                  min="0.7"
+                  min="0.8"
                   max="1.3"
-                  step="0.1"
+                  step="0.05"
                   value={voicePitch}
                   onChange={(e) => {
                     const p = parseFloat(e.target.value);
@@ -547,32 +773,32 @@ export function SettingsPage({
             </div>
           </div>
 
-          {/* AI Response Detail & Tone */}
+          {/* AI Response Behavior & Tone */}
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                AI Answer Length:
+                {t.answerLength}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'concise', label: 'Short & Fast' },
-                  { id: 'balanced', label: 'Balanced' },
-                  { id: 'detailed', label: 'Detailed' }
-                ].map((item) => (
+                  { id: 'concise', label: t.shortFast },
+                  { id: 'balanced', label: t.balanced },
+                  { id: 'detailed', label: t.detailed }
+                ].map((opt) => (
                   <button
-                    key={item.id}
+                    key={opt.id}
                     type="button"
                     onClick={() => {
-                      setResponseLength(item.id);
-                      saveAiPrefs({ responseLength: item.id });
+                      setResponseLength(opt.id);
+                      saveAiPrefs({ responseLength: opt.id });
                     }}
-                    className={`py-2 px-2 text-center rounded-xl text-xs font-bold transition cursor-pointer border ${
-                      responseLength === item.id
+                    className={`py-2 px-1 text-center text-xs font-bold rounded-xl border transition cursor-pointer ${
+                      responseLength === opt.id
                         ? 'bg-[#006B7A] text-white border-[#006B7A]'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {item.label}
+                    {opt.label}
                   </button>
                 ))}
               </div>
@@ -580,7 +806,7 @@ export function SettingsPage({
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Assistant Language Style:
+                {t.assistantStyle}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -589,14 +815,14 @@ export function SettingsPage({
                     setResponseTone('simple');
                     saveAiPrefs({ responseTone: 'simple' });
                   }}
-                  className={`py-2 px-3 text-left rounded-xl text-xs transition cursor-pointer border ${
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
                     responseTone === 'simple'
-                      ? 'bg-[#E5F6F8] text-[#006B7A] border-[#006B7A] font-bold'
-                      : 'bg-slate-50 text-slate-700 border-slate-200'
+                      ? 'bg-[#E5F6F8] border-[#006B7A] ring-1 ring-[#006B7A]'
+                      : 'bg-slate-50 border-slate-200 hover:bg-white'
                   }`}
                 >
-                  <div className="font-bold">Simple & Friendly</div>
-                  <div className="text-[10px] text-slate-500">No difficult financial jargon</div>
+                  <div className="text-xs font-bold text-slate-900">{t.simpleFriendly}</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">{t.simpleDesc}</div>
                 </button>
 
                 <button
@@ -605,14 +831,14 @@ export function SettingsPage({
                     setResponseTone('official');
                     saveAiPrefs({ responseTone: 'official' });
                   }}
-                  className={`py-2 px-3 text-left rounded-xl text-xs transition cursor-pointer border ${
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
                     responseTone === 'official'
-                      ? 'bg-[#E5F6F8] text-[#006B7A] border-[#006B7A] font-bold'
-                      : 'bg-slate-50 text-slate-700 border-slate-200'
+                      ? 'bg-[#E5F6F8] border-[#006B7A] ring-1 ring-[#006B7A]'
+                      : 'bg-slate-50 border-slate-200 hover:bg-white'
                   }`}
                 >
-                  <div className="font-bold">Official Banking</div>
-                  <div className="text-[10px] text-slate-500">Formal loan documentation format</div>
+                  <div className="text-xs font-bold text-slate-900">{t.officialBanking}</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">{t.officialDesc}</div>
                 </button>
               </div>
             </div>
@@ -620,54 +846,71 @@ export function SettingsPage({
         </div>
       </div>
 
-      {/* 4. Past Assessment History with Delete Option */}
+      {/* 4. Past Business Reports */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
             <History className="w-4 h-4 text-[#006B7A]" />
-            <span>Past Business Reports ({history.length})</span>
+            <span>{t.pastReports} ({history.length})</span>
           </div>
 
           {history.length > 0 && (
             <button
               type="button"
               onClick={handleClearAllHistory}
-              className="text-xs font-bold text-rose-600 hover:text-rose-800 transition flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-rose-600 hover:text-rose-800 transition cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Clear All History</span>
+              {t.clearAll}
             </button>
           )}
         </div>
 
         {history.length === 0 ? (
-          <div className="text-center py-8 text-xs text-slate-400">
-            No saved reports yet. Complete your first assessment to view saved records here.
+          <div className="py-12 text-center text-slate-400 space-y-3">
+            <FileText className="w-10 h-10 mx-auto text-slate-300" />
+            <div className="text-sm font-bold text-slate-600">{t.noReports}</div>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              {t.noReportsDesc}
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigate('assess', currentUser, true)}
+              className="mt-2 px-4 py-2 rounded-xl bg-[#006B7A] text-white text-xs font-bold cursor-pointer hover:bg-[#005561]"
+            >
+              {t.btnCreateFirst}
+            </button>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
-            {history.map((item, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {history.map((item) => (
               <div
-                key={idx}
-                className="py-3.5 flex flex-wrap items-center justify-between gap-4 hover:bg-slate-50 p-2 rounded-xl transition"
+                key={item.assessmentId}
+                className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-[#79E4F3] transition flex flex-col justify-between"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[#006B7A] flex items-center justify-center font-black text-xs border border-[#79E4F3]">
-                    #{item.assessmentId || idx + 1}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                      #{item.assessmentId}
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'Recent'}
+                    </span>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">
-                      {item.businessCategory || 'Micro Enterprise'} • {item.villageName || 'Melavalavu'}, {item.districtName || 'Madurai'}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Total Cost: ₹{item.totalProjectCost ? Number(item.totalProjectCost).toLocaleString('en-IN') : '10,00,000'} • Date: {new Date(item.createdAt).toLocaleDateString('en-IN')}
-                    </div>
+
+                  <h4 className="text-sm font-bold text-slate-900 line-clamp-1">
+                    {item.businessCategory || 'Micro Enterprise'} • {item.villageName || 'Village'}, {item.districtName || 'District'}
+                  </h4>
+
+                  <div className="flex items-center gap-3 text-xs text-slate-600 mt-2">
+                    <span>{t.totalCost}: ₹{Number(item.totalProjectCost || 1000000).toLocaleString('en-IN')}</span>
+                    <span>•</span>
+                    <span>{t.date}: {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : 'Recent'}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
                   <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    Approval Likelihood: {item.compositeReadinessScore || 78}%
+                    {t.approvalLikelihood}: {item.compositeReadinessScore || 78}%
                   </span>
 
                   <button
@@ -678,7 +921,7 @@ export function SettingsPage({
                     }}
                     className="flex items-center gap-1 text-xs font-bold text-[#006B7A] hover:underline cursor-pointer"
                   >
-                    <span>View Report</span>
+                    <span>{t.viewReport}</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
 
@@ -686,7 +929,7 @@ export function SettingsPage({
                     type="button"
                     onClick={() => handleDeleteHistoryItem(item.assessmentId)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                    title="Delete this report"
+                    title={t.deleteReport}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -702,12 +945,12 @@ export function SettingsPage({
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 text-slate-900 font-bold text-sm">
             <Globe className="w-4 h-4 text-[#006B7A]" />
-            <span>Language & Region</span>
+            <span>{t.languageRegion}</span>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-2">
-              Default Portal Language:
+              {t.defaultLang}
             </label>
             <select
               value={selectedLang}
@@ -721,42 +964,51 @@ export function SettingsPage({
             </select>
           </div>
           <p className="text-[11px] text-slate-400">
-            Language applies across your business reports, forms, and AI voice conversations.
+            {t.langNotice}
           </p>
         </div>
 
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 text-slate-900 font-bold text-sm">
             <Clock className="w-4 h-4 text-[#006B7A]" />
-            <span>Session & Storage</span>
+            <span>{t.sessionStorage}</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-bold text-slate-900">Clear Draft Forms</div>
-              <div className="text-[11px] text-slate-500">Erase half-filled forms and start fresh</div>
+              <div className="text-xs font-bold text-slate-900">{t.clearDrafts}</div>
+              <div className="text-[11px] text-slate-500">{t.clearDraftsDesc}</div>
             </div>
             <button
               type="button"
               onClick={handleClearCache}
               className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
             >
-              Clear Drafts
+              {t.btnClearDrafts}
             </button>
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-bold text-rose-700">Sign Out</div>
-              <div className="text-[11px] text-slate-500">Safely log out of your account</div>
+              <div className="text-xs font-bold text-rose-700">{t.signOut}</div>
+              <div className="text-[11px] text-slate-500">{t.signOutDesc}</div>
             </div>
             <button
               type="button"
-              onClick={onLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 transition cursor-pointer"
+              onClick={() => {
+                if (onLogout) {
+                  onLogout();
+                } else {
+                  localStorage.removeItem('vyapaarsathi_token');
+                  localStorage.removeItem('vyapaarsathi_user');
+                  sessionStorage.clear();
+                  window.location.href = '/';
+                }
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 transition cursor-pointer active:scale-95"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Log Out</span>
+              <span>{t.btnLogOut}</span>
             </button>
           </div>
         </div>

@@ -134,10 +134,32 @@ public class User {
     }
 
     public enum PreferredLanguage {
-        en, hi, ta, te
+        en, hi, ta, te;
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        public static PreferredLanguage fromString(String value) {
+            if (value == null) return en;
+            for (PreferredLanguage l : PreferredLanguage.values()) {
+                if (l.name().equalsIgnoreCase(value.trim())) {
+                    return l;
+                }
+            }
+            return en;
+        }
     }
 
     public enum UserRole {
-        beneficiary, sca_officer
+        beneficiary, sca_officer;
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        public static UserRole fromString(String value) {
+            if (value == null) return beneficiary;
+            for (UserRole r : UserRole.values()) {
+                if (r.name().equalsIgnoreCase(value.trim())) {
+                    return r;
+                }
+            }
+            return beneficiary;
+        }
     }
 }

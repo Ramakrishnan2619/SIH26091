@@ -17,7 +17,10 @@
     <description>VyapaarSathi - AI-Powered Rural Micro-Enterprise Advisory Platform (SIH 26091)</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <cloud-sql-socket-factory.version>1.18.0</cloud-sql-socket-factory.version>
         <jjwt.version>0.12.5</jjwt.version>
         <sqlite-jdbc.version>3.45.3.0</sqlite-jdbc.version>
@@ -86,6 +89,11 @@
             <groupId>com.google.cloud.sql</groupId>
             <artifactId>mysql-socket-factory-connector-j-8</artifactId>
             <version>${cloud-sql-socket-factory.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- SQLite JDBC for local Layer 2 DB read -->

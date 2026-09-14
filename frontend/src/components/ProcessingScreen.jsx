@@ -119,7 +119,8 @@ export function ProcessingScreen({ payload, onSuccess, onError }) {
           : `${payload?.businessCategory || 'Rural'} micro-enterprise setup providing essential local services and goods.`,
         villageLgdCode: payload?.villageLgdCode || 639842,
         latitude: Number(payload?.latitude) || 10.0524,
-        longitude: Number(payload?.longitude) || 78.3344
+        longitude: Number(payload?.longitude) || 78.3344,
+        preferredLanguage: payload?.preferredLanguage || 'en'
       };
 
       const res = await fetch('/api/assess/complete', {

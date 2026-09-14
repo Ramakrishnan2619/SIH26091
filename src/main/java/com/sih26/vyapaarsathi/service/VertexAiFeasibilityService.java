@@ -34,6 +34,9 @@ public class VertexAiFeasibilityService {
     private final AssessmentRepository assessmentRepository;
     private final ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private GeminiApiClient geminiApiClient;
+
     @Value("${app.gcp.project-id:sih26-508313}")
     private String gcpProjectId;
 
@@ -48,8 +51,35 @@ public class VertexAiFeasibilityService {
         // 1. Quota Check
         quotaService.checkQuota(user);
 
-        // 2. Query Layer 2 Demand Data (Static SQLite)
+        // 2. Query Layer 2 Demand Data (Static SQLite) with fallback to explicit request location
         FeasibilityReportResponse.VillageContextDto villageContext = layer2DbService.getVillageByLgdCode(request.getVillageLgdCode());
+        if (villageContext == null) {
+            villageContext = FeasibilityReportResponse.VillageContextDto.builder()
+                    .villageLgdCode(request.getVillageLgdCode() != null ? request.getVillageLgdCode() : 639842)
+                    .villageName(request.getVillageName() != null && !request.getVillageName().trim().isEmpty() ? request.getVillageName() : "Selected Locality")
+                    .subdistrictName(request.getSubdistrictName() != null ? request.getSubdistrictName() : "")
+                    .districtName(request.getDistrictName() != null && !request.getDistrictName().trim().isEmpty() ? request.getDistrictName() : "District")
+                    .stateName(request.getStateName() != null ? request.getStateName() : "Tamil Nadu")
+                    .population(5420)
+                    .households(1340)
+                    .literacyRate(74.2)
+                    .districtIncomeBand("Commercial & Trade Cluster")
+                    .districtNdpPerCapita(new BigDecimal("165000"))
+                    .build();
+        } else {
+            if (request.getVillageName() != null && !request.getVillageName().trim().isEmpty()) {
+                villageContext.setVillageName(request.getVillageName().trim());
+            }
+            if (request.getDistrictName() != null && !request.getDistrictName().trim().isEmpty()) {
+                villageContext.setDistrictName(request.getDistrictName().trim());
+            }
+            if (request.getSubdistrictName() != null && !request.getSubdistrictName().trim().isEmpty()) {
+                villageContext.setSubdistrictName(request.getSubdistrictName().trim());
+            }
+            if (request.getStateName() != null && !request.getStateName().trim().isEmpty()) {
+                villageContext.setStateName(request.getStateName().trim());
+            }
+        }
 
         // 3. Query Layer 1 Supply Data (Area Insights / Places API)
         FeasibilityReportResponse.SupplyMetricsDto supplyMetrics = googleMapsService.querySupplyMetrics(
@@ -111,7 +141,25 @@ public class VertexAiFeasibilityService {
 
         boolean isModeled = supplyMetrics.getDataSource().contains("Modeled Estimate");
 
-        // Attempt live Vertex AI call if GCP project is available
+        // 1. Attempt Google AI Studio direct Gemini API if configured
+        if (geminiApiClient != null && geminiApiClient.isApiKeyConfigured()) {
+            try {
+                String prompt = buildPrompt(request, villageContext, supplyMetrics, riskPattern);
+                String responseText = geminiApiClient.generateContent(prompt);
+                if (responseText != null && !responseText.trim().isEmpty()) {
+                    quotaService.recordUsage(user, vertexModel, 850);
+                    FeasibilityReportResponse.Module1ReportDto parsed = parseGeminiResponse(responseText, isModeled);
+                    if (parsed != null) {
+                        log.info("Successfully synthesized feasibility report via Google AI Studio Gemini API");
+                        return parsed;
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Google AI Studio Gemini call failed ({}), attempting GCP Vertex fallback.", ex.getMessage());
+            }
+        }
+
+        // 2. Attempt live Vertex AI call if GCP project is available (e.g. on Cloud Run)
         try (VertexAI vertexAI = new VertexAI(gcpProjectId, gcpLocation)) {
             com.google.cloud.vertexai.api.GenerationConfig genConfig =
                     com.google.cloud.vertexai.api.GenerationConfig.newBuilder()
@@ -136,7 +184,7 @@ public class VertexAiFeasibilityService {
             log.warn("Vertex AI call bypassed or unavailable ({}), generating grounded deterministic synthesis.", ex.getMessage());
         }
 
-        // Grounded synthesis fallback adhering strictly to all 6 points and PRD-02 rules
+        // 3. Grounded synthesis fallback adhering strictly to all 6 points and PRD-02 rules
         quotaService.recordUsage(user, vertexModel, 350);
         return buildGroundedSynthesis(request, villageContext, supplyMetrics, riskPattern, isModeled);
     }
@@ -145,8 +193,15 @@ public class VertexAiFeasibilityService {
                                FeasibilityReportResponse.VillageContextDto vc,
                                FeasibilityReportResponse.SupplyMetricsDto sm,
                                Layer2DbService.RiskPattern rp) {
+        String langInstruction = switch (req.getPreferredLanguage() != null ? req.getPreferredLanguage().toLowerCase(Locale.ROOT) : "en") {
+            case "ta" -> "CRITICAL LANGUAGE REQUIREMENT: All descriptive values, SWOT bullets, opportunity niches, and threat explanations MUST be written in natural, fluent TAMIL (தமிழ்). Keep JSON keys and numbers in English.";
+            case "hi" -> "CRITICAL LANGUAGE REQUIREMENT: All descriptive values, SWOT bullets, opportunity niches, and threat explanations MUST be written in natural, fluent HINDI (हिन्दी). Keep JSON keys and numbers in English.";
+            case "te" -> "CRITICAL LANGUAGE REQUIREMENT: All descriptive values, SWOT bullets, opportunity niches, and threat explanations MUST be written in natural, fluent TELUGU (తెలుగు). Keep JSON keys and numbers in English.";
+            default -> "CRITICAL LANGUAGE REQUIREMENT: Output in clear, accessible English.";
+        };
+
         return """
-                You are VyapaarSathi, an institutional rural business feasibility advisory engine.
+                You are VyapaarSathi, an institutional rural business feasibility advisory engine under the Ministry of Social Justice and Empowerment (MoSJE).
                 Synthesize a strict 6-point feasibility report as JSON based ONLY on the grounded data below:
 
                 BENEFICIARY: %s, Age: %d, Margin Capital: ₹%s
@@ -158,14 +213,52 @@ public class VertexAiFeasibilityService {
 
                 IMPORTANT: Ensure all pricing, distribution channels, and market niches strictly match the exact business category: "%s".
                 For example, if the business is "Poultry & Livestock", focus on poultry birds, broiler meat, and eggs. If "Handicrafts & Handloom", focus on handloom weaving, pottery, and artisan crafts. Do NOT mix categories or mention unrelated sectors.
+                %s
 
-                Format as JSON with keys:
-                market_reach (consumer_base_population, consumer_base_households, primary_distribution_channels, data_attribution)
-                opportunity_analysis (underserved_niches, opportunity_score, data_attribution)
-                swot_analysis (strengths, weaknesses, opportunities, threats, data_attribution)
-                threats_identification (supply_bottlenecks, seasonal_dips, single_buyer_dependency, data_attribution)
-                competitor_mapping (total_nearby_shops, direct_competitors, saturation_index, saturation_commentary, data_attribution)
-                product_market_value (recommended_selling_price, estimated_daily_sales_volume_units, estimated_monthly_gross_revenue, estimated_monthly_net_profit, unit_variable_cost, monthly_fixed_costs, purchasing_power_tier, data_attribution)
+                Format as JSON matching this exact structure:
+                {
+                  "market_reach": {
+                    "consumer_base_population": 5420,
+                    "consumer_base_households": 1340,
+                    "primary_distribution_channels": ["Channel 1", "Channel 2"],
+                    "data_attribution": "Census Intelligence"
+                  },
+                  "opportunity_analysis": {
+                    "underserved_niches": ["Niche 1", "Niche 2"],
+                    "opportunity_score": "High",
+                    "data_attribution": "Market Opportunity Survey"
+                  },
+                  "swot_analysis": {
+                    "strengths": ["Strength 1", "Strength 2"],
+                    "weaknesses": ["Weakness 1"],
+                    "opportunities": ["Opportunity 1", "Opportunity 2"],
+                    "threats": ["Threat 1"],
+                    "data_attribution": "MoSJE Enterprise Engine"
+                  },
+                  "threats_identification": {
+                    "supply_bottlenecks": "Detailed supply bottleneck description",
+                    "seasonal_dips": "Detailed seasonal dip description",
+                    "single_buyer_dependency": "Detailed buyer dependency description",
+                    "data_attribution": "Risk Assessment"
+                  },
+                  "competitor_mapping": {
+                    "total_nearby_shops": 6,
+                    "direct_competitors": 2,
+                    "saturation_index": "Low",
+                    "saturation_commentary": "Low competitive density in cluster",
+                    "data_attribution": "Business Directory"
+                  },
+                  "product_market_value": {
+                    "recommended_selling_price": "₹220.00",
+                    "estimated_daily_sales_volume_units": 45,
+                    "estimated_monthly_gross_revenue": 297000.00,
+                    "estimated_monthly_net_profit": 52000.00,
+                    "unit_variable_cost": 150.00,
+                    "monthly_fixed_costs": 8000.00,
+                    "purchasing_power_tier": "Moderate",
+                    "data_attribution": "Price Intelligence"
+                  }
+                }
                 """.formatted(
                 req.getOwnerName(), req.getAge(), req.getMarginCapital(),
                 req.getBusinessCategory(), req.getBusinessIdeaDescription(),
@@ -173,7 +266,8 @@ public class VertexAiFeasibilityService {
                 vc.getPopulation(), vc.getHouseholds(), vc.getLiteracyRate(), vc.getDistrictIncomeBand(), vc.getDistrictNdpPerCapita(),
                 sm.getCompetitorDensityCount(), sm.getDataSource(),
                 rp.marketRisk(), rp.seasonalRisk(), rp.operationalRisk(),
-                req.getBusinessCategory()
+                req.getBusinessCategory(),
+                langInstruction
         );
     }
 
@@ -188,8 +282,40 @@ public class VertexAiFeasibilityService {
                 json = json.substring(0, json.indexOf("```"));
             }
 
-            JsonNode root = objectMapper.readTree(json.trim());
-            FeasibilityReportResponse.Module1ReportDto dto = objectMapper.treeToValue(root, FeasibilityReportResponse.Module1ReportDto.class);
+            ObjectMapper mapper = objectMapper.copy()
+                    .enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                    .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JsonNode root = mapper.readTree(json.trim());
+
+            // Normalize threats_identification if Gemini returned an array of strings for string fields
+            JsonNode threats = root.path("threats_identification");
+            if (threats.isObject()) {
+                com.fasterxml.jackson.databind.node.ObjectNode threatsObj = (com.fasterxml.jackson.databind.node.ObjectNode) threats;
+                for (String field : List.of("supply_bottlenecks", "seasonal_dips", "single_buyer_dependency")) {
+                    JsonNode node = threatsObj.path(field);
+                    if (node.isArray() && node.size() > 0) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < node.size(); i++) {
+                            if (i > 0) sb.append("; ");
+                            sb.append(node.get(i).asText());
+                        }
+                        threatsObj.put(field, sb.toString());
+                    }
+                }
+            }
+
+            // Normalize opportunity_analysis if score is a numeric integer instead of string
+            JsonNode opp = root.path("opportunity_analysis");
+            if (opp.isObject()) {
+                com.fasterxml.jackson.databind.node.ObjectNode oppObj = (com.fasterxml.jackson.databind.node.ObjectNode) opp;
+                JsonNode score = oppObj.path("opportunity_score");
+                if (score.isNumber()) {
+                    oppObj.put("opportunity_score", score.asInt() >= 75 ? "High" : score.asInt() >= 50 ? "Medium" : "Emerging");
+                }
+            }
+
+            FeasibilityReportResponse.Module1ReportDto dto = mapper.treeToValue(root, FeasibilityReportResponse.Module1ReportDto.class);
             if (dto != null && dto.getCompetitorMapping() != null) {
                 dto.getCompetitorMapping().setModeledEstimate(isModeled);
             }

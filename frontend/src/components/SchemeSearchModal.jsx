@@ -4,7 +4,7 @@ import {
   Building2, Landmark, CreditCard, ShoppingBag, ShieldAlert, RefreshCw, X, Info
 } from 'lucide-react';
 
-export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCategory = 'SC', applicantDetails = null }) {
+export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCategory = 'SC', applicantDetails = null, selectedLang = 'en' }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
@@ -48,10 +48,18 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
 
   const handleExecuteSearch = async () => {
     setLoading(true);
+    const applicantName = applicantDetails?.ownerName || applicantDetails?.applicantName || 'Applicant';
+    const lang = selectedLang || applicantDetails?.selectedLang || 'en';
+
     const payload = {
       assessment_id: assessmentId || 101,
       questionnaire: {
         ownership,
+        applicant_name: applicantName,
+        preferred_language: lang,
+        village_name: applicantDetails?.villageName || '',
+        district_name: applicantDetails?.districtName || '',
+        state_name: applicantDetails?.stateName || 'Tamil Nadu',
         primary_applicant: {
           age: Number(age),
           gender,
@@ -94,61 +102,131 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
   };
 
   const fallbackSynthesis = () => {
+    const applicantName = applicantDetails?.ownerName || applicantDetails?.applicantName || 'Applicant';
     const isFemale = gender === 'Female';
+    const cat = (socialCategory || 'OBC').toLowerCase();
+    const bizCat = (applicantDetails?.businessCategory || '').toLowerCase();
+    const isDisab = disability;
+
+    const schemes = [];
+
+    // Archetype 1: Women / SC apex scheme
+    if (isFemale || cat === 'sc') {
+      schemes.push({
+        scheme_id: 'NSFDC_MAHILA_SAMRIDDHI',
+        scheme_name: 'NSFDC Mahila Samriddhi Yojana (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: `Recommended for ${gender} ${socialCategory} entrepreneur`,
+        illustrative_benefit: 'Up to ₹1,40,000 credit limit with special 1.5% interest subvention for rural women SHG members',
+        indicative_interest_rate: '4.0% - 6.5% p.a. concessional',
+        participating_institutions: 'State Channelizing Agencies (SCAs) / NSFDC / Regional Rural Banks',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    }
+
+    // Archetype 2: Business-linked
+    if (bizCat.includes('dairy') || bizCat.includes('milk') || bizCat.includes('cattle')) {
+      schemes.push({
+        scheme_id: 'MICRO_WOMEN_DAIRY',
+        scheme_name: 'Women Rural Dairy Cooperative Scheme (Illustrative)',
+        category: 'business_linked',
+        target_beneficiary_match: 'Specific matching for Dairy & Milk Production enterprise',
+        illustrative_benefit: 'Working capital and milch cattle financing with milk collection tie-up and 25% back-ended capital subsidy',
+        indicative_interest_rate: '5.0% - 6.5% p.a.',
+        participating_institutions: 'District Cooperative Milk Producers Union / NABARD',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    } else {
+      schemes.push({
+        scheme_id: 'MUDRA_SHISHU_RETAIL',
+        scheme_name: 'Pradhan Mantri MUDRA Yojana - Shishu (Illustrative)',
+        category: 'business_linked',
+        target_beneficiary_match: 'Matching for Grocery, Provisions, and Micro Retail Trade',
+        illustrative_benefit: 'Collateral-free working capital loan up to ₹50,000 with RuPay business debit card',
+        indicative_interest_rate: '7.5% - 9.0% p.a.',
+        participating_institutions: 'All Public Sector Banks & Regional Rural Banks',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    }
+
+    // Archetype 3: Apex corp term loan — category-specific
+    if (cat === 'obc') {
+      schemes.push({
+        scheme_id: 'NBCFDC_GENERAL_TERM_LOAN',
+        scheme_name: 'NBCFDC General Term Loan Scheme (Illustrative)',
+        category: 'bank_specific',
+        target_beneficiary_match: 'Other Backward Classes (OBC) target demographic',
+        illustrative_benefit: '90% concessional credit up to ₹50 Lakh with 84-month repayment tenure and 6-month moratorium',
+        indicative_interest_rate: '8.0% p.a. (reducing balance)',
+        participating_institutions: 'State Backward Classes Economic Development Corporation',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    } else if (cat === 'safai karamchari') {
+      schemes.push({
+        scheme_id: 'NSKFDC_SWACCHTA_UDYAMI',
+        scheme_name: 'NSKFDC Swacchta Udyami Yojana (Illustrative)',
+        category: 'bank_specific',
+        target_beneficiary_match: 'Safai Karamchari & Sanitation Workers Community',
+        illustrative_benefit: 'Capital subsidy up to ₹3,25,000 with 4.0% concessional interest rate',
+        indicative_interest_rate: '4.0% - 6.0% p.a.',
+        participating_institutions: 'National Safai Karamcharis Finance & Development Corporation',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    } else {
+      schemes.push({
+        scheme_id: 'PMEGP_RURAL_ARTISAN',
+        scheme_name: 'Prime Minister Employment Generation Programme (PMEGP)',
+        category: 'bank_specific',
+        target_beneficiary_match: 'Rural Micro-Enterprise & Service Units',
+        illustrative_benefit: 'Up to 35% margin money government subsidy in rural areas for special category beneficiaries',
+        indicative_interest_rate: 'Standard bank lending rate with back-ended subsidy',
+        participating_institutions: 'KVIC / KVIB / District Industries Centre (DIC)',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    }
+
+    // Archetype 4: PwD or Stand-Up India for women
+    if (isDisab) {
+      schemes.push({
+        scheme_id: 'NHFDC_DIVYANGJAN_SWAVALAMBAN',
+        scheme_name: 'Divyangjan Swavalamban Yojana (Illustrative)',
+        category: 'bank_specific',
+        target_beneficiary_match: 'Persons with Benchmark Disabilities (PwD)',
+        illustrative_benefit: '100% concessional credit up to ₹5,00,000 with 0.5% special rebate for women',
+        indicative_interest_rate: '5.0% p.a.',
+        participating_institutions: 'National Handicapped Finance and Development Corporation (NHFDC)',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    } else if (isFemale) {
+      schemes.push({
+        scheme_id: 'STANDUP_INDIA_SC_WOMEN',
+        scheme_name: 'Stand-Up India Scheme (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: 'Women & SC/ST Greenfield Enterprise Promotion',
+        illustrative_benefit: 'Composite term and working capital finance from ₹10 Lakh to ₹1 Crore',
+        indicative_interest_rate: 'MCLR + 3% concessional ceiling',
+        participating_institutions: 'All Scheduled Commercial Bank branches (2 loans mandated per branch)',
+        is_illustrative: true,
+        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    }
+
     setResults({
       session_id: 801,
       assessment_id: assessmentId || 101,
       is_illustrative: true,
-      mandatory_global_disclosure: "AI-generated illustrative match — verify with your nearest SCA or bank before applying. These matches do NOT constitute statutory sanction.",
-      household_strategy_insight: isFemale 
-        ? "Registering the enterprise under the Primary Applicant (Female) unlocks an additional 1.5% interest rebate under Mahila Samriddhi Yojana compared to registering under spouse."
-        : "Registering jointly with a female family member can unlock up to 1.5% interest rebate and higher rural subsidy priority under apex corporation schemes.",
-      recommended_schemes: [
-        {
-          scheme_id: "NSFDC_MAHILA_SAMRIDDHI",
-          scheme_name: "NSFDC Mahila Samriddhi Yojana (Illustrative)",
-          category: "loan_type_specific",
-          target_beneficiary_match: "Recommended under Female SC/OBC entrepreneur",
-          illustrative_benefit: "Up to ₹1,40,000 credit limit with special 1.5% interest subvention for rural women SHG members",
-          indicative_interest_rate: "4.0% - 6.5% p.a. concessional",
-          participating_institutions: "State Channelizing Agencies (SCAs) / Regional Rural Banks",
-          is_illustrative: true,
-          mandatory_disclosure: "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
-        },
-        {
-          scheme_id: "MUDRA_SHISHU_RETAIL",
-          scheme_name: "Pradhan Mantri MUDRA Yojana - Shishu (Illustrative)",
-          category: "business_linked",
-          target_beneficiary_match: "Provision & Micro Retail Trade",
-          illustrative_benefit: "Collateral-free working capital up to ₹50,000 with RuPay business debit card",
-          indicative_interest_rate: "7.5% - 9.0% p.a.",
-          participating_institutions: "All Public Sector Banks & Regional Rural Banks",
-          is_illustrative: true,
-          mandatory_disclosure: "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
-        },
-        {
-          scheme_id: "NBCFDC_GENERAL_TERM_LOAN",
-          scheme_name: "NBCFDC General Term Loan Scheme (Illustrative)",
-          category: "bank_specific",
-          target_beneficiary_match: "Backward Classes Enterprise Promotion",
-          illustrative_benefit: "90% concessional credit up to ₹50 Lakh with 84-month repayment tenure and 6-month moratorium",
-          indicative_interest_rate: "8.0% p.a. (reducing balance)",
-          participating_institutions: "State Backward Classes Economic Development Corporation",
-          is_illustrative: true,
-          mandatory_disclosure: "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
-        },
-        {
-          scheme_id: "PMEGP_RURAL_ARTISAN",
-          scheme_name: "Prime Minister Employment Generation Programme (PMEGP)",
-          category: "loan_type_specific",
-          target_beneficiary_match: "Rural Micro-Enterprises",
-          illustrative_benefit: "Up to 35% margin money government subsidy in rural areas for special category beneficiaries",
-          indicative_interest_rate: "Standard bank rate with back-ended subsidy",
-          participating_institutions: "KVIC / KVIB / District Industries Centre (DIC)",
-          is_illustrative: true,
-          mandatory_disclosure: "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
-        }
-      ]
+      mandatory_global_disclosure: 'AI-generated illustrative match — verify with your nearest SCA or bank before applying. These matches do NOT constitute statutory sanction.',
+      household_strategy_insight: isFemale
+        ? `Registering the enterprise under ${applicantName} (Female) unlocks an additional 0.5% to 1.5% concessional interest rebate and higher rural subsidy priority under apex corporation schemes.`
+        : `Registering the enterprise under ${applicantName} positions the business for targeted concessional schemes. If registered jointly with an eligible female family member, the enterprise may also qualify for enhanced Mahila Samriddhi subvention and higher subsidy margins.`,
+      recommended_schemes: schemes
     });
   };
 

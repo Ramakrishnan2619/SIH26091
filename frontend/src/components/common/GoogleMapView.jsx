@@ -127,9 +127,10 @@ export function GoogleMapView({
 
     // Place Markers for Identified Competitor Shops
     markersRef.current = {};
+    const offsetMag = radiusKm <= 2 ? 0.0035 : 0.012;
     displayPlaces.forEach((place, idx) => {
-      const pLat = Number(place.latitude) || latNum + (Math.sin(idx + 1) * 0.012);
-      const pLng = Number(place.longitude) || lngNum + (Math.cos(idx + 1) * 0.012);
+      const pLat = Number(place.latitude) || latNum + (Math.sin(idx + 1) * offsetMag);
+      const pLng = Number(place.longitude) || lngNum + (Math.cos(idx + 1) * offsetMag);
       const distance = calculateDistanceKm(latNum, lngNum, pLat, pLng);
 
       const shopIcon = L.divIcon({
@@ -300,8 +301,9 @@ export function GoogleMapView({
             <div className="divide-y divide-slate-100">
               {displayPlaces.map((shop, idx) => {
                 const isSelected = selectedPlaceIndex === idx;
-                const pLat = Number(shop.latitude) || latNum + (Math.sin(idx + 1) * 0.012);
-                const pLng = Number(shop.longitude) || lngNum + (Math.cos(idx + 1) * 0.012);
+                const offsetMag = radiusKm <= 2 ? 0.0035 : 0.012;
+                const pLat = Number(shop.latitude) || latNum + (Math.sin(idx + 1) * offsetMag);
+                const pLng = Number(shop.longitude) || lngNum + (Math.cos(idx + 1) * offsetMag);
                 const dist = calculateDistanceKm(latNum, lngNum, pLat, pLng);
 
                 return (
@@ -345,7 +347,7 @@ export function GoogleMapView({
           </span>
           <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full border border-[#009DB3] bg-[#02C6E1]/30" />
-            <span>10 km Market Area</span>
+            <span>{radiusKm} km Market Area</span>
           </span>
         </div>
         <div className="text-[11px] text-slate-400">

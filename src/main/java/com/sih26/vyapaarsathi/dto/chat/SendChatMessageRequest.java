@@ -17,4 +17,7 @@ public class SendChatMessageRequest {
 
     @NotBlank(message = "Message content must not be blank")
     private String content;
+
+    @JsonProperty("preferred_language")
+    private String preferredLanguage;
 }
