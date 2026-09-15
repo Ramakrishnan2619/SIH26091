@@ -142,13 +142,74 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
       const saved = localStorage.getItem('vyapaarsathi_docs_verified');
       if (saved) return JSON.parse(saved);
     } catch {}
-    return {
-      aadhaar: true,
-      community: true,
-      dpr: true,
-      quotations: true
-    };
+    // Default: all unchecked — user must answer
+    return { aadhaar: false, community: false, dpr: true, quotations: false };
   });
+
+  // Show document verification modal on first visit
+  const [showDocModal, setShowDocModal] = useState(() => {
+    try {
+      return !localStorage.getItem('vyapaarsathi_docs_verified');
+    } catch {}
+    return true;
+  });
+
+  // Current doc step in modal (0-3)
+  const [docModalStep, setDocModalStep] = useState(0);
+
+  const DOC_ITEMS = [
+    {
+      key: 'aadhaar',
+      num: '1',
+      title: 'Aadhaar Card',
+      titleTa: 'ஆதார் அட்டை',
+      sub: 'Identity & Age Verification (KYC)',
+      subTa: 'அடையாள சான்று / KYC',
+      question: 'Do you have your Aadhaar Card with you?',
+      questionTa: 'உங்களிடம் ஆதார் அட்டை தயாராக உள்ளதா?',
+    },
+    {
+      key: 'community',
+      num: '2',
+      title: 'Community Certificate',
+      titleTa: `${socialCategory} சாதி சான்றிதழ்`,
+      sub: `${socialCategory} / Domicile Certificate`,
+      subTa: 'வாசஸ்தல சான்றிதழ்',
+      question: `Do you have your ${socialCategory} Community / Domicile Certificate?`,
+      questionTa: `உங்களிடம் ${socialCategory} சாதி / வாசஸ்தல சான்றிதழ் உள்ளதா?`,
+    },
+    {
+      key: 'dpr',
+      num: '3',
+      title: 'Detailed Project Report (DPR)',
+      titleTa: 'விரிவான திட்ட அறிக்கை (DPR)',
+      sub: 'Generated directly by VyapaarSathi',
+      subTa: 'VyapaarSathi மூலம் தானியங்கி உருவாக்கம்',
+      question: 'VyapaarSathi auto-generates the DPR for you. Is your project report ready?',
+      questionTa: 'VyapaarSathi உங்கள் திட்ட அறிக்கையை தானாக உருவாக்குகிறது. தயாரா?',
+    },
+    {
+      key: 'quotations',
+      num: '4',
+      title: 'Machinery / Equipment Quotations',
+      titleTa: 'இயந்திர விலைப்பட்டியல்',
+      sub: 'Equipment & Stock Supplier Invoices',
+      subTa: 'சாதனங்கள் / சரக்கு சப்ளையர் விலை மதிப்பீடு',
+      question: 'Do you have quotations / price estimates from a machinery or equipment supplier?',
+      questionTa: 'இயந்திர / சாதன சப்ளையரிடம் விலை மதிப்பீடு பெற்றீர்களா?',
+    },
+  ];
+
+  const handleDocAnswer = (key, answer) => {
+    const next = { ...docChecks, [key]: answer };
+    setDocChecks(next);
+    try { localStorage.setItem('vyapaarsathi_docs_verified', JSON.stringify(next)); } catch {}
+    if (docModalStep < 3) {
+      setDocModalStep(s => s + 1);
+    } else {
+      setShowDocModal(false);
+    }
+  };
 
   const toggleDoc = (key) => {
     setDocChecks(prev => {
@@ -165,6 +226,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
   };
 
   const readyDocsCount = Object.values(docChecks).filter(Boolean).length;
+
 
   const corporations = [
     {
@@ -227,6 +289,133 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
 
   return (
     <div className="space-y-8">
+
+      {/* === DOCUMENT VERIFICATION MODAL === */}
+      {showDocModal && DOC_ITEMS[docModalStep] && (() => {
+        const item = DOC_ITEMS[docModalStep];
+        const progress = ((docModalStep) / DOC_ITEMS.length) * 100;
+        const lang = selectedLang === 'ta';
+        return (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(11,37,69,0.82)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem'
+          }}>
+            <div style={{
+              background: '#fff',
+              borderRadius: '1.5rem',
+              boxShadow: '0 25px 80px rgba(0,0,0,0.35)',
+              maxWidth: '480px', width: '100%',
+              padding: '2.5rem 2rem',
+              display: 'flex', flexDirection: 'column', gap: '1.5rem',
+              position: 'relative',
+              border: '2px solid #E0E8FF'
+            }}>
+              {/* Header badge */}
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <span style={{
+                  background: '#EEF2FF', color: '#3730A3', fontWeight: 700,
+                  fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+                  padding: '0.3rem 0.85rem', borderRadius: '999px', border: '1px solid #C7D2FE'
+                }}>📋 {lang ? 'கட்டாய ஆவண சரிபார்ப்பு' : 'Mandatory Document Checklist'}</span>
+                <span style={{ color: '#94A3B8', fontSize: '0.75rem', fontWeight: 600 }}>
+                  {docModalStep + 1} / {DOC_ITEMS.length}
+                </span>
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ height: '6px', background: '#E2E8F0', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${progress}%`, height: '100%',
+                  background: 'linear-gradient(90deg, #3B82F6, #6366F1)',
+                  borderRadius: '999px', transition: 'width 0.4s ease'
+                }} />
+              </div>
+
+              {/* Document icon + number */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '72px', height: '72px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #EEF2FF, #DBEAFE)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 1rem',
+                  fontSize: '2rem',
+                  boxShadow: '0 4px 16px rgba(99,102,241,0.15)'
+                }}>
+                  {item.key === 'aadhaar' ? '🪪' : item.key === 'community' ? '📜' : item.key === 'dpr' ? '📊' : '🧾'}
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, marginBottom: '0.3rem' }}>
+                  {lang ? `ஆவணம் ${item.num}` : `Document ${item.num}`}
+                </div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.3rem' }}>
+                  {lang ? item.titleTa : item.title}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                  {lang ? item.subTa : item.sub}
+                </div>
+              </div>
+
+              {/* Question */}
+              <div style={{
+                background: '#F8FAFF', border: '1px solid #DBEAFE', borderRadius: '1rem',
+                padding: '1rem 1.25rem', textAlign: 'center'
+              }}>
+                <p style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1E3A5F', lineHeight: 1.5 }}>
+                  {lang ? item.questionTa : item.question}
+                </p>
+              </div>
+
+              {/* YES / NO buttons */}
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button
+                  onClick={() => handleDocAnswer(item.key, false)}
+                  style={{
+                    flex: 1, padding: '0.85rem', borderRadius: '0.85rem',
+                    border: '2px solid #E2E8F0', background: '#F8FAFC',
+                    color: '#475569', fontWeight: 700, fontSize: '0.9rem',
+                    cursor: 'pointer', transition: 'all 0.18s ease',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background='#FEE2E2'; e.currentTarget.style.borderColor='#FCA5A5'; e.currentTarget.style.color='#B91C1C'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background='#F8FAFC'; e.currentTarget.style.borderColor='#E2E8F0'; e.currentTarget.style.color='#475569'; }}
+                >
+                  ✗ {lang ? 'இல்லை / இன்னும் இல்லை' : 'No / Not Yet'}
+                </button>
+                <button
+                  onClick={() => handleDocAnswer(item.key, true)}
+                  style={{
+                    flex: 1, padding: '0.85rem', borderRadius: '0.85rem',
+                    border: '2px solid #3B82F6',
+                    background: 'linear-gradient(135deg, #3B82F6, #6366F1)',
+                    color: '#fff', fontWeight: 700, fontSize: '0.9rem',
+                    cursor: 'pointer', transition: 'all 0.18s ease',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                    boxShadow: '0 4px 14px rgba(59,130,246,0.35)'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='scale(1.03)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(59,130,246,0.5)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; e.currentTarget.style.boxShadow='0 4px 14px rgba(59,130,246,0.35)'; }}
+                >
+                  ✓ {lang ? 'ஆம், உள்ளது' : 'Yes, I Have It'}
+                </button>
+              </div>
+
+              {/* Skip all link */}
+              <div style={{ textAlign: 'center' }}>
+                <button
+                  onClick={() => { markAllDocs(false); setShowDocModal(false); }}
+                  style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  {lang ? 'இப்போது தவிர்' : 'Skip for now — I\'ll update later'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      {/* === END DOCUMENT MODAL === */}
+
       {/* 1. Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
@@ -359,6 +548,13 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => { setDocModalStep(0); setShowDocModal(true); }}
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>📋 Re-verify Documents</span>
+              </button>
               <button
                 type="button"
                 onClick={() => markAllDocs(readyDocsCount !== 4)}
