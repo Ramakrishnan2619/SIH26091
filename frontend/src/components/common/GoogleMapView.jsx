@@ -136,7 +136,7 @@ export function GoogleMapView({
       const shopIcon = L.divIcon({
         className: 'custom-shop-icon',
         html: `
-          <div style="width: 28px; height: 34px; position: relative; cursor: pointer; transform: translate(-50%, -100%);">
+          <div style="width: 28px; height: 34px; position: relative; cursor: pointer;">
             <svg viewBox="0 0 24 32" width="28" height="34">
               <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z" fill="#EA4335" stroke="#FFFFFF" stroke-width="1.5" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.3))"/>
               <circle cx="12" cy="11" r="5" fill="#FFFFFF"/>
