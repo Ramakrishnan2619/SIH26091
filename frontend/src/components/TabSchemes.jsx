@@ -143,7 +143,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
       if (saved) return JSON.parse(saved);
     } catch {}
     // Default: all unchecked — user must answer
-    return { aadhaar: false, community: false, dpr: true, quotations: false };
+    return { aadhaar: false, pan: false, community: false, income: false, photo: false, bankpassbook: false };
   });
 
   // Show document verification modal on first visit
@@ -154,66 +154,96 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
     return true;
   });
 
-  // Current doc step in modal (0-3)
+  // Current doc step in modal (0-5)
   const [docModalStep, setDocModalStep] = useState(0);
 
+  // 6 Primary documents required across ALL govt schemes (NBCFDC/NSFDC/PMEGP/Mudra — official sources)
   const DOC_ITEMS = [
     {
       key: 'aadhaar',
       num: '1',
+      emoji: '🪪',
       title: { en: 'Aadhaar Card', ta: 'ஆதார் அட்டை', hi: 'आधार कार्ड', te: 'ఆధార్ కార్డ్' },
-      sub: { en: 'Identity & Age Verification (KYC)', ta: 'அடையாள சான்று / KYC', hi: 'पहचान एवं आयु सत्यापन (KYC)', te: 'గుర్తింపు & వయస్సు ధృవీకరణ (KYC)' },
+      sub: { en: 'Identity & address proof — mandatory KYC for all govt schemes', ta: 'அடையாள / முகவரி சான்று — KYC கட்டாயம்', hi: 'पहचान व पता प्रमाण — सभी योजनाओं हेतु KYC', te: 'గుర్తింపు & చిరునామా నిరూపణ — అన్ని పథకాలకు తప్పనిసరి KYC' },
       question: {
-        en: 'Do you have your Aadhaar Card with you?',
-        ta: 'உங்களிடம் ஆதார் அட்டை தயாராக உள்ளதா?',
-        hi: 'क्या आपके पास आधार कार्ड उपलब्ध है?',
-        te: 'మీ దగ్గర ఆధార్ కార్డ్ సిద్ధంగా ఉందా?'
+        en: 'Do you have your Aadhaar Card (original + photocopy)?',
+        ta: 'ஆதார் அட்டை (மூலம் + நகல்) தயாராக உள்ளதா?',
+        hi: 'क्या आपके पास आधार कार्ड (मूल + फोटोकॉपी) है?',
+        te: 'మీ దగ్గర ఆధార్ కార్డ్ (ఒరిజినల్ + ఫోటోకాపీ) సిద్ధంగా ఉందా?'
+      },
+    },
+    {
+      key: 'pan',
+      num: '2',
+      emoji: '🪪',
+      title: { en: 'PAN Card', ta: 'PAN அட்டை', hi: 'पैन कार्ड', te: 'PAN కార్డ్' },
+      sub: { en: 'Mandatory for all loans above ₹50,000 (Income Tax / KYC)', ta: '₹50,000 மேல் கடனுக்கு கட்டாய வரி அடையாளம்', hi: '₹50,000 से अधिक ऋण हेतु आयकर / KYC के लिए अनिवार्य', te: '₹50,000 పైన రుణాలకు తప్పనిసరి ఆదాయపు పన్ను KYC' },
+      question: {
+        en: 'Do you have your PAN Card?',
+        ta: 'உங்களிடம் PAN அட்டை உள்ளதா?',
+        hi: 'क्या आपके पास पैन कार्ड है?',
+        te: 'మీ దగ్గర PAN కార్డ్ ఉందా?'
       },
     },
     {
       key: 'community',
-      num: '2',
-      title: { en: 'Community Certificate', ta: `${socialCategory} சாதி சான்றிதழ்`, hi: `${socialCategory} जाति प्रमाण पत्र`, te: `${socialCategory} కమ్యూనిటీ సర్టిఫికేట్` },
-      sub: { en: `${socialCategory} / Domicile Certificate`, ta: 'வாசஸ்தல சான்றிதழ்', hi: 'जाति / अधिवास प्रमाण पत्र', te: 'కులం / నివాస సర్టిఫికేట్' },
-      question: {
-        en: `Do you have your ${socialCategory} Community / Domicile Certificate?`,
-        ta: `உங்களிடம் ${socialCategory} சாதி / வாசஸ்தல சான்றிதழ் உள்ளதா?`,
-        hi: `क्या आपके पास ${socialCategory} जाति / अधिवास प्रमाण पत्र है?`,
-        te: `మీ దగ్గర ${socialCategory} కమ్యూనిటీ / నివాస సర్టిఫికేట్ ఉందా?`
-      },
-    },
-    {
-      key: 'dpr',
       num: '3',
-      title: { en: 'Detailed Project Report (DPR)', ta: 'விரிவான திட்ட அறிக்கை (DPR)', hi: 'विस्तृत परियोजना रिपोर्ट (DPR)', te: 'వివరణాత్మక ప్రాజెక్ట్ నివేదిక (DPR)' },
-      sub: { en: 'Generated directly by VyapaarSathi', ta: 'VyapaarSathi மூலம் தானியங்கி உருவாக்கம்', hi: 'VyapaarSathi द्वारा स्वतः निर्मित', te: 'VyapaarSathi ద్వారా స్వయంచాలకంగా రూపొందించబడింది' },
+      emoji: '📜',
+      title: { en: 'Caste / Community Certificate', ta: `${socialCategory} சாதி சான்றிதழ்`, hi: `${socialCategory} जाति प्रमाण पत्र`, te: `${socialCategory} కులం సర్టిఫికేట్` },
+      sub: { en: `Issued by Tehsildar/SDM — proves ${socialCategory} eligibility for MoSJE schemes`, ta: 'தாசில்தார் / SDM வழங்கும் சாதி சான்றிதழ்', hi: 'तहसीलदार / SDM द्वारा जारी — जाति पात्रता प्रमाण', te: 'తహసీల్దార్ / SDM జారీ — కుల అర్హత నిరూపణ' },
       question: {
-        en: 'VyapaarSathi auto-generates the DPR for you. Is your project report ready?',
-        ta: 'VyapaarSathi உங்கள் திட்ட அறிக்கையை தானாக உருவாக்குகிறது. தயாரா?',
-        hi: 'VyapaarSathi आपकी DPR स्वतः तैयार करता है। क्या परियोजना रिपोर्ट तैयार है?',
-        te: 'VyapaarSathi మీ DPR ని స్వయంచాలకంగా రూపొందిస్తుంది. ప్రాజెక్ట్ రిపోర్ట్ సిద్ధంగా ఉందా?'
+        en: `Do you have a valid ${socialCategory} Caste Certificate issued by Tehsildar/SDM?`,
+        ta: `தாசில்தார் / SDM வழங்கிய ${socialCategory} சாதி சான்றிதழ் உள்ளதா?`,
+        hi: `क्या आपके पास तहसीलदार/SDM द्वारा जारी ${socialCategory} जाति प्रमाण पत्र है?`,
+        te: `తహసీల్దార్/SDM జారీ చేసిన ${socialCategory} కుల సర్టిఫికేట్ ఉందా?`
       },
     },
     {
-      key: 'quotations',
+      key: 'income',
       num: '4',
-      title: { en: 'Machinery / Equipment Quotations', ta: 'இயந்திர விலைப்பட்டியல்', hi: 'मशीनरी / उपकरण उद्धरण', te: 'యంత్రాలు / పరికరాల కోటేషన్లు' },
-      sub: { en: 'Equipment & Stock Supplier Invoices', ta: 'சாதனங்கள் / சரக்கு சப்ளையர் விலை மதிப்பீடு', hi: 'उपकरण एवं स्टॉक आपूर्तिकर्ता चालान', te: 'పరికరాలు & స్టాక్ సప్లయర్ ఇన్వాయిసులు' },
+      emoji: '📄',
+      title: { en: 'Income Certificate', ta: 'வருமான சான்றிதழ்', hi: 'आय प्रमाण पत्र', te: 'ఆదాయ సర్టిఫికేట్' },
+      sub: { en: 'Family income proof — Gazetted Officer or Bank-endorsed self-declaration', ta: 'குடும்ப வருமான சான்று — வங்கி / அரசு அதிகாரி உறுதிப்படுத்தல்', hi: 'परिवार की वार्षिक आय प्रमाण — राजपत्रित अधिकारी / बैंक प्रबंधक द्वारा सत्यापित', te: 'కుటుంబ ఆదాయ నిరూపణ — గెజిటెడ్ అధికారి / బ్యాంక్ ధృవీకరణ' },
       question: {
-        en: 'Do you have quotations / price estimates from a machinery or equipment supplier?',
-        ta: 'இயந்திர / சாதன சப்ளையரிடம் விலை மதிப்பீடு பெற்றீர்களா?',
-        hi: 'क्या आपके पास मशीनरी/उपकरण आपूर्तिकर्ता से उद्धरण / मूल्य अनुमान है?',
-        te: 'మీ దగ్గర యంత్రాలు/పరికరాల సప్లయర్ నుండి కోటేషన్లు / ధర అంచనాలు ఉన్నాయా?'
+        en: 'Do you have a family Income Certificate (issued or endorsed by a Gazetted Officer or Bank Manager)?',
+        ta: 'குடும்ப வருமான சான்றிதழ் (அரசு / வங்கி அதிகாரி உறுதிப்படுத்தியது) உள்ளதா?',
+        hi: 'क्या आपके पास परिवार का आय प्रमाण पत्र (राजपत्रित अधिकारी / बैंक प्रबंधक द्वारा सत्यापित) है?',
+        te: 'కుటుంబ ఆదాయ సర్టిఫికేట్ (గెజిటెడ్ అధికారి / బ్యాంక్ మేనేజర్ ధృవీకరించిన) ఉందా?'
+      },
+    },
+    {
+      key: 'photo',
+      num: '5',
+      emoji: '🖼️',
+      title: { en: 'Passport-size Photographs', ta: 'பாஸ்போர்ட் அளவு புகைப்படங்கள்', hi: 'पासपोर्ट आकार के फ़ोटो', te: 'పాస్‌పోర్ట్ సైజ్ ఫోటోలు' },
+      sub: { en: '2–4 recent colour photos required for all application forms', ta: '2–4 சமீபத்திய வண்ண புகைப்படங்கள் கட்டாயம்', hi: 'आवेदन पत्र हेतु 2–4 हालिया रंगीन फ़ोटो अनिवार्य', te: 'అన్ని దరఖాస్తు ఫారాలకు 2–4 తాజా రంగు ఫోటోలు తప్పనిసరి' },
+      question: {
+        en: 'Do you have 4 recent passport-size photographs?',
+        ta: '4 சமீபத்திய பாஸ்போர்ட் அளவு புகைப்படங்கள் உள்ளதா?',
+        hi: 'क्या आपके पास 4 हालिया पासपोर्ट आकार के फ़ोटो हैं?',
+        te: 'మీ దగ్గర 4 తాజా పాస్‌పోర్ట్ సైజ్ ఫోటోలు ఉన్నాయా?'
+      },
+    },
+    {
+      key: 'bankpassbook',
+      num: '6',
+      emoji: '🏦',
+      title: { en: 'Bank Passbook / Account Statement', ta: 'வங்கி பாஸ்புக் / கணக்கு அறிக்கை', hi: 'बैंक पासबुक / खाता विवरण', te: 'బ్యాంక్ పాస్‌బుక్ / ఖాతా స్టేట్‌మెంట్' },
+      sub: { en: 'Last 6–12 months statement — required by all SCAs and banks for disbursement', ta: 'கடந்த 6–12 மாத வங்கி பரிவர்த்தனை அறிக்கை', hi: 'पिछले 6–12 माह का बैंक स्टेटमेंट — सभी बैंकों व SCA के लिए अनिवार्य', te: 'గత 6–12 నెలల బ్యాంక్ స్టేట్‌మెంట్ — అన్ని SCAs & బ్యాంకులకు తప్పనిసరి' },
+      question: {
+        en: 'Do you have your Bank Passbook or last 6-month account statement?',
+        ta: 'வங்கி பாஸ்புக் அல்லது கடந்த 6 மாத அறிக்கை உள்ளதா?',
+        hi: 'क्या आपके पास बैंक पासबुक या पिछले 6 माह का खाता विवरण है?',
+        te: 'మీ దగ్గర బ్యాంక్ పాస్‌బుక్ లేదా గత 6 నెలల ఖాతా స్టేట్‌మెంట్ ఉందా?'
       },
     },
   ];
-
 
   const handleDocAnswer = (key, answer) => {
     const next = { ...docChecks, [key]: answer };
     setDocChecks(next);
     try { localStorage.setItem('vyapaarsathi_docs_verified', JSON.stringify(next)); } catch {}
-    if (docModalStep < 3) {
+    if (docModalStep < DOC_ITEMS.length - 1) {
       setDocModalStep(s => s + 1);
     } else {
       setShowDocModal(false);
@@ -229,12 +259,13 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
   };
 
   const markAllDocs = (val = true) => {
-    const next = { aadhaar: val, community: val, dpr: val, quotations: val };
+    const next = { aadhaar: val, pan: val, community: val, income: val, photo: val, bankpassbook: val };
     setDocChecks(next);
     try { localStorage.setItem('vyapaarsathi_docs_verified', JSON.stringify(next)); } catch {}
   };
 
   const readyDocsCount = Object.values(docChecks).filter(Boolean).length;
+  const totalDocs = DOC_ITEMS.length;
 
 
   const corporations = [
@@ -574,144 +605,62 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
               </button>
               <button
                 type="button"
-                onClick={() => markAllDocs(readyDocsCount !== 4)}
+                onClick={() => markAllDocs(readyDocsCount !== totalDocs)}
                 className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] transition shadow-xs cursor-pointer flex items-center gap-1.5"
               >
-                <span>{readyDocsCount === 4 ? "Uncheck All" : "✓ Mark All Ready (அனைத்தும் தயார்)"}</span>
+                <span>{readyDocsCount === totalDocs ? "Uncheck All" : "✓ Mark All Ready"}</span>
               </button>
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border ${
-                readyDocsCount === 4 
-                  ? 'bg-emerald-200 text-emerald-900 border-emerald-300' 
+                readyDocsCount === totalDocs
+                  ? 'bg-emerald-200 text-emerald-900 border-emerald-300'
                   : 'bg-amber-100 text-amber-900 border-amber-300'
               }`}>
-                {readyDocsCount}/4 Ready ({readyDocsCount === 4 ? '100% Required for Sanction' : 'Incomplete'})
+                {readyDocsCount}/{totalDocs} Ready ({readyDocsCount === totalDocs ? '100% — Sanction Ready' : 'Incomplete'})
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* 1. Aadhaar Card */}
-            <div 
-              onClick={() => toggleDoc('aadhaar')}
-              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
-                docChecks.aadhaar 
-                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
-                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
-              }`}
-            >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
-                docChecks.aadhaar 
-                  ? 'bg-emerald-700 text-white shadow-xs' 
-                  : 'bg-slate-200 text-slate-500 border border-slate-300'
-              }`}>
-                {docChecks.aadhaar ? '✓' : '○'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <strong className="text-slate-900 block text-xs font-bold">1. Aadhaar Card</strong>
-                  {docChecks.aadhaar && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
+          {/* Dynamic 6-doc checklist grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {DOC_ITEMS.map((item) => {
+              const L = selectedLang in item.title ? selectedLang : 'en';
+              const checked = !!docChecks[item.key];
+              return (
+                <div
+                  key={item.key}
+                  onClick={() => toggleDoc(item.key)}
+                  className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
+                    checked
+                      ? 'bg-emerald-50/70 border-emerald-400 shadow-xs'
+                      : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
+                  }`}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
+                    checked ? 'bg-emerald-700 text-white shadow-xs' : 'bg-slate-200 text-slate-500 border border-slate-300'
+                  }`}>
+                    {checked ? '✓' : '○'}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <strong className="text-slate-900 block text-xs font-bold">
+                        {item.emoji} {item.num}. {item.title[L] ?? item.title['en']}
+                      </strong>
+                      {checked && <span className="text-[10px] font-extrabold text-emerald-700 shrink-0">READY</span>}
+                    </div>
+                    <span className="text-[11px] text-slate-500 block mt-0.5">
+                      {item.sub[L] ?? item.sub['en']}
+                    </span>
+                    <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
+                      {checked ? "✓ Available with applicant" : "Tap to mark as ready"}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[11px] text-slate-500 block mt-0.5">
-                  {selectedLang === 'ta' ? "ஆதார் அட்டை / அடையாள சான்று" : "Identity & Age Verification (KYC)"}
-                </span>
-                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
-                  {docChecks.aadhaar ? "✓ Available with applicant" : "Click if you possess this"}
-                </span>
-              </div>
-            </div>
-
-            {/* 2. Community Certificate */}
-            <div 
-              onClick={() => toggleDoc('community')}
-              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
-                docChecks.community 
-                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
-                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
-              }`}
-            >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
-                docChecks.community 
-                  ? 'bg-emerald-700 text-white shadow-xs' 
-                  : 'bg-slate-200 text-slate-500 border border-slate-300'
-              }`}>
-                {docChecks.community ? '✓' : '○'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <strong className="text-slate-900 block text-xs font-bold">2. Community Certificate</strong>
-                  {docChecks.community && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
-                </div>
-                <span className="text-[11px] text-slate-500 block mt-0.5">
-                  {selectedLang === 'ta' ? `${socialCategory} சாதி சான்றிதழ்` : `${socialCategory} / Domicile Certificate`}
-                </span>
-                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
-                  {docChecks.community ? "✓ Available with applicant" : "Click if you possess this"}
-                </span>
-              </div>
-            </div>
-
-            {/* 3. Detailed Project Report (DPR) */}
-            <div 
-              onClick={() => toggleDoc('dpr')}
-              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
-                docChecks.dpr 
-                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
-                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
-              }`}
-            >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
-                docChecks.dpr 
-                  ? 'bg-emerald-700 text-white shadow-xs' 
-                  : 'bg-slate-200 text-slate-500 border border-slate-300'
-              }`}>
-                {docChecks.dpr ? '✓' : '○'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <strong className="text-slate-900 block text-xs font-bold">3. Detailed Project Report</strong>
-                  {docChecks.dpr && <span className="text-[10px] font-extrabold text-emerald-700">AUTO-READY</span>}
-                </div>
-                <span className="text-[11px] text-slate-500 block mt-0.5">
-                  {selectedLang === 'ta' ? "விரிவான திட்ட அறிக்கை (DPR)" : "Generated directly by VyapaarSathi"}
-                </span>
-                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
-                  ✓ Instant download available
-                </span>
-              </div>
-            </div>
-
-            {/* 4. Machinery Quotations */}
-            <div 
-              onClick={() => toggleDoc('quotations')}
-              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
-                docChecks.quotations 
-                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
-                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
-              }`}
-            >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
-                docChecks.quotations 
-                  ? 'bg-emerald-700 text-white shadow-xs' 
-                  : 'bg-slate-200 text-slate-500 border border-slate-300'
-              }`}>
-                {docChecks.quotations ? '✓' : '○'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <strong className="text-slate-900 block text-xs font-bold">4. Machinery Quotations</strong>
-                  {docChecks.quotations && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
-                </div>
-                <span className="text-[11px] text-slate-500 block mt-0.5">
-                  {selectedLang === 'ta' ? "இயந்திர விலைப்பட்டியல் / மதிப்பீடு" : "Equipment & Stock Supplier Invoices"}
-                </span>
-                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
-                  {docChecks.quotations ? "✓ Obtained from supplier" : "Click if you possess this"}
-                </span>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
+
 
       {/* 2.5 Multi-Scheme Comparative Decision Matrix (Top 4 Schemes Compared) */}
       <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
