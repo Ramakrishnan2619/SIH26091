@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Sparkles, AlertTriangle, CheckCircle2, ChevronRight, ChevronLeft, 
-  Building2, Landmark, CreditCard, ShoppingBag, ShieldAlert, RefreshCw, X, Info
+  Building2, Landmark, CreditCard, ShoppingBag, ShieldAlert, RefreshCw, X, Info, FileText
 } from 'lucide-react';
 
 export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCategory = 'SC', applicantDetails = null, selectedLang = 'en' }) {
@@ -126,6 +126,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '65% Bank Finance',
         own_contribution: '5% - 10%',
         tenure: 'Up to 10 years',
+        required_documents: 'Aadhaar / KYC; SC/ST Community Certificate; Detailed Project Report (DPR); Machinery Quotations; Bank Account Proof',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/aabcs/'
       });
@@ -144,6 +145,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '₹1.25 Lakh',
         own_contribution: 'Up to 10%',
         tenure: 'Up to 3 years (3-month moratorium)',
+        required_documents: 'Aadhaar / KYC; SC Caste Certificate; Family Income Proof (<= ₹5 Lakh); Micro Business Estimate; Bank Passbook',
         is_illustrative: false,
         mandatory_disclosure: 'Official Central Scheme under MoSJE — Apply via PM-SURAJ portal'
       });
@@ -161,6 +163,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '₹1.00 Crore',
         own_contribution: '15%',
         tenure: 'Up to 7 years',
+        required_documents: 'Aadhaar & PAN Card; SC/ST / Women Ownership Proof (51%+); Greenfield DPR; Machinery Quotations; Bank Account Details',
         is_illustrative: false,
         mandatory_disclosure: 'Official Central Scheme — Apply via standupmitra.in'
       });
@@ -179,6 +182,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '95% of project cost (Project up to ₹10 Lakh)',
         own_contribution: '5% Promoter Contribution',
         tenure: 'As per bank',
+        required_documents: 'Aadhaar / KYC; TN Residence Proof; Business Project Report (DPR); Machinery Invoices; Bank Account Passbook',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Government Scheme for Women — Apply via msmeonline.tn.gov.in/twees/'
       });
@@ -197,6 +201,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: 'Project cost up to ₹5 Crore',
         own_contribution: '5% (Special Category)',
         tenure: 'As per bank / TIIC',
+        required_documents: 'Aadhaar / KYC; Degree / Diploma Certificate; First-Gen Certificate; DPR; Machinery Quotations; Bank Documents',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/'
       });
@@ -215,6 +220,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: 'Project cost up to ₹5 Crore',
         own_contribution: '10% General / 5% Special',
         tenure: 'As per bank / TIIC',
+        required_documents: 'Aadhaar / KYC; Degree / Diploma Certificate; First-Gen Certificate; Detailed Project Report (DPR); Machinery Quotations',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/'
       });
@@ -233,6 +239,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '90% - 95% of project cost (Max ₹15 Lakh)',
         own_contribution: '10% General / 5% Special',
         tenure: 'As per bank',
+        required_documents: 'Aadhaar / KYC; 8th Pass Transfer Certificate; Community Certificate; Project Quotation; Bank Documents',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/uyegp/'
       });
@@ -257,6 +264,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: 'Trade-based credit linkage',
         own_contribution: '5% - 10%',
         tenure: '3 to 5 years',
+        required_documents: 'Aadhaar; Artisan Welfare Board Registration Card; Trade Experience Proof; DPR; Bank Passbook',
         is_illustrative: false,
         mandatory_disclosure: 'Official Tamil Nadu Artisan Scheme — Apply via DIC'
       });
@@ -275,6 +283,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: '₹15,000 (1st) / ₹25,000 (2nd) / ₹50,000 (3rd)',
         own_contribution: '0% (Nil)',
         tenure: '12 to 36 months',
+        required_documents: 'Aadhaar; Vending Certificate / LOR / Survey ID; Bank Account Details; Aadhaar-linked Mobile',
         is_illustrative: false,
         mandatory_disclosure: 'Official Central Scheme — Apply via pmsvanidhi.mohua.gov.in'
       });
@@ -293,6 +302,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
         max_loan_amount: 'Up to ₹10 Lakh (Tarun) / ₹20 Lakh (Tarun Plus)',
         own_contribution: '0% (Shishu/Kishore) / up to 15% (Tarun)',
         tenure: 'Up to 5 years',
+        required_documents: 'Aadhaar & PAN Card; Business Proof / Udyam; Passport Size Photos; Quotation for Machinery / Stock; 6 Months Bank Statement',
         is_illustrative: false,
         mandatory_disclosure: 'Official Central MSME Scheme — Apply at any commercial bank'
       });
@@ -313,6 +323,7 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
       max_loan_amount: 'Up to ₹50 Lakh (Mfg) / ₹20 Lakh (Services)',
       own_contribution: '5% (Special) / 10% (General)',
       tenure: '3 to 7 years',
+      required_documents: 'Aadhaar & PAN Card; Passport Size Photos; Detailed Project Report (DPR); Special Category / Caste Certificate; Bank Account Details',
       is_illustrative: false,
       mandatory_disclosure: 'Official Central Scheme — Apply via kviconline.gov.in'
     });
@@ -809,6 +820,23 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
                       </span>
                     )}
                   </div>
+
+                  {/* Required Documents Section */}
+                  {scheme.required_documents && (
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
+                        <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Required Documents (தேவையான ஆவணங்கள்):</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 text-[10px]">
+                        {scheme.required_documents.split(';').map((doc, dIdx) => (
+                          <span key={dIdx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1">
+                            <span className="text-emerald-600 font-bold">✓</span> {doc.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
                     <span>Rate: <strong className="text-emerald-700">{scheme.indicative_interest_rate}</strong></span>

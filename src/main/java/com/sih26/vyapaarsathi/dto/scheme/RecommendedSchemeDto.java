@@ -52,6 +52,9 @@ public class RecommendedSchemeDto {
     @JsonProperty("moratorium")
     private String moratorium;
 
+    @JsonProperty("required_documents")
+    private String requiredDocuments;
+
     @Builder.Default
     @JsonProperty("is_illustrative")
     private Boolean isIllustrative = true;

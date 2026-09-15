@@ -340,6 +340,7 @@ public class SchemeSearchService {
                       "own_contribution": "string e.g. 5% or 10%",
                       "tenure": "string e.g. 3 years or 7 years",
                       "moratorium": "string e.g. 3 months or 6 months",
+                      "required_documents": "Semi-colon separated list of exact required documents (e.g. Aadhaar / KYC; Community Certificate; DPR; Machinery Quotations; Bank Docs)",
                       "is_illustrative": true,
                       "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
                     }
@@ -437,6 +438,7 @@ public class SchemeSearchService {
                     .ownContribution("5% - 10%")
                     .tenure("Up to 10 years")
                     .moratorium("As per bank")
+                    .requiredDocuments("Aadhaar / KYC; SC/ST Community Certificate; Detailed Project Report (DPR); Machinery Quotations; Bank Account Proof")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/aabcs/")
                     .build());
@@ -463,6 +465,7 @@ public class SchemeSearchService {
                     .ownContribution("Up to 10%")
                     .tenure("Up to 3 years")
                     .moratorium("3 months")
+                    .requiredDocuments("Aadhaar / KYC; SC Caste Certificate; Family Income Proof (<= ₹5 Lakh); Micro Business Estimate; Bank Passbook")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Central Scheme under MoSJE / NSFDC — Apply via PM-SURAJ portal")
                     .build());
@@ -489,6 +492,7 @@ public class SchemeSearchService {
                     .ownContribution("15% (can converge with other subsidies)")
                     .tenure("Up to 7 years")
                     .moratorium("Up to 18 months")
+                    .requiredDocuments("Aadhaar & PAN Card; SC/ST / Women Ownership Proof (51%+); Greenfield DPR; Machinery Quotations; Bank Account Details")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Central Scheme — Apply via standupmitra.in")
                     .build());
@@ -515,6 +519,7 @@ public class SchemeSearchService {
                     .ownContribution("5% Promoter Contribution")
                     .tenure("As per bank (36 - 60 months)")
                     .moratorium("As per bank")
+                    .requiredDocuments("Aadhaar / KYC; TN Residence Proof; Business Project Report (DPR); Machinery Invoices; Bank Account Passbook")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Government Scheme for Women — Apply via msmeonline.tn.gov.in/twees/")
                     .build());
@@ -541,6 +546,7 @@ public class SchemeSearchService {
                     .ownContribution("5% (Special / Women Category)")
                     .tenure("As per bank / TIIC")
                     .moratorium("As per bank")
+                    .requiredDocuments("Aadhaar / KYC; Degree / Diploma Certificate; First-Gen Certificate; DPR; Machinery Quotations; Bank Documents")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/")
                     .build());
@@ -567,6 +573,7 @@ public class SchemeSearchService {
                     .ownContribution("10% General / 5% Special Categories")
                     .tenure("As per bank / TIIC")
                     .moratorium("As per bank")
+                    .requiredDocuments("Aadhaar / KYC; Degree / Diploma Certificate; First-Gen Certificate; Detailed Project Report (DPR); Machinery Quotations")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/")
                     .build());
@@ -592,6 +599,7 @@ public class SchemeSearchService {
                     .ownContribution("10% General / 5% Special Categories")
                     .tenure("As per bank")
                     .moratorium("As per bank")
+                    .requiredDocuments("Aadhaar / KYC; 8th Pass Transfer Certificate; Community Certificate; Project Quotation; Bank Documents")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/uyegp/")
                     .build());
@@ -619,6 +627,7 @@ public class SchemeSearchService {
                     .maxLoanAmount("Credit-linked based on artisan trade")
                     .ownContribution("5% - 10%")
                     .tenure("3 to 5 years")
+                    .requiredDocuments("Aadhaar; Artisan Welfare Board Registration Card; Trade Experience Proof; DPR; Bank Passbook")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Tamil Nadu Artisan Scheme — Apply via DIC")
                     .build());
@@ -644,6 +653,7 @@ public class SchemeSearchService {
                     .ownContribution("0% (Nil)")
                     .tenure("12 to 36 months")
                     .moratorium("Nil")
+                    .requiredDocuments("Aadhaar; Vending Certificate / LOR / Survey ID; Bank Account Details; Aadhaar-linked Mobile")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Central Scheme — Apply via pmsvanidhi.mohua.gov.in")
                     .build());
@@ -670,6 +680,7 @@ public class SchemeSearchService {
                     .ownContribution("0% (Shishu/Kishore) / up to 15% (Tarun)")
                     .tenure("Up to 5 years")
                     .moratorium("Up to 6 months")
+                    .requiredDocuments("Aadhaar & PAN Card; Business Proof / Udyam; Passport Size Photos; Quotation for Machinery / Stock; 6 Months Bank Statement")
                     .isIllustrative(false)
                     .mandatoryDisclosure("Official Central MSME Scheme — Apply at any commercial bank or mudra.org.in")
                     .build());
@@ -697,6 +708,7 @@ public class SchemeSearchService {
                 .ownContribution("5% (Special Categories) / 10% (General)")
                 .tenure("3 to 7 years (including lock-in of subsidy)")
                 .moratorium("As per bank")
+                .requiredDocuments("Aadhaar & PAN Card; Passport Size Photos; Detailed Project Report (DPR); Special Category / Caste Certificate; Bank Account Details")
                 .isIllustrative(false)
                 .mandatoryDisclosure("Official Central Scheme under Ministry of MSME — Apply via kviconline.gov.in")
                 .build());

@@ -604,6 +604,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     ? "35% நேரடி மூலதன மானியம் (அதிகபட்சம் ரூ. 1.50 கோடி) மற்றும் இயந்திர கடனுக்கு 6% அரசு வட்டி மானியம் (Interest Subvention). 10 ஆண்டுகள் வரை திருப்பிச் செலுத்த அவகாசம்."
                     : "35% capital subsidy up to ₹1.50 Crore + 6% interest subvention for machinery loans up to 10 years via District Industries Centre."}
                 </p>
+
+                {/* Exact Required Documents Checklist */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-emerald-100/60 border border-emerald-300/60 text-[11px] space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-emerald-950 text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {["Aadhaar / KYC", "SC/ST Community Certificate", "Detailed Project Report (DPR)", "Machinery Quotations", "Bank Account Proof"].map((doc, dIdx) => (
+                      <span key={dIdx} className="px-2 py-0.5 rounded bg-white/90 border border-emerald-300/80 text-emerald-900 font-medium flex items-center gap-1">
+                        <span className="text-emerald-700 font-bold">✓</span> {doc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="pt-3 border-t border-emerald-200/80 flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online AABCS / DIC</strong></span>
@@ -643,6 +658,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     ? "திட்ட மதிப்பீட்டில் 95% வங்கி கடன், வெறும் 5% சொந்த முதலீடு, 25% மூலதன மானியம் (அதிகபட்சம் ரூ. 2.00 லட்சம்) மற்றும் சொத்து பிணையில்லா நிதி உதவி."
                     : "95% bank finance with only 5% promoter margin, 25% capital subsidy up to ₹2.00 Lakh, and zero collateral security."}
                 </p>
+
+                {/* Exact Required Documents Checklist */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-pink-100/60 border border-pink-300/60 text-[11px] space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-pink-950 text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-pink-700 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {["Aadhaar / KYC", "TN Residence Proof", "Business Project Report (DPR)", "Machinery / Equipment Quotations", "Bank Account Passbook"].map((doc, dIdx) => (
+                      <span key={dIdx} className="px-2 py-0.5 rounded bg-white/90 border border-pink-300/80 text-pink-900 font-medium flex items-center gap-1">
+                        <span className="text-pink-700 font-bold">✓</span> {doc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="pt-3 border-t border-emerald-200/80 flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online TWEES / DIC</strong></span>
@@ -682,6 +712,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     ? "25% அரசு மூலதன மானியம் (அதிகபட்சம் ரூ. 75 லட்சம்) மற்றும் திருப்பிச் செலுத்தும் காலம் முழுவதும் 3% வட்டி மானியம் (Interest Subvention)."
                     : "25% capital subsidy up to ₹75 Lakh + 3% interest subvention throughout the loan tenure via TIIC and Commercial Banks."}
                 </p>
+
+                {/* Exact Required Documents Checklist */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-blue-100/60 border border-blue-300/60 text-[11px] space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-blue-950 text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {["Aadhaar / KYC", "Degree / Diploma Certificate", "First-Generation Certificate", "Detailed Project Report (DPR)", "Machinery Quotations", "Bank Docs"].map((doc, dIdx) => (
+                      <span key={dIdx} className="px-2 py-0.5 rounded bg-white/90 border border-blue-300/80 text-blue-900 font-medium flex items-center gap-1">
+                        <span className="text-blue-700 font-bold">✓</span> {doc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="pt-3 border-t border-blue-200/80 flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online NEEDS / TIIC / DIC</strong></span>
@@ -724,6 +769,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     ? "திட்ட மதிப்பீட்டில் 90% கடன் (அதிகபட்சம் ரூ. 1.25 லட்சம்), 6.5% குறைந்த வட்டி, 36 மாத தவணை மற்றும் 3 மாத அசல் விலக்கு சலுகை."
                     : "90% loan outlay up to ₹1.25 Lakh at 6.5% concessional interest rate, 3-year repayment tenure and 3-month grace period."}
                 </p>
+
+                {/* Required Documents */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {["Aadhaar / KYC", "Caste Certificate", "Annual Family Income Proof (<= ₹5 Lakh)", "Micro Business Estimate", "Bank Passbook"].map((doc, dIdx) => (
+                      <span key={dIdx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1">
+                        <span className="text-emerald-600 font-bold">✓</span> {doc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">PM-SURAJ / TAHDCO</strong></span>
@@ -763,6 +823,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                     ? "ரூ. 15 லட்சம் வரையிலான வணிகத் திட்டங்களுக்கு 25% அரசு மூலதன மானியம் (ரூ. 3.75 லட்சம் வரை) மற்றும் 90-95% வங்கி கடன்."
                     : "Up to ₹15 Lakh project cost with 25% capital subsidy (max ₹3.75 Lakh) and 90-95% bank loan via commercial banks."}
                 </p>
+
+                {/* Required Documents */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    {["Aadhaar / KYC", "8th Pass Transfer Certificate", "Community Certificate", "Project Quotation / Estimate", "Bank Documents"].map((doc, dIdx) => (
+                      <span key={dIdx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1">
+                        <span className="text-emerald-600 font-bold">✓</span> {doc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online UYEGP / DIC</strong></span>
@@ -804,6 +879,21 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   ? "கிராமப்புற சிறப்பு பிரிவினருக்கு 35% வரை அரசு மூலதன மானியம் (ரூ. 50 லட்சம் உற்பத்தி / ரூ. 20 லட்சம் சேவை), வெறும் 5% சொந்த முதலீடு."
                   : "Up to 35% non-repayable margin money subsidy in rural areas for special category beneficiaries with only 5% promoter margin."}
               </p>
+
+              {/* Required Documents */}
+              <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[11px] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-950 text-[11px]">
+                  <FileText className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                  <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 text-[10px]">
+                  {["Aadhaar & PAN Card", "Passport Size Photos", "Detailed Project Report (DPR)", "Special Category / Caste Certificate", "Bank Account Details", "EDP Training Certificate (Post-sanction)"].map((doc, dIdx) => (
+                    <span key={dIdx} className="px-2 py-0.5 rounded bg-white border border-amber-200 text-amber-900 font-medium flex items-center gap-1">
+                      <span className="text-amber-700 font-bold">✓</span> {doc}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online PMEGP e-Portal / KVIC / DIC</strong></span>
@@ -852,6 +942,24 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   ? (selectedLang === 'ta' ? "ரூ. 10 லட்சம் முதல் ரூ. 1 கோடி வரை வணிக வங்கிகள் மூலம் கூட்டு கடன், 15% சொந்த முதலீடு மற்றும் கடன் உத்தரவாதம்." : "Composite loan between ₹10 Lakh and ₹1 Crore for SC/ST and women entrepreneurs with CGFSIL guarantee.")
                   : (selectedLang === 'ta' ? "சொத்து அடமானம் இல்லாமல் ரூ. 10.00 லட்சம் வரை (தருண் பிளஸ் ரூ. 20 லட்சம் வரை) உடனடி வணிக கடன் மற்றும் RuPay வணிக அட்டை." : "Collateral-free credit up to ₹10 Lakh (Tarun Plus ₹20 Lakh) with RuPay business card via all public sector and rural banks.")}
               </p>
+
+              {/* Required Documents */}
+              <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
+                  <FileText className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents:"}</span>
+                </div>
+                <div className="flex flex-wrap gap-1 text-[10px]">
+                  {(isNsfdcEligible || isFemale
+                    ? ["Aadhaar & PAN Card", "SC/ST / Women Ownership Proof (51%+)", "Greenfield Project Proposal", "Machinery Quotations", "Bank Statements (6 Months)"]
+                    : ["Aadhaar & PAN Card", "Business Registration / Udyam Certificate", "Passport Size Photos", "Quotations for Machinery / Stock", "Bank Statement (Last 6 Months)"]
+                  ).map((doc, dIdx) => (
+                    <span key={dIdx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1">
+                      <span className="text-emerald-600 font-bold">✓</span> {doc}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-slate-500 font-medium">
