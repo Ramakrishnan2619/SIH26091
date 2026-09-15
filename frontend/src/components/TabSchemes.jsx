@@ -161,44 +161,53 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
     {
       key: 'aadhaar',
       num: '1',
-      title: 'Aadhaar Card',
-      titleTa: 'ஆதார் அட்டை',
-      sub: 'Identity & Age Verification (KYC)',
-      subTa: 'அடையாள சான்று / KYC',
-      question: 'Do you have your Aadhaar Card with you?',
-      questionTa: 'உங்களிடம் ஆதார் அட்டை தயாராக உள்ளதா?',
+      title: { en: 'Aadhaar Card', ta: 'ஆதார் அட்டை', hi: 'आधार कार्ड', te: 'ఆధార్ కార్డ్' },
+      sub: { en: 'Identity & Age Verification (KYC)', ta: 'அடையாள சான்று / KYC', hi: 'पहचान एवं आयु सत्यापन (KYC)', te: 'గుర్తింపు & వయస్సు ధృవీకరణ (KYC)' },
+      question: {
+        en: 'Do you have your Aadhaar Card with you?',
+        ta: 'உங்களிடம் ஆதார் அட்டை தயாராக உள்ளதா?',
+        hi: 'क्या आपके पास आधार कार्ड उपलब्ध है?',
+        te: 'మీ దగ్గర ఆధార్ కార్డ్ సిద్ధంగా ఉందా?'
+      },
     },
     {
       key: 'community',
       num: '2',
-      title: 'Community Certificate',
-      titleTa: `${socialCategory} சாதி சான்றிதழ்`,
-      sub: `${socialCategory} / Domicile Certificate`,
-      subTa: 'வாசஸ்தல சான்றிதழ்',
-      question: `Do you have your ${socialCategory} Community / Domicile Certificate?`,
-      questionTa: `உங்களிடம் ${socialCategory} சாதி / வாசஸ்தல சான்றிதழ் உள்ளதா?`,
+      title: { en: 'Community Certificate', ta: `${socialCategory} சாதி சான்றிதழ்`, hi: `${socialCategory} जाति प्रमाण पत्र`, te: `${socialCategory} కమ్యూనిటీ సర్టిఫికేట్` },
+      sub: { en: `${socialCategory} / Domicile Certificate`, ta: 'வாசஸ்தல சான்றிதழ்', hi: 'जाति / अधिवास प्रमाण पत्र', te: 'కులం / నివాస సర్టిఫికేట్' },
+      question: {
+        en: `Do you have your ${socialCategory} Community / Domicile Certificate?`,
+        ta: `உங்களிடம் ${socialCategory} சாதி / வாசஸ்தல சான்றிதழ் உள்ளதா?`,
+        hi: `क्या आपके पास ${socialCategory} जाति / अधिवास प्रमाण पत्र है?`,
+        te: `మీ దగ్గర ${socialCategory} కమ్యూనిటీ / నివాస సర్టిఫికేట్ ఉందా?`
+      },
     },
     {
       key: 'dpr',
       num: '3',
-      title: 'Detailed Project Report (DPR)',
-      titleTa: 'விரிவான திட்ட அறிக்கை (DPR)',
-      sub: 'Generated directly by VyapaarSathi',
-      subTa: 'VyapaarSathi மூலம் தானியங்கி உருவாக்கம்',
-      question: 'VyapaarSathi auto-generates the DPR for you. Is your project report ready?',
-      questionTa: 'VyapaarSathi உங்கள் திட்ட அறிக்கையை தானாக உருவாக்குகிறது. தயாரா?',
+      title: { en: 'Detailed Project Report (DPR)', ta: 'விரிவான திட்ட அறிக்கை (DPR)', hi: 'विस्तृत परियोजना रिपोर्ट (DPR)', te: 'వివరణాత్మక ప్రాజెక్ట్ నివేదిక (DPR)' },
+      sub: { en: 'Generated directly by VyapaarSathi', ta: 'VyapaarSathi மூலம் தானியங்கி உருவாக்கம்', hi: 'VyapaarSathi द्वारा स्वतः निर्मित', te: 'VyapaarSathi ద్వారా స్వయంచాలకంగా రూపొందించబడింది' },
+      question: {
+        en: 'VyapaarSathi auto-generates the DPR for you. Is your project report ready?',
+        ta: 'VyapaarSathi உங்கள் திட்ட அறிக்கையை தானாக உருவாக்குகிறது. தயாரா?',
+        hi: 'VyapaarSathi आपकी DPR स्वतः तैयार करता है। क्या परियोजना रिपोर्ट तैयार है?',
+        te: 'VyapaarSathi మీ DPR ని స్వయంచాలకంగా రూపొందిస్తుంది. ప్రాజెక్ట్ రిపోర్ట్ సిద్ధంగా ఉందా?'
+      },
     },
     {
       key: 'quotations',
       num: '4',
-      title: 'Machinery / Equipment Quotations',
-      titleTa: 'இயந்திர விலைப்பட்டியல்',
-      sub: 'Equipment & Stock Supplier Invoices',
-      subTa: 'சாதனங்கள் / சரக்கு சப்ளையர் விலை மதிப்பீடு',
-      question: 'Do you have quotations / price estimates from a machinery or equipment supplier?',
-      questionTa: 'இயந்திர / சாதன சப்ளையரிடம் விலை மதிப்பீடு பெற்றீர்களா?',
+      title: { en: 'Machinery / Equipment Quotations', ta: 'இயந்திர விலைப்பட்டியல்', hi: 'मशीनरी / उपकरण उद्धरण', te: 'యంత్రాలు / పరికరాల కోటేషన్లు' },
+      sub: { en: 'Equipment & Stock Supplier Invoices', ta: 'சாதனங்கள் / சரக்கு சப்ளையர் விலை மதிப்பீடு', hi: 'उपकरण एवं स्टॉक आपूर्तिकर्ता चालान', te: 'పరికరాలు & స్టాక్ సప్లయర్ ఇన్వాయిసులు' },
+      question: {
+        en: 'Do you have quotations / price estimates from a machinery or equipment supplier?',
+        ta: 'இயந்திர / சாதன சப்ளையரிடம் விலை மதிப்பீடு பெற்றீர்களா?',
+        hi: 'क्या आपके पास मशीनरी/उपकरण आपूर्तिकर्ता से उद्धरण / मूल्य अनुमान है?',
+        te: 'మీ దగ్గర యంత్రాలు/పరికరాల సప్లయర్ నుండి కోటేషన్లు / ధర అంచనాలు ఉన్నాయా?'
+      },
     },
   ];
+
 
   const handleDocAnswer = (key, answer) => {
     const next = { ...docChecks, [key]: answer };
@@ -293,8 +302,16 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
       {/* === DOCUMENT VERIFICATION MODAL === */}
       {showDocModal && DOC_ITEMS[docModalStep] && (() => {
         const item = DOC_ITEMS[docModalStep];
-        const progress = ((docModalStep) / DOC_ITEMS.length) * 100;
-        const lang = selectedLang === 'ta';
+        const progress = (docModalStep / DOC_ITEMS.length) * 100;
+        const L = selectedLang in item.title ? selectedLang : 'en';
+        const labels = {
+          badge:    { en: 'Mandatory Document Checklist', ta: 'கட்டாய ஆவண சரிபார்ப்பு', hi: 'अनिवार्य दस्तावेज़ जाँच सूची', te: 'తప్పనిసరి పత్రాల తనిఖీ జాబితా' },
+          docNum:   { en: `Document ${item.num}`, ta: `ஆவணம் ${item.num}`, hi: `दस्तावेज़ ${item.num}`, te: `పత్రం ${item.num}` },
+          no:       { en: 'No / Not Yet', ta: 'இல்லை / இன்னும் இல்லை', hi: 'नहीं / अभी नहीं', te: 'లేదు / ఇంకా లేదు' },
+          yes:      { en: 'Yes, I Have It', ta: 'ஆம், உள்ளது', hi: 'हाँ, मेरे पास है', te: 'అవును, నా దగ్గర ఉంది' },
+          skip:     { en: "Skip for now — I'll update later", ta: 'இப்போது தவிர்', hi: 'अभी छोड़ें — बाद में अपडेट करूंगा', te: 'ఇప్పుడు వదిలేయండి — తర్వాత నవీకరిస్తాను' },
+        };
+        const lbl = (k) => labels[k][L] ?? labels[k]['en'];
         return (
           <div style={{
             position: 'fixed', inset: 0, zIndex: 9999,
@@ -319,7 +336,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   background: '#EEF2FF', color: '#3730A3', fontWeight: 700,
                   fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase',
                   padding: '0.3rem 0.85rem', borderRadius: '999px', border: '1px solid #C7D2FE'
-                }}>📋 {lang ? 'கட்டாய ஆவண சரிபார்ப்பு' : 'Mandatory Document Checklist'}</span>
+                }}>📋 {lbl('badge')}</span>
                 <span style={{ color: '#94A3B8', fontSize: '0.75rem', fontWeight: 600 }}>
                   {docModalStep + 1} / {DOC_ITEMS.length}
                 </span>
@@ -347,13 +364,13 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   {item.key === 'aadhaar' ? '🪪' : item.key === 'community' ? '📜' : item.key === 'dpr' ? '📊' : '🧾'}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, marginBottom: '0.3rem' }}>
-                  {lang ? `ஆவணம் ${item.num}` : `Document ${item.num}`}
+                  {lbl('docNum')}
                 </div>
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.3rem' }}>
-                  {lang ? item.titleTa : item.title}
+                  {item.title[L] ?? item.title['en']}
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                  {lang ? item.subTa : item.sub}
+                  {item.sub[L] ?? item.sub['en']}
                 </div>
               </div>
 
@@ -363,7 +380,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                 padding: '1rem 1.25rem', textAlign: 'center'
               }}>
                 <p style={{ fontSize: '0.95rem', fontWeight: 600, color: '#1E3A5F', lineHeight: 1.5 }}>
-                  {lang ? item.questionTa : item.question}
+                  {item.question[L] ?? item.question['en']}
                 </p>
               </div>
 
@@ -381,7 +398,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   onMouseEnter={e => { e.currentTarget.style.background='#FEE2E2'; e.currentTarget.style.borderColor='#FCA5A5'; e.currentTarget.style.color='#B91C1C'; }}
                   onMouseLeave={e => { e.currentTarget.style.background='#F8FAFC'; e.currentTarget.style.borderColor='#E2E8F0'; e.currentTarget.style.color='#475569'; }}
                 >
-                  ✗ {lang ? 'இல்லை / இன்னும் இல்லை' : 'No / Not Yet'}
+                  ✗ {lbl('no')}
                 </button>
                 <button
                   onClick={() => handleDocAnswer(item.key, true)}
@@ -397,7 +414,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   onMouseEnter={e => { e.currentTarget.style.transform='scale(1.03)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(59,130,246,0.5)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform='scale(1)'; e.currentTarget.style.boxShadow='0 4px 14px rgba(59,130,246,0.35)'; }}
                 >
-                  ✓ {lang ? 'ஆம், உள்ளது' : 'Yes, I Have It'}
+                  ✓ {lbl('yes')}
                 </button>
               </div>
 
@@ -407,7 +424,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   onClick={() => { markAllDocs(false); setShowDocModal(false); }}
                   style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
                 >
-                  {lang ? 'இப்போது தவிர்' : 'Skip for now — I\'ll update later'}
+                  {lbl('skip')}
                 </button>
               </div>
             </div>
