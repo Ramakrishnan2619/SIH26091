@@ -130,6 +130,12 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
   const isNskfdcEligible = socialCategory.includes('SAFAI') || socialCategory.includes('SANITATION') || socialCategory.includes('KARAMCHARI');
   const isNdfdcEligible = isPwD;
 
+  const targetApexCode = isNbcfdcEligible ? 'NBCFDC' : isNsfdcEligible ? 'NSFDC' : isNskfdcEligible ? 'NSKFDC' : isNdfdcEligible ? 'NDFDC' : 'MoSJE';
+
+  const bizCat = (applicantDetails?.businessCategory || module2Result?.businessCategory || '').toLowerCase();
+  const isArtisan = bizCat.includes('wood') || bizCat.includes('craft') || bizCat.includes('tailor') || bizCat.includes('barber') || bizCat.includes('carpenter') || bizCat.includes('mason');
+  const isDairy = bizCat.includes('dairy') || bizCat.includes('milk') || bizCat.includes('cattle');
+
   const corporations = [
     {
       code: "NBCFDC",
