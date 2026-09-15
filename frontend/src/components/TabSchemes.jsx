@@ -308,6 +308,57 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
             </div>
           </div>
         </div>
+
+        {/* Exact Mandatory Required Documents Checklist for Primary Scheme */}
+        <div className="mt-6 p-4 rounded-xl bg-emerald-50/90 border-2 border-emerald-300 text-xs space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2 font-black text-emerald-950 text-sm">
+              <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>
+                {selectedLang === 'ta' 
+                  ? "விண்ணப்பிக்க தேவையான அசல் ஆவணங்கள் (Exact Required Documents):" 
+                  : "Exact Required Documents to Apply (Mandatory Checklist):"}
+              </span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-200 text-emerald-900 border border-emerald-300">
+              100% Required for Sanction
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+              <div>
+                <strong className="text-slate-900 block text-xs font-bold">1. Aadhaar Card</strong>
+                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "ஆதார் அட்டை / அடையாள சான்று" : "Identity & Age Verification (KYC)"}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+              <div>
+                <strong className="text-slate-900 block text-xs font-bold">2. Community Certificate</strong>
+                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? `${socialCategory} சாதி சான்றிதழ்` : `${socialCategory} / Domicile Certificate`}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+              <div>
+                <strong className="text-slate-900 block text-xs font-bold">3. Detailed Project Report (DPR)</strong>
+                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "விரிவான திட்ட அறிக்கை (DPR)" : "Generated directly by VyapaarSathi"}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+              <div>
+                <strong className="text-slate-900 block text-xs font-bold">4. Machinery Quotations</strong>
+                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "இயந்திர விலைப்பட்டியல் / மதிப்பீடு" : "Equipment & Stock Supplier Invoices"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 2.5 Multi-Scheme Comparative Decision Matrix (Top 4 Schemes Compared) */}
@@ -469,6 +520,30 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
                   {isArtisan ? (selectedLang === 'ta' ? "கைவினைஞர்கள், தையல், தச்சு தொழில் மற்றும் நவீன கருவிகள் வாங்குவதற்கு." : "Artisans, carpenters, tailors, modern equipment and 5% credit.") :
                    isDairy ? (selectedLang === 'ta' ? "கறவை மாடுகள் வாங்குதல், பால் குளிரூட்டும் மையங்கள் அமைத்தல்." : "Dairy farmers, cattle acquisition, milk chilling infrastructure.") :
                    (selectedLang === 'ta' ? "மளிகை, சில்லறை வர்த்தகம் மற்றும் சொத்து அடமானமில்லா உடனடி சரக்கு இருப்பு நிதிக்கு." : "Grocery/retail stores seeking instant inventory liquidity without property mortgage.")}
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50/60 bg-emerald-50/20">
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  <div className="flex items-center gap-1.5 text-emerald-900 font-bold">
+                    <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                    <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள்" : "Required Documents"}</span>
+                  </div>
+                </td>
+                <td className="p-3.5 border-r border-slate-200 text-[11px] text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-blue-900 block mb-1">Term Loan Pack:</span>
+                  Aadhaar, Caste/Community Cert, Detailed Project Report (DPR), Machinery Quotations, Bank Passbook
+                </td>
+                <td className="p-3.5 border-r border-slate-200 text-[11px] text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-blue-900 block mb-1">Micro Credit Pack:</span>
+                  Aadhaar & KYC, Income / Community Proof, Micro Business Estimate, Bank Passbook
+                </td>
+                <td className="p-3.5 border-r border-slate-200 text-[11px] text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-blue-900 block mb-1">PMEGP Subsidy Pack:</span>
+                  Aadhaar Card, Detailed Project Report (DPR), Machinery Quotations, Caste Cert, EDP Certificate
+                </td>
+                <td className="p-3.5 bg-emerald-50/30 text-[11px] text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-emerald-900 block mb-1">Enterprise Pack:</span>
+                  Aadhaar & PAN, Business Proof / Udyam, Machinery Invoices, 6-Month Bank Statement
                 </td>
               </tr>
             </tbody>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   ShieldAlert, ShieldCheck, AlertTriangle, CheckCircle2, 
-  Award, Layers, Percent, TrendingUp, HelpCircle, ArrowRight
+  Award, Layers, Percent, TrendingUp, HelpCircle, ArrowRight, FileText
 } from 'lucide-react';
 
 const RISK_TRANSLATIONS = {
@@ -383,6 +383,24 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis, selectedL
                 <span className="font-bold text-slate-900">{r.value}%</span>
               </div>
             ))}
+          </div>
+
+          {/* Exact Required Documents Checklist under Documentation Ring */}
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-left w-full space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-950">
+                <FileText className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span>{selectedLang === 'ta' ? "தேவையான ஆவணங்கள் (Required Documents):" : "Required Documents Checklist:"}</span>
+              </span>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">94% Ready</span>
+            </div>
+            <div className="flex flex-wrap gap-1 text-[10px]">
+              {["Aadhaar Card", "Community Certificate", "Detailed Project Report", "Machinery Quotations"].map((doc, idx) => (
+                <span key={idx} className="px-2 py-0.5 rounded bg-white border border-emerald-300/80 text-emerald-900 font-semibold flex items-center gap-1">
+                  <span className="text-emerald-700 font-bold">✓</span> {doc}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
