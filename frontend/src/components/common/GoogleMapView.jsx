@@ -188,7 +188,7 @@ export function GoogleMapView({
         leafletMapRef.current = null;
       }
     };
-  }, [latNum, lngNum, radiusKm, mapLayer, showRadius]);
+  }, [latNum, lngNum, radiusKm, mapLayer, showRadius, places, showPlaces]);
 
   const handleSelectPlace = (idx) => {
     setSelectedPlaceIndex(idx);

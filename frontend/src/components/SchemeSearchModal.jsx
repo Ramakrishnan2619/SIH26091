@@ -107,125 +107,172 @@ export function SchemeSearchModal({ assessmentId, isOpen, onClose, defaultCatego
     const cat = (socialCategory || 'OBC').toLowerCase();
     const bizCat = (applicantDetails?.businessCategory || '').toLowerCase();
     const isDisab = disability;
+    const isTa = selectedLang === 'ta';
 
     const schemes = [];
 
-    // Archetype 1: Women / SC apex scheme
-    if (isFemale || cat === 'sc') {
-      schemes.push({
-        scheme_id: 'NSFDC_MAHILA_SAMRIDDHI',
-        scheme_name: 'NSFDC Mahila Samriddhi Yojana (Illustrative)',
-        category: 'loan_type_specific',
-        target_beneficiary_match: `Recommended for ${gender} ${socialCategory} entrepreneur`,
-        illustrative_benefit: 'Up to ₹1,40,000 credit limit with special 1.5% interest subvention for rural women SHG members',
-        indicative_interest_rate: '4.0% - 6.5% p.a. concessional',
-        participating_institutions: 'State Channelizing Agencies (SCAs) / NSFDC / Regional Rural Banks',
-        is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
-      });
-    }
-
-    // Archetype 2: Business-linked
-    if (bizCat.includes('dairy') || bizCat.includes('milk') || bizCat.includes('cattle')) {
-      schemes.push({
-        scheme_id: 'MICRO_WOMEN_DAIRY',
-        scheme_name: 'Women Rural Dairy Cooperative Scheme (Illustrative)',
-        category: 'business_linked',
-        target_beneficiary_match: 'Specific matching for Dairy & Milk Production enterprise',
-        illustrative_benefit: 'Working capital and milch cattle financing with milk collection tie-up and 25% back-ended capital subsidy',
-        indicative_interest_rate: '5.0% - 6.5% p.a.',
-        participating_institutions: 'District Cooperative Milk Producers Union / NABARD',
-        is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
-      });
-    } else {
-      schemes.push({
-        scheme_id: 'MUDRA_SHISHU_RETAIL',
-        scheme_name: 'Pradhan Mantri MUDRA Yojana - Shishu (Illustrative)',
-        category: 'business_linked',
-        target_beneficiary_match: 'Matching for Grocery, Provisions, and Micro Retail Trade',
-        illustrative_benefit: 'Collateral-free working capital loan up to ₹50,000 with RuPay business debit card',
-        indicative_interest_rate: '7.5% - 9.0% p.a.',
-        participating_institutions: 'All Public Sector Banks & Regional Rural Banks',
-        is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
-      });
-    }
-
-    // Archetype 3: Apex corp term loan — category-specific
+    // 1. Direct Statutory Apex Scheme (Category-specific)
     if (cat === 'obc') {
       schemes.push({
         scheme_id: 'NBCFDC_GENERAL_TERM_LOAN',
-        scheme_name: 'NBCFDC General Term Loan Scheme (Illustrative)',
-        category: 'bank_specific',
-        target_beneficiary_match: 'Other Backward Classes (OBC) target demographic',
-        illustrative_benefit: '90% concessional credit up to ₹50 Lakh with 84-month repayment tenure and 6-month moratorium',
+        scheme_name: isTa ? 'NBCFDC பொது தவணை கடன் திட்டம் (விருப்பத் தேர்வு)' : 'NBCFDC General Term Loan Scheme (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: isTa ? 'இதர பிற்படுத்தப்பட்ட (OBC) தொழில்முனைவோருக்கான நேரடி தகுதி' : 'Other Backward Classes (OBC) target demographic',
+        illustrative_benefit: isTa ? '₹50.00 லட்சம் வரை 90% சலுகைக் கடன், 84 மாத தவணை மற்றும் 6 மாத அசல் விலக்கு' : '90% concessional credit up to ₹50 Lakh with 84-month repayment tenure and 6-month moratorium',
         indicative_interest_rate: '8.0% p.a. (reducing balance)',
-        participating_institutions: 'State Backward Classes Economic Development Corporation',
+        participating_institutions: isTa ? 'மாநில பிற்படுத்தப்பட்டோர் பொருளாதார மேம்பாட்டுக் கழகம் (TABCEDCO) / தேசியமயமாக்கப்பட்ட வங்கிகள்' : 'State Backward Classes Economic Development Corporation (TABCEDCO) / PSBs',
         is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — விண்ணப்பிக்கும் முன் அருகில் உள்ள TABCEDCO/வங்கியில் சரிபார்க்கவும்' : 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
       });
-    } else if (cat === 'safai karamchari') {
+    } else if (cat === 'sc') {
+      schemes.push({
+        scheme_id: 'NSFDC_TERM_LOAN',
+        scheme_name: isTa ? 'NSFDC நேரடி தவணை கடன் திட்டம்' : 'NSFDC Term Loan Scheme (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: isTa ? 'பட்டியலின (SC) தொழில்முனைவோருக்கான நேரடி சலுகை' : 'Scheduled Caste (SC) target demographic',
+        illustrative_benefit: isTa ? '₹50.00 லட்சம் வரை 90% கடன், 7.5% வட்டி மற்றும் மகளிர் முன்னுரிமை' : '90% concessional credit up to ₹50 Lakh with 7.5% p.a. interest',
+        indicative_interest_rate: '7.0% - 7.5% p.a.',
+        participating_institutions: isTa ? 'தாட்கோ (TAHDCO) / மாவட்ட மத்திய கூட்டுறவு வங்கிகள்' : 'TAHDCO / District Central Cooperative Banks',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — விண்ணப்பிக்கும் முன் அருகில் உள்ள TAHDCO/வங்கியில் சரிபார்க்கவும்' : 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+      });
+    } else if (cat.includes('safai')) {
       schemes.push({
         scheme_id: 'NSKFDC_SWACCHTA_UDYAMI',
-        scheme_name: 'NSKFDC Swacchta Udyami Yojana (Illustrative)',
-        category: 'bank_specific',
-        target_beneficiary_match: 'Safai Karamchari & Sanitation Workers Community',
-        illustrative_benefit: 'Capital subsidy up to ₹3,25,000 with 4.0% concessional interest rate',
+        scheme_name: isTa ? 'NSKFDC ஸ்வச்சதா உத்யமி யோஜனா' : 'NSKFDC Swacchta Udyami Yojana (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: isTa ? 'தூய்மைப் பணியாளர் மற்றும் அவர்களது குடும்பத்தினர்' : 'Safai Karamchari & Sanitation Workers Community',
+        illustrative_benefit: isTa ? '₹15 லட்சம் வரை கடன் மற்றும் ₹3,25,000 வரை மூலதன மானியம்' : 'Capital subsidy up to ₹3,25,000 with 4.0% concessional interest rate',
         indicative_interest_rate: '4.0% - 6.0% p.a.',
-        participating_institutions: 'National Safai Karamcharis Finance & Development Corporation',
+        participating_institutions: 'NSKFDC / State Channelizing Agencies',
         is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
-      });
-    } else {
-      schemes.push({
-        scheme_id: 'PMEGP_RURAL_ARTISAN',
-        scheme_name: 'Prime Minister Employment Generation Programme (PMEGP)',
-        category: 'bank_specific',
-        target_beneficiary_match: 'Rural Micro-Enterprise & Service Units',
-        illustrative_benefit: 'Up to 35% margin money government subsidy in rural areas for special category beneficiaries',
-        indicative_interest_rate: 'Standard bank lending rate with back-ended subsidy',
-        participating_institutions: 'KVIC / KVIB / District Industries Centre (DIC)',
-        is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
       });
     }
 
-    // Archetype 4: PwD or Stand-Up India for women
+    // 2. Micro Finance / State Agency Channel
+    if (cat === 'obc') {
+      schemes.push({
+        scheme_id: 'TABCEDCO_MICRO_FINANCE',
+        scheme_name: isTa ? 'TABCEDCO மைக்ரோ கிரெடிட் நுண் கடன் திட்டம்' : 'TABCEDCO Micro Credit Finance Scheme (Illustrative)',
+        category: 'bank_specific',
+        target_beneficiary_match: isTa ? 'குறுந்தொழில் நடத்தும் OBC விண்ணப்பதாரர்கள்' : 'Micro-enterprise OBC entrepreneurs',
+        illustrative_benefit: isTa ? 'பிணையில்லா கடன் ₹1,40,000 வரை, 36 மாத சுலப தவணை, மாத தவணை ₹2,200க்குள்' : 'Collateral-free credit up to ₹1,40,000 with 36-month tenure',
+        indicative_interest_rate: '6.0% - 6.5% p.a.',
+        participating_institutions: 'TABCEDCO / Primary Agricultural Cooperative Credit Societies (PACCS)',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+      });
+    } else if (cat === 'sc') {
+      schemes.push({
+        scheme_id: 'TAHDCO_MICRO_ENTERPRISE',
+        scheme_name: isTa ? 'தாட்கோ (TAHDCO) சிறுதொழில் கடன் திட்டம்' : 'TAHDCO Micro Enterprise Scheme (Illustrative)',
+        category: 'bank_specific',
+        target_beneficiary_match: isTa ? 'கிராமப்புற SC சிறு வணிகர்கள்' : 'Rural SC micro-retail entrepreneurs',
+        illustrative_benefit: isTa ? '₹2,00,000 வரை கடன், 30% நேரடி அரசு மானியம்' : 'Up to ₹2,00,000 credit with 30% government capital subsidy',
+        indicative_interest_rate: '6.0% p.a.',
+        participating_institutions: 'TAHDCO / Lead District Bank',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+      });
+    }
+
+    // 3. Trade / Enterprise Sector-Linked Scheme
+    const isArtisan = bizCat.includes('wood') || bizCat.includes('craft') || bizCat.includes('tailor') || bizCat.includes('barber') || bizCat.includes('carpenter') || bizCat.includes('mason');
+    const isDairy = bizCat.includes('dairy') || bizCat.includes('milk') || bizCat.includes('cattle');
+
+    if (isArtisan) {
+      schemes.push({
+        scheme_id: 'PM_VISHWAKARMA_YOJANA',
+        scheme_name: isTa ? 'பிரதான் மந்திரி விஸ்வகர்மா திட்டம்' : 'PM Vishwakarma Scheme (Illustrative)',
+        category: 'business_linked',
+        target_beneficiary_match: isTa ? 'பாரம்பரிய கைவினைஞர்கள், தச்சர்கள் மற்றும் தையல் கலைஞர்கள்' : 'Traditional Artisans & Tradesmen',
+        illustrative_benefit: isTa ? '₹3.00 லட்சம் பிணையில்லா கடன் (5% வட்டி) + ₹15,000 இலவச கருவித்தொகுப்பு மானியம்' : 'Collateral-free enterprise loan up to ₹3.00 Lakh @ 5.0% + ₹15,000 tool kit grant',
+        indicative_interest_rate: '5.0% p.a. (subsidized)',
+        participating_institutions: 'Ministry of MSME / All Scheduled Commercial Banks',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+      });
+    } else if (isDairy) {
+      schemes.push({
+        scheme_id: 'AHIDF_DAIRY_LOAN',
+        scheme_name: isTa ? 'பால்பண்ணை உள்கட்டமைப்பு மேம்பாட்டு நிதி (AHIDF)' : 'Animal Husbandry & Dairy Infrastructure Fund (AHIDF)',
+        category: 'business_linked',
+        target_beneficiary_match: isTa ? 'பால் உற்பத்தி மற்றும் கால்நடை பராமரிப்பு தொழில்' : 'Dairy & Livestock Enterprise',
+        illustrative_benefit: isTa ? '90% வங்கி கடன் மற்றும் 3% நேரடி வட்டி மானியம், 25% மூலதன மானியம்' : 'Up to 90% bank loan with 3% interest subvention and capital subsidy',
+        indicative_interest_rate: '6.5% - 7.5% p.a.',
+        participating_institutions: 'NABARD / District Cooperative Milk Union',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+      });
+    } else {
+      schemes.push({
+        scheme_id: 'MUDRA_KISHORE_TARUN',
+        scheme_name: isTa ? 'பிரதான் மந்திரி முத்ரா யோஜனா - கிஷோர்/தருண்' : 'Pradhan Mantri MUDRA Yojana - Kishore / Tarun',
+        category: 'business_linked',
+        target_beneficiary_match: isTa ? 'மளிகை, சில்லறை வணிகம் மற்றும் நுகர்வோர் கடைகள்' : 'Matching for Grocery, Retail Store & Commercial Trade',
+        illustrative_benefit: isTa ? '₹50,000 முதல் ₹10,00,000 வரை பிணையில்லா மூலதன கடன் மற்றும் ரூபே கார்டு' : 'Collateral-free working capital loan up to ₹10 Lakh with RuPay business debit card',
+        indicative_interest_rate: '8.5% - 9.5% p.a.',
+        participating_institutions: 'All Public Sector Banks & Regional Rural Banks',
+        is_illustrative: true,
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+      });
+    }
+
+    // 4. Central Capital Subsidy (PMEGP)
+    schemes.push({
+      scheme_id: 'PMEGP_RURAL_GRANT',
+      scheme_name: isTa ? 'பிரதமரின் வேலைவாய்ப்பு உருவாக்கும் திட்டம் (PMEGP)' : 'Prime Minister Employment Generation Programme (PMEGP)',
+      category: 'bank_specific',
+      target_beneficiary_match: isTa ? 'கிராமப்புற சிறு தொழில் மற்றும் உற்பத்தி நிறுவனங்கள்' : 'Rural Micro-Enterprise & Service Units',
+      illustrative_benefit: isTa ? 'கிராமப்புற சிறப்பு பிரிவினருக்கு 35% வரை திரும்ப செலுத்த வேண்டாத மூலதன மானியம்' : 'Up to 35% non-repayable margin money government subsidy in rural areas',
+      indicative_interest_rate: 'Standard bank lending rate with back-ended subsidy',
+      participating_institutions: 'KVIC / KVIB / District Industries Centre (DIC)',
+      is_illustrative: true,
+      mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
+    });
+
+    // 5. Gender / PwD Special Support
     if (isDisab) {
       schemes.push({
-        scheme_id: 'NHFDC_DIVYANGJAN_SWAVALAMBAN',
-        scheme_name: 'Divyangjan Swavalamban Yojana (Illustrative)',
-        category: 'bank_specific',
-        target_beneficiary_match: 'Persons with Benchmark Disabilities (PwD)',
-        illustrative_benefit: '100% concessional credit up to ₹5,00,000 with 0.5% special rebate for women',
+        scheme_id: 'NDFDC_SWAVALAMBAN',
+        scheme_name: isTa ? 'திவ்யாங்ஜன் ஸ்வாவலம்பன் யோஜனா (மாற்றுத்திறனாளிகள்)' : 'Divyangjan Swavalamban Yojana (Illustrative)',
+        category: 'loan_type_specific',
+        target_beneficiary_match: isTa ? 'மாற்றுத்திறனாளி தொழில்முனைவோர்' : 'Persons with Benchmark Disabilities (PwD)',
+        illustrative_benefit: isTa ? '₹5,00,000 வரை 5% சலுகைக் கடன் மற்றும் பெண்களுக்கு கூடுதல் 0.5% தள்ளுபடி' : '100% concessional credit up to ₹5,00,000 with 0.5% special rebate for women',
         indicative_interest_rate: '5.0% p.a.',
-        participating_institutions: 'National Handicapped Finance and Development Corporation (NHFDC)',
+        participating_institutions: 'National Divyangjan Finance and Development Corporation (NDFDC)',
         is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
       });
     } else if (isFemale) {
       schemes.push({
-        scheme_id: 'STANDUP_INDIA_SC_WOMEN',
-        scheme_name: 'Stand-Up India Scheme (Illustrative)',
+        scheme_id: 'MAHILA_SAMRIDDHI_SCHEME',
+        scheme_name: isTa ? 'மகிளா சம்ரித்தி யோஜனா (மகளிர் சிறப்பு சலுகை கடன்)' : 'Mahila Samriddhi Yojana (Illustrative)',
         category: 'loan_type_specific',
-        target_beneficiary_match: 'Women & SC/ST Greenfield Enterprise Promotion',
-        illustrative_benefit: 'Composite term and working capital finance from ₹10 Lakh to ₹1 Crore',
-        indicative_interest_rate: 'MCLR + 3% concessional ceiling',
-        participating_institutions: 'All Scheduled Commercial Bank branches (2 loans mandated per branch)',
+        target_beneficiary_match: isTa ? 'மகளிர் தொழில்முனைவோர் மற்றும் மகளிர் சுயஉதவிக்குழுக்கள்' : 'Women Micro-Entrepreneurs & SHG Members',
+        illustrative_benefit: isTa ? '₹1,40,000 வரை கடன், 1% கூடுதல் வட்டி தள்ளுபடி மற்றும் முன்னுரிமை ஒதுக்கீடு' : 'Up to ₹1,40,000 credit limit with special 1.0% interest rebate and priority SCA quota',
+        indicative_interest_rate: '4.0% - 6.0% p.a.',
+        participating_institutions: 'State Channelizing Agencies (TABCEDCO / TAHDCO) / RRBs',
         is_illustrative: true,
-        mandatory_disclosure: 'AI-generated illustrative match — verify with your nearest SCA/bank before applying'
+        mandatory_disclosure: isTa ? 'AI-உருவாக்கிய மாதிரி திட்டம் — சரிபார்க்கவும்' : 'AI-generated illustrative match — verify before applying'
       });
     }
 
     setResults({
-      session_id: 801,
+      session_id: Date.now(),
       assessment_id: assessmentId || 101,
       is_illustrative: true,
-      mandatory_global_disclosure: 'AI-generated illustrative match — verify with your nearest SCA or bank before applying. These matches do NOT constitute statutory sanction.',
-      household_strategy_insight: isFemale
-        ? `Registering the enterprise under ${applicantName} (Female) unlocks an additional 0.5% to 1.5% concessional interest rebate and higher rural subsidy priority under apex corporation schemes.`
-        : `Registering the enterprise under ${applicantName} positions the business for targeted concessional schemes. If registered jointly with an eligible female family member, the enterprise may also qualify for enhanced Mahila Samriddhi subvention and higher subsidy margins.`,
+      mandatory_global_disclosure: isTa 
+        ? 'AI-உருவாக்கிய மாதிரி பரிந்துரைகள் — விண்ணப்பிக்கும் முன் அருகில் உள்ள அரசு முகமை அல்லது வங்கியில் உறுதிப்படுத்தவும்.'
+        : 'AI-generated illustrative match — verify with your nearest SCA or bank before applying. These matches do NOT constitute statutory sanction.',
+      household_strategy_insight: isTa
+        ? (isFemale 
+            ? `${applicantName} (பெண்) பெயரில் நிறுவனத்தைப் பதிவு செய்வதன் மூலம் கூடுதல் 1% வட்டி தள்ளுபடி மற்றும் PMEGP திட்டத்தில் 35% நேரடி மானிய முன்னுரிமை பெற முடியும்.`
+            : `${applicantName} பெயரில் நிறுவனத்தை பதிவு செய்வதன் மூலம் உங்கள் ${socialCategory} சமூக பிரிவிற்கான நேரடி சலுகை வட்டி பொருந்தும். குடும்ப பெண் உறுப்பினர் பெயரில் அல்லது கூட்டாக பதிவு செய்தால் மகளிர் சம்ரித்தி கூடுதல் 1% வட்டி தள்ளுபடியும் கிடைக்கும்.`)
+        : (isFemale
+            ? `Registering the enterprise under ${applicantName} (Female) unlocks an additional 1.0% concessional interest rebate and higher rural subsidy priority under apex corporation schemes.`
+            : `Registering the enterprise under ${applicantName} qualifies the business for direct statutory MoSJE schemes at concessional single-digit rates. If registered jointly with an eligible female family member, the enterprise also unlocks an additional 1.0% Mahila Samriddhi subvention and highest PMEGP grant margins.`),
       recommended_schemes: schemes
     });
   };

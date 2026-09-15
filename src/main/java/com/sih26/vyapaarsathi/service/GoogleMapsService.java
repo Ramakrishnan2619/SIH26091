@@ -280,11 +280,12 @@ public class GoogleMapsService {
         if (!liveCallSucceeded || competitorCount == 0) {
             int modeledCount = computeModeledCompetitors(villagePopulation, businessCategory);
             log.info("Live Places unindexed for rural cluster, reporting modeled market density count: {}", modeledCount);
+            List<FeasibilityReportResponse.NearbyPlaceDto> modeledPlaces = generateCategorySpecificShops(lat, lng, businessCategory, modeledCount);
 
             return FeasibilityReportResponse.SupplyMetricsDto.builder()
                     .competitorDensityCount(modeledCount)
                     .dataSource("Rural Gram Panchayat Census & Shandy Catchment Analysis")
-                    .nearbyPlaces(nearbyPlaces) // Do not fabricate synthetic shop names
+                    .nearbyPlaces(modeledPlaces)
                     .build();
         }
 

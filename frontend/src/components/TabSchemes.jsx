@@ -304,27 +304,27 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
         </div>
       </div>
 
-      {/* 2.5 Multi-Scheme Comparative Decision Matrix (3 Schemes Compared) */}
+      {/* 2.5 Multi-Scheme Comparative Decision Matrix (Top 4 Schemes Compared) */}
       <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <FileText className="w-5 h-5 text-blue-700" />
               <span>
-                {selectedLang === 'ta' ? "அரசு கடன் திட்டங்களின் ஒப்பீட்டு அட்டவணை (3 முதன்மை திட்டங்கள்)" :
-                 selectedLang === 'hi' ? "सरकारी ऋण योजनाओं की तुलना (3 प्रमुख योजनाएं)" :
-                 selectedLang === 'te' ? "ప్రభుత్వ పథకాల పోలిక పట్టిక (3 ముఖ్య పథకాలు)" :
-                 "Government Schemes Comparative Decision Matrix (Top 3 Schemes)"}
+                {selectedLang === 'ta' ? "அரசு கடன் திட்டங்களின் ஒப்பீட்டு அட்டவணை (4 முதன்மை திட்டங்கள்)" :
+                 selectedLang === 'hi' ? "सरकारी ऋण योजनाओं की तुलना (4 प्रमुख योजनाएं)" :
+                 selectedLang === 'te' ? "ప్రభుత్వ పథకాల పోలిక పట్టిక (4 ముఖ్య పథకాలు)" :
+                 "Government Schemes Comparative Decision Matrix (Top 4 Schemes)"}
               </span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               {selectedLang === 'ta' 
-                ? "உங்கள் வணிக தேவை, கடன் அளவு மற்றும் திருப்பிச் செலுத்தும் திறனுக்கேற்ப பொருத்தமான திட்டத்தை ஒப்பிட்டு தேர்வு செய்யுங்கள்."
-                : "Compare loan ceilings, interest subvention, subsidies, and tenure across 3 central government credit schemes."}
+                ? "உங்கள் சமூகப் பிரிவு, வணிகத் தேவை, கடன் அளவு மற்றும் திருப்பிச் செலுத்தும் திறனுக்கேற்ப பொருத்தமான திட்டத்தை ஒப்பிட்டு தேர்வு செய்யுங்கள்."
+                : "Compare loan ceilings, interest subvention, subsidies, and tenure across 4 targeted central and state government credit schemes."}
             </p>
           </div>
           <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-            Side-by-Side Comparison
+            {selectedLang === 'ta' ? "4 திட்டங்களின் ஒப்பீடு" : "4-Way Side-by-Side Comparison"}
           </span>
         </div>
 
@@ -332,68 +332,137 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
-                <th className="p-3.5 border-r border-slate-200">Feature / Metric</th>
-                <th className="p-3.5 border-r border-slate-200 bg-blue-50/50 text-blue-900">
-                  <div className="font-extrabold text-sm">Term Loan Scheme</div>
-                  <div className="text-[11px] font-normal text-slate-500">NSFDC / NBCFDC (Recommended)</div>
+                <th className="p-3.5 border-r border-slate-200 min-w-[160px]">
+                  {selectedLang === 'ta' ? "அம்சம் / அளவுகோல்" : selectedLang === 'hi' ? "विशेषता / मापदंड" : selectedLang === 'te' ? "లక్షణం / మెట్రిక్" : "Feature / Metric"}
                 </th>
-                <th className="p-3.5 border-r border-slate-200">
-                  <div className="font-extrabold text-sm">Micro Finance Scheme</div>
-                  <div className="text-[11px] font-normal text-slate-500">NBCFDC / NSFDC Micro Credit</div>
+                <th className="p-3.5 border-r border-slate-200 bg-blue-50/50 text-blue-900 min-w-[180px]">
+                  <div className="font-extrabold text-sm">
+                    {isNbcfdcEligible ? "NBCFDC Term Loan" : isNsfdcEligible ? "NSFDC Term Loan" : isNskfdcEligible ? "NSKFDC Term Loan" : isNdfdcEligible ? "NDFDC Term Loan" : "Term Loan Scheme"}
+                  </div>
+                  <div className="text-[11px] font-medium text-blue-700">
+                    {isNbcfdcEligible ? (selectedLang === 'ta' ? "பிற்படுத்தப்பட்டோர் (OBC பரிந்துரை)" : "OBC Entitlement (Recommended)") :
+                     isNsfdcEligible ? (selectedLang === 'ta' ? "ஆதிதிராவிடர் (SC பரிந்துரை)" : "SC Entitlement (Recommended)") :
+                     isNskfdcEligible ? (selectedLang === 'ta' ? "தூய்மைப் பணியாளர் பரிந்துரை" : "Sanitation Entitlement") :
+                     isNdfdcEligible ? (selectedLang === 'ta' ? "மாற்றுத்திறனாளி பரிந்துரை" : "PwD Entitlement") :
+                     "MoSJE Concessional Credit"}
+                  </div>
                 </th>
-                <th className="p-3.5">
-                  <div className="font-extrabold text-sm">PMEGP Subsidy Scheme</div>
-                  <div className="text-[11px] font-normal text-slate-500">KVIC / DIC Capital Subsidy</div>
+                <th className="p-3.5 border-r border-slate-200 min-w-[170px]">
+                  <div className="font-extrabold text-sm">
+                    {selectedLang === 'ta' ? "மைக்ரோ நிதி திட்டம்" : "Micro Finance Scheme"}
+                  </div>
+                  <div className="text-[11px] font-normal text-slate-500">
+                    {isNbcfdcEligible ? "NBCFDC / TABCEDCO Micro" : isNsfdcEligible ? "NSFDC / TAHDCO Micro" : "State SCA Micro Credit"}
+                  </div>
+                </th>
+                <th className="p-3.5 border-r border-slate-200 min-w-[170px]">
+                  <div className="font-extrabold text-sm">
+                    {selectedLang === 'ta' ? "PMEGP மானிய திட்டம்" : "PMEGP Subsidy Scheme"}
+                  </div>
+                  <div className="text-[11px] font-normal text-slate-500">
+                    {selectedLang === 'ta' ? "KVIC / DIC 35% மானியம்" : "KVIC / DIC Capital Subsidy"}
+                  </div>
+                </th>
+                <th className="p-3.5 bg-emerald-50/40 text-emerald-950 min-w-[190px]">
+                  <div className="font-extrabold text-sm">
+                    {isArtisan ? (selectedLang === 'ta' ? "PM விஸ்வகர்மா திட்டம்" : "PM Vishwakarma Scheme") :
+                     isDairy ? (selectedLang === 'ta' ? "AHIDF பால்பண்ணை திட்டம்" : "AHIDF Dairy Development") :
+                     (selectedLang === 'ta' ? "PM முத்ரா யோஜனா" : "PM MUDRA (Kishore / Tarun)")}
+                  </div>
+                  <div className="text-[11px] font-medium text-emerald-700">
+                    {isArtisan ? (selectedLang === 'ta' ? "கைவினைஞர் நேரடி கடன்" : "Artisan & Tradesman Credit") :
+                     isDairy ? (selectedLang === 'ta' ? "கால்நடை கூட்டுறவு கடன்" : "Livestock & Dairy Co-op") :
+                     (selectedLang === 'ta' ? "வணிக பிணையில்லா மூலதனம்" : "Commercial Working Capital")}
+                  </div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Maximum Project Outlay</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "அதிகபட்ச திட்ட மதிப்பீடு" : selectedLang === 'hi' ? "अधिकतम परियोजना लागत" : "Maximum Project Outlay"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">Up to ₹50.00 Lakh</td>
                 <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">Up to ₹1.40 Lakh</td>
-                <td className="p-3.5 font-bold text-slate-900">Up to ₹20.00 Lakh (Trade) / ₹50.00 Lakh (Mfg)</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">Up to ₹20.00 Lakh (Trade) / ₹50.00 Lakh (Mfg)</td>
+                <td className="p-3.5 bg-emerald-50/20 font-bold text-emerald-900">
+                  {isArtisan ? "Up to ₹3.00 Lakh" : isDairy ? "Up to ₹50.00 Lakh" : "Up to ₹10.00 Lakh"}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Concessional Interest Rate</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "சலுகை வட்டி விகிதம்" : selectedLang === 'hi' ? "रियायती ब्याज दर" : "Concessional Interest Rate"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-emerald-700">8.0% p.a. (7.0% for Women)</td>
                 <td className="p-3.5 border-r border-slate-200 font-bold text-emerald-700">6.0% - 6.5% p.a.</td>
-                <td className="p-3.5 text-slate-700">Bank Lending Rate (9% - 11%)</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-700">Bank Lending Rate (9% - 11%)</td>
+                <td className="p-3.5 bg-emerald-50/20 font-bold text-emerald-700">
+                  {isArtisan ? "5.0% p.a. (Subsidized)" : isDairy ? "6.5% - 7.5% p.a." : "8.5% - 9.5% p.a."}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Government Credit Share</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "அரசு கடன் பங்கு" : selectedLang === 'hi' ? "सरकारी ऋण का हिस्सा" : "Government Credit Share"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">90% of Project Cost</td>
                 <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">100% of Micro Outlay</td>
-                <td className="p-3.5 text-slate-700">60% - 75% Bank Loan</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-700">60% - 75% Bank Loan</td>
+                <td className="p-3.5 bg-emerald-50/20 text-emerald-900 font-bold">
+                  {isArtisan ? "100% Collateral-Free" : isDairy ? "90% Loan + 3% Rebate" : "100% Bank Finance"}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Beneficiary Margin Required</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "விண்ணப்பதாரர் சொந்த முதலீடு" : selectedLang === 'hi' ? "लाभार्थी मार्जिन राशि" : "Beneficiary Margin Required"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 font-bold text-blue-900">10% Margin Money</td>
                 <td className="p-3.5 border-r border-slate-200 font-bold text-slate-900">0% (Nil Collateral)</td>
-                <td className="p-3.5 text-slate-700">5% (Special / Rural) to 10% (General)</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-700">5% (Special / Rural) to 10% (General)</td>
+                <td className="p-3.5 bg-emerald-50/20 text-slate-800 font-medium">
+                  {isArtisan ? "0% (Nil Margin)" : isDairy ? "10% Margin Money" : "10% - 15%"}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Government Capital Subsidy</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "அரசு மூலதன மானியம்" : selectedLang === 'hi' ? "सरकारी पूंजीगत अनुदान" : "Government Capital Subsidy"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 text-slate-600">Interest Subvention & Concession</td>
                 <td className="p-3.5 border-r border-slate-200 text-slate-600">Low interest micro credit</td>
-                <td className="p-3.5 font-bold text-emerald-700">35% Rural Special Category Grant</td>
+                <td className="p-3.5 border-r border-slate-200 font-bold text-emerald-700">35% Rural Special Category Grant</td>
+                <td className="p-3.5 bg-emerald-50/20 font-bold text-emerald-700">
+                  {isArtisan ? (selectedLang === 'ta' ? "₹15,000 உபகரண மானியம் + பயிற்சி உதவித்தொகை" : "₹15,000 Free Toolkit Grant + Stipend") :
+                   isDairy ? (selectedLang === 'ta' ? "3% வட்டி மானியம்" : "3% Interest Subvention") :
+                   (selectedLang === 'ta' ? "முழு கடன் உத்தரவாதம் (CGFMU)" : "100% CGFMU Credit Guarantee")}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Repayment Tenure & Grace</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "திருப்பிச் செலுத்தும் காலம் & அவகாசம்" : selectedLang === 'hi' ? "ऋण चुकौती अवधि एवं छूट" : "Repayment Tenure & Grace"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/30 text-slate-800">84 Months (7 Years) • 6-mo Grace</td>
                 <td className="p-3.5 border-r border-slate-200 text-slate-800">36 Months (3 Years) • 3-mo Grace</td>
-                <td className="p-3.5 text-slate-800">36 to 84 Months as per Bank norms</td>
+                <td className="p-3.5 border-r border-slate-200 text-slate-800">36 to 84 Months as per Bank norms</td>
+                <td className="p-3.5 bg-emerald-50/20 text-slate-800">
+                  {isArtisan ? "36 to 60 Months" : isDairy ? "84 Months • 6-mo Grace" : "36 to 60 Months (RuPay Card)"}
+                </td>
               </tr>
               <tr className="hover:bg-slate-50/60 bg-slate-50/30">
-                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">Best Suited For</td>
+                <td className="p-3.5 font-bold text-slate-800 border-r border-slate-200">
+                  {selectedLang === 'ta' ? "யாருக்கு மிகவும் பொருத்தமானது?" : selectedLang === 'hi' ? "किसके लिए सर्वोत्तम उपयुक्त?" : "Best Suited For"}
+                </td>
                 <td className="p-3.5 border-r border-slate-200 bg-blue-50/50 font-semibold text-blue-900">
-                  Full physical enterprise setup, machinery & commercial shop outlays up to ₹50 Lakh.
+                  {selectedLang === 'ta' ? "முழு வணிக விரிவாக்கம், இயந்திரங்கள் மற்றும் ₹50 லட்சம் வரையிலான கடை திட்டங்களுக்கு." : "Full physical enterprise setup, machinery & commercial shop outlays up to ₹50 Lakh."}
                 </td>
                 <td className="p-3.5 border-r border-slate-200 font-semibold text-slate-700">
-                  Small provision counters, low financial risk, debt payments under ₹2,200/mo.
+                  {selectedLang === 'ta' ? "சிறிய மளிகை கவுண்ட்டர்கள், குறைந்த நிதி ஆபத்து, மாத தவணை ₹2,200க்குள்." : "Small provision counters, low financial risk, debt payments under ₹2,200/mo."}
                 </td>
-                <td className="p-3.5 font-semibold text-slate-700">
-                  Beneficiaries seeking non-repayable cash grants (up to ₹3.5 Lakh free capital).
+                <td className="p-3.5 border-r border-slate-200 font-semibold text-slate-700">
+                  {selectedLang === 'ta' ? "திரும்ப செலுத்தத் தேவையில்லாத நேரடி அரசு மானியம் (₹3.5 லட்சம் வரை இலவச மூலதனம்)." : "Beneficiaries seeking non-repayable cash grants (up to ₹3.5 Lakh free capital)."}
+                </td>
+                <td className="p-3.5 bg-emerald-50/40 font-semibold text-emerald-950">
+                  {isArtisan ? (selectedLang === 'ta' ? "கைவினைஞர்கள், தையல், தச்சு தொழில் மற்றும் நவீன கருவிகள் வாங்குவதற்கு." : "Artisans, carpenters, tailors, modern equipment and 5% credit.") :
+                   isDairy ? (selectedLang === 'ta' ? "கறவை மாடுகள் வாங்குதல், பால் குளிரூட்டும் மையங்கள் அமைத்தல்." : "Dairy farmers, cattle acquisition, milk chilling infrastructure.") :
+                   (selectedLang === 'ta' ? "மளிகை, சில்லறை வர்த்தகம் மற்றும் சொத்து அடமானமில்லா உடனடி சரக்கு இருப்பு நிதிக்கு." : "Grocery/retail stores seeking instant inventory liquidity without property mortgage.")}
                 </td>
               </tr>
             </tbody>
@@ -412,6 +481,26 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
               ? "மத்திய அரசின் சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகம் (MoSJE) நான்கு பிரத்யேக தேசிய நிதி கழகங்களை நடத்துகிறது. இக்கழகங்கள் மாநில பிற்படுத்தப்பட்டோர் மற்றும் ஆதிதிராவிடர் கழகங்கள் (TABCEDCO / TAHDCO) மற்றும் வங்கிகளுக்கு 100% மானிய மறுநிதியளிப்பை வழங்குகின்றன. உங்களின் சாதி மற்றும் சமூக பிரிவிற்கான கழகம் கீழே 'நேரடி தகுதி' என குறிக்கப்பட்டுள்ளது."
               : "The Ministry of Social Justice and Empowerment (MoSJE) operates four National Apex Corporations. These corporations provide 100% concessional refinance to State Channelizing Agencies (e.g. TABCEDCO, TAHDCO) and Public Sector Banks. The highlighted corporation represents your direct statutory entitlement where your loan is refinanced at subsidized single-digit interest rates without commercial markups."}
           </p>
+        </div>
+
+        {/* Statutory Alignment Validation Notice */}
+        <div className="mb-6 p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-slate-700 flex items-start gap-3">
+          <ShieldCheck className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <div className="font-bold text-slate-900 flex items-center gap-2">
+              <span>
+                {selectedLang === 'ta' ? "சட்டரீதியான தகுதி சரிபார்ப்பு (Statutory Entitlement)" : "Statutory Beneficiary Mapping (Ministry of Social Justice & Empowerment)"}
+              </span>
+              <span className="px-2 py-0.5 rounded bg-blue-200/80 text-blue-900 font-semibold text-[10px]">
+                {socialCategory} {gender ? `• ${gender}` : ''}
+              </span>
+            </div>
+            <p className="leading-relaxed">
+              {selectedLang === 'ta'
+                ? `உங்கள் சுயவிவரத்தில் பதிவு செய்யப்பட்ட சமூகப் பிரிவு (${socialCategory}) மற்றும் விண்ணப்பதாரர் தகவல்களின் அடிப்படையில், மத்திய அரசின் சமூக நீதி அமைச்சக விதிகளின்படி ${targetApexCode} கழகத்திற்கு நேரடி தகுதி சரிபார்க்கப்பட்டு டிக் செய்யப்பட்டுள்ளது. இக்கழகத்தின் கீழ் வணிக வங்கிகளின் கூடுதல் வட்டி இல்லாமல் குறைந்த ஒற்றை இலக்க சலுகை வட்டி கடன் பெற முடியும்.`
+                : `Based on the demographic profile entered in your assessment (Social Category: ${socialCategory}, Gender: ${gender}), you have been mapped to ${targetApexCode} in compliance with statutory MoSJE mandates. Apex refinance guarantees single-digit concessional credit through state channelizing agencies without commercial banking markup.`}
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

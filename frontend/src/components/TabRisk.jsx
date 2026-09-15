@@ -124,6 +124,7 @@ export function TabRisk({ module1Report, module2Result, dashboardKpis, selectedL
   const foirPct = foirPctVal.toFixed(1);
   const isHighBurden = foirPctVal > 50;
   const isModerateBurden = foirPctVal > 35 && foirPctVal <= 50;
+  const isSafe = foirPctVal <= 35;
   // 1. Dynamic Credit & Repayment Readiness (based on actual FOIR math)
   let creditScoreVal = 75;
   if (foirPctVal <= 20) {

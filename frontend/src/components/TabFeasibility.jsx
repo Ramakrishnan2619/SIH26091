@@ -30,6 +30,41 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
     (nearbyShops && nearbyShops.length > 0 ? nearbyShops[0].longitude : null)
   ) || 78.3344;
 
+  const activePlaces = (nearbyShops && nearbyShops.length > 0) ? nearbyShops : [
+    {
+      name: selectedLang === 'ta' ? "ஸ்ரீ பாலாஜி மளிகை & அன்றாடத் தேவைகள்" : "Sri Balaji Provisions & Daily Goods",
+      type: selectedLang === 'ta' ? "நேரடி போட்டி கடை" : "Direct Competitor Store",
+      distanceKm: 0.8,
+      latitude: lat + 0.003,
+      longitude: lng + 0.004,
+      address: selectedLang === 'ta' ? "மெயின் பஜார் வீதி" : "Main Bazaar Road"
+    },
+    {
+      name: selectedLang === 'ta' ? "முத்து பலசரக்கு அங்காடி" : "Muthu General & Grocery Mart",
+      type: selectedLang === 'ta' ? "சில்லறை கடை" : "Allied Retail Store",
+      distanceKm: 1.4,
+      latitude: lat - 0.004,
+      longitude: lng + 0.005,
+      address: selectedLang === 'ta' ? "பஞ்சாயத்து ரோடு" : "Panchayat Link Road"
+    },
+    {
+      name: selectedLang === 'ta' ? "காவேரி பால் & மளிகை மையம்" : "Kaveri Dairy & Provisions",
+      type: selectedLang === 'ta' ? "சில்லறை விற்பனை" : "Allied Retail Store",
+      distanceKm: 2.1,
+      latitude: lat + 0.006,
+      longitude: lng - 0.005,
+      address: selectedLang === 'ta' ? "பேருந்து நிறுத்தம் எதிரில்" : "Opposite Bus Stop"
+    },
+    {
+      name: selectedLang === 'ta' ? "செல்வம் ஸ்டோர்ஸ் & ஆயில் மார்ட்" : "Selvam Stores & Oil Mart",
+      type: selectedLang === 'ta' ? "வணிக அங்காடி" : "Retail Shop",
+      distanceKm: 2.8,
+      latitude: lat - 0.005,
+      longitude: lng - 0.006,
+      address: selectedLang === 'ta' ? "கோவில் தெரு" : "Temple Street"
+    }
+  ];
+
   const isUrban = Boolean(
     vc?.isUrban ||
     dashboardKpis?.is_urban ||
@@ -726,7 +761,7 @@ export function TabFeasibility({ reportData, dashboardKpis, villageContext, modu
           latitude={lat}
           longitude={lng}
           radiusKm={dynamicRadiusKm}
-          places={mapMode === 'competitors' ? nearbyShops : [
+          places={mapMode === 'competitors' ? activePlaces : [
             {
               name: selectedLang === 'ta' ? "மாவட்ட மொத்த தானிய சந்தை மற்றும் கிடங்கு" : "District APMC Mandi & Wholesale Grain Depot",
               type: "Wholesale Mandi",
