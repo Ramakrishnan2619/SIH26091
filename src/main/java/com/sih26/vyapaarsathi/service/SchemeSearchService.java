@@ -54,7 +54,7 @@ public class SchemeSearchService {
     private String vertexModel = "gemini-2.5-flash";
 
     private List<SchemeArchetypeDto> archetypeCatalog = new ArrayList<>();
-    private List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> masterSchemeCatalog = new ArrayList<>();
+    private List<com.sih26.vyapaarsathi.dto.scheme.OfficialSchemeMasterDto> masterSchemeCatalog = new ArrayList<>();
 
     public SchemeSearchService(SchemeSearchSessionRepository sessionRepository,
                                AssessmentRepository assessmentRepository,
@@ -77,13 +77,13 @@ public class SchemeSearchService {
         }
 
         try {
-            ClassPathResource masterResource = new ClassPathResource("finsahay_scheme_master.json");
+            ClassPathResource masterResource = new ClassPathResource("government_scheme_master.json");
             try (InputStream is = masterResource.getInputStream()) {
-                masterSchemeCatalog = objectMapper.readValue(is, new TypeReference<List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto>>() {});
-                log.info("Successfully loaded {} official FinSahay master schemes from classpath.", masterSchemeCatalog.size());
+                masterSchemeCatalog = objectMapper.readValue(is, new TypeReference<List<com.sih26.vyapaarsathi.dto.scheme.OfficialSchemeMasterDto>>() {});
+                log.info("Successfully loaded {} official government master schemes from classpath.", masterSchemeCatalog.size());
             }
         } catch (Exception e) {
-            log.warn("Could not load finsahay_scheme_master.json from classpath: {}", e.getMessage());
+            log.warn("Could not load government_scheme_master.json from classpath: {}", e.getMessage());
         }
     }
 
@@ -91,11 +91,11 @@ public class SchemeSearchService {
         return archetypeCatalog;
     }
 
-    public List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> getMasterSchemeCatalog() {
+    public List<com.sih26.vyapaarsathi.dto.scheme.OfficialSchemeMasterDto> getMasterSchemeCatalog() {
         return masterSchemeCatalog;
     }
 
-    public List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> filterMasterSchemes(String state, String category, String microOrTerm) {
+    public List<com.sih26.vyapaarsathi.dto.scheme.OfficialSchemeMasterDto> filterMasterSchemes(String state, String category, String microOrTerm) {
         return masterSchemeCatalog.stream()
                 .filter(s -> {
                     if (state != null && !state.trim().isEmpty() && !"all".equalsIgnoreCase(state)) {
@@ -311,7 +311,7 @@ public class SchemeSearchService {
                 - Existing Business: %s
 
                 INSTRUCTIONS & RULES:
-                1. Ground your recommendations in authentic Central & State government schemes from the official FinSahay Scheme Master (e.g. for Tamil Nadu: TN-004 AABCS for SC/ST with 35% subsidy + 6% subvention, TN-003 TWEES for Women with 95% bank finance + 25% subsidy, TN-001 NEEDS with 25% subsidy up to ₹75 Lakh + 3% subvention, TN-002 UYEGP with 25% subsidy up to ₹3.75 Lakh, TN-005 KKT for artisans; and Central schemes: CEN-001 Micro Finance Scheme at 6.5% interest, CEN-004 Mudra, CEN-005 PMEGP with 35% rural subsidy, CEN-007 Stand-Up India ₹10L-₹1Cr, CEN-011 PM SVANidhi with 7% interest subsidy).
+                1. Ground your recommendations in authentic Central & State government schemes from the official Government Scheme Master (e.g. for Tamil Nadu: TN-004 AABCS for SC/ST with 35% subsidy + 6% subvention, TN-003 TWEES for Women with 95% bank finance + 25% subsidy, TN-001 NEEDS with 25% subsidy up to ₹75 Lakh + 3% subvention, TN-002 UYEGP with 25% subsidy up to ₹3.75 Lakh, TN-005 KKT for artisans; and Central schemes: CEN-001 Micro Finance Scheme at 6.5% interest, CEN-004 Mudra, CEN-005 PMEGP with 35% rural subsidy, CEN-007 Stand-Up India ₹10L-₹1Cr, CEN-011 PM SVANidhi with 7% interest subsidy).
                 2. Address the applicant directly by their actual name (%s) in the strategy insight and recommendations. DO NOT assume any hardcoded persona name.
                 3. Every scheme MUST be categorized into one of these EXACT 3 values:
                    - "loan_type_specific": Concessional loan matching their specific social category or gender (e.g. AABCS for SC/ST, TWEES for Women, NEEDS for youth, Stand-Up India).

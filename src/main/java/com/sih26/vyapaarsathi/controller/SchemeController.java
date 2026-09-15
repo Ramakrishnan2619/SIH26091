@@ -28,7 +28,7 @@ public class SchemeController {
     }
 
     @GetMapping("/master")
-    public ResponseEntity<List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto>> getMasterSchemes(
+    public ResponseEntity<List<com.sih26.vyapaarsathi.dto.scheme.OfficialSchemeMasterDto>> getMasterSchemes(
             @RequestParam(required = false) String state,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String microOrTerm) {

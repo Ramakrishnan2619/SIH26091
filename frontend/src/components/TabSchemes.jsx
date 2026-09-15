@@ -550,7 +550,7 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
         </div>
       </div>
 
-      {/* 4. Grounded FinSahay Scheme Master Catalog (Accurate Government Schemes) */}
+      {/* 4. Grounded Official Government Scheme Master Catalog (Accurate Government Schemes) */}
       <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
@@ -558,8 +558,8 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
               <Landmark className="w-5 h-5 text-emerald-700" />
               <h3 className="text-base font-bold text-slate-900">
                 {selectedLang === 'ta' 
-                  ? "அரசு நிதி உதவி & மானிய திட்டங்களின் அதிகாரப்பூர்வ பட்டியல் (FinSahay Master Catalog)" 
-                  : "Official State & Central Government Scheme Catalog (FinSahay Master)"}
+                  ? "அரசு நிதி உதவி & மானிய திட்டங்களின் அதிகாரப்பூர்வ பட்டியல் (Official Scheme Master)" 
+                  : "Official State & Central Government Scheme Catalog (VyapaarSathi)"}
               </h3>
             </div>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed">

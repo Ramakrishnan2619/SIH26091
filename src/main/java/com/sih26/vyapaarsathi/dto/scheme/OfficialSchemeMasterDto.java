@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FinSahayMasterSchemeDto {
+public class OfficialSchemeMasterDto {
 
     @JsonProperty("Scheme_ID")
     private String schemeId;
@@ -21,7 +21,7 @@ public class FinSahayMasterSchemeDto {
     private String schemeName;
 
     @JsonProperty("Micro/Term Loan")
-    private String microOrTerm;
+    private String loanType;
 
     @JsonProperty("[Individual/Group]")
     private String beneficiaryType;
@@ -33,13 +33,13 @@ public class FinSahayMasterSchemeDto {
     private String ageMax;
 
     @JsonProperty("Income_Limit_Annual (Family Income)")
-    private String incomeLimit;
+    private String incomeLimitAnnual;
 
     @JsonProperty("Gender_Requirement")
-    private String genderRequirement;
+    private String targetBeneficiary;
 
     @JsonProperty("Residence_Requirement")
-    private String residenceRequirement;
+    private String state;
 
     @JsonProperty("Business_Purpose")
     private String businessPurpose;
@@ -97,4 +97,16 @@ public class FinSahayMasterSchemeDto {
 
     @JsonProperty("Scheme_Status")
     private String schemeStatus;
+
+    public String getResidenceRequirement() {
+        return state;
+    }
+
+    public String getGenderRequirement() {
+        return targetBeneficiary;
+    }
+
+    public String getMicroOrTerm() {
+        return loanType;
+    }
 }
