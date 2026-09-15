@@ -375,6 +375,7 @@ function App() {
         {currentPage === 'processing' && (
           <ProcessingScreen
             payload={assessmentPayload}
+            selectedLang={selectedLang}
             onSuccess={handleAssessmentComplete}
             onError={() => setCurrentPage('assess')}
           />
