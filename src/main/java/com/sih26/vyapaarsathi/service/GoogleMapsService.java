@@ -85,6 +85,115 @@ public class GoogleMapsService {
                 .build();
     }
 
+    public Map<String, Object> geocodeAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return Map.of("latitude", 10.0524, "longitude", 78.3344);
+        }
+
+        // 1. If Google Maps API key is configured
+        if (mapsApiKey != null && !mapsApiKey.trim().isEmpty()) {
+            try {
+                String encoded = java.net.URLEncoder.encode(address.trim(), java.nio.charset.StandardCharsets.UTF_8);
+                String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s", encoded, mapsApiKey);
+                String response = restClient.get().uri(url).retrieve().body(String.class);
+                JsonNode root = objectMapper.readTree(response);
+                JsonNode results = root.path("results");
+                if (results.isArray() && !results.isEmpty()) {
+                    JsonNode loc = results.get(0).path("geometry").path("location");
+                    double lat = loc.path("lat").asDouble();
+                    double lng = loc.path("lng").asDouble();
+                    if (lat != 0.0 && lng != 0.0) {
+                        return Map.of(
+                                "latitude", lat,
+                                "longitude", lng,
+                                "formattedAddress", results.get(0).path("formatted_address").asText(address)
+                        );
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Google Maps forward geocoding exception: {}", ex.getMessage());
+            }
+        }
+
+        // 2. OpenStreetMap Nominatim
+        try {
+            String encoded = java.net.URLEncoder.encode(address.trim(), java.nio.charset.StandardCharsets.UTF_8);
+            String url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encoded + "&limit=1";
+            String response = restClient.get()
+                    .uri(url)
+                    .header("User-Agent", "VyapaarSathi/1.0 (sih26091)")
+                    .retrieve()
+                    .body(String.class);
+            JsonNode root = objectMapper.readTree(response);
+            if (root.isArray() && !root.isEmpty()) {
+                JsonNode first = root.get(0);
+                double lat = Double.parseDouble(first.path("lat").asText());
+                double lng = Double.parseDouble(first.path("lon").asText());
+                if (lat != 0.0 && lng != 0.0) {
+                    return Map.of(
+                            "latitude", lat,
+                            "longitude", lng,
+                            "formattedAddress", first.path("display_name").asText(address)
+                    );
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("Nominatim forward geocoding exception: {}", ex.getMessage());
+        }
+
+        // 3. High accuracy District fallback dictionary
+        double[] coords = getDistrictFallbackCoordinates(address);
+        return Map.of(
+                "latitude", coords[0],
+                "longitude", coords[1],
+                "formattedAddress", address
+        );
+    }
+
+    private double[] getDistrictFallbackCoordinates(String text) {
+        if (text == null) return new double[]{10.0524, 78.3344};
+        String lower = text.toLowerCase();
+        if (lower.contains("chennai")) return new double[]{13.0827, 80.2707};
+        if (lower.contains("coimbatore")) return new double[]{11.0168, 76.9558};
+        if (lower.contains("madurai")) return new double[]{9.9252, 78.1198};
+        if (lower.contains("tiruchirappalli") || lower.contains("trichy")) return new double[]{10.7905, 78.7047};
+        if (lower.contains("salem")) return new double[]{11.6643, 78.1460};
+        if (lower.contains("tirunelveli")) return new double[]{8.7139, 77.7567};
+        if (lower.contains("tiruppur")) return new double[]{11.1085, 77.3411};
+        if (lower.contains("erode")) return new double[]{11.3410, 77.7172};
+        if (lower.contains("vellore")) return new double[]{12.9165, 79.1325};
+        if (lower.contains("thanjavur")) return new double[]{10.7870, 79.1378};
+        if (lower.contains("dindigul")) return new double[]{10.3673, 77.9803};
+        if (lower.contains("kancheepuram") || lower.contains("kanchipuram")) return new double[]{12.8342, 79.7036};
+        if (lower.contains("tiruvallur")) return new double[]{13.1432, 79.9079};
+        if (lower.contains("cuddalore")) return new double[]{11.7480, 79.7714};
+        if (lower.contains("kanyakumari") || lower.contains("kanniyakumari")) return new double[]{8.0883, 77.5385};
+        if (lower.contains("thoothukkudi") || lower.contains("tuticorin")) return new double[]{8.7642, 78.1348};
+        if (lower.contains("virudhunagar")) return new double[]{9.5680, 77.9624};
+        if (lower.contains("sivaganga")) return new double[]{9.8433, 78.4809};
+        if (lower.contains("ramanathapuram")) return new double[]{9.3639, 78.8395};
+        if (lower.contains("pudukkottai")) return new double[]{10.3833, 78.8001};
+        if (lower.contains("theni")) return new double[]{10.0104, 77.4768};
+        if (lower.contains("karur")) return new double[]{10.9601, 78.0766};
+        if (lower.contains("namakkal")) return new double[]{11.2189, 78.1674};
+        if (lower.contains("dharmapuri")) return new double[]{12.1211, 78.1582};
+        if (lower.contains("krishnagiri")) return new double[]{12.5186, 78.2138};
+        if (lower.contains("tiruvannamalai")) return new double[]{12.2253, 79.0747};
+        if (lower.contains("viluppuram") || lower.contains("villupuram")) return new double[]{11.9401, 79.4861};
+        if (lower.contains("kallakurichi")) return new double[]{11.7384, 78.9639};
+        if (lower.contains("ranipet")) return new double[]{12.9272, 79.3330};
+        if (lower.contains("tirupathur")) return new double[]{12.4925, 78.5678};
+        if (lower.contains("chengalpattu")) return new double[]{12.6819, 79.9836};
+        if (lower.contains("tenkasi")) return new double[]{8.9594, 77.3152};
+        if (lower.contains("mayiladuthurai")) return new double[]{11.1075, 79.6524};
+        if (lower.contains("thiruvarur")) return new double[]{10.7725, 79.6365};
+        if (lower.contains("nagapattinam")) return new double[]{10.7672, 79.8449};
+        if (lower.contains("perambalur")) return new double[]{11.2342, 78.8807};
+        if (lower.contains("ariyalur")) return new double[]{11.1401, 79.0786};
+        if (lower.contains("nilgiris") || lower.contains("ooty")) return new double[]{11.4102, 76.6950};
+        return new double[]{10.0524, 78.3344};
+    }
+
     public FeasibilityReportResponse.SupplyMetricsDto querySupplyMetrics(BigDecimal lat, BigDecimal lng, int radiusKm, String businessCategory, int villagePopulation) {
         int competitorCount = 0;
         boolean liveCallSucceeded = false;

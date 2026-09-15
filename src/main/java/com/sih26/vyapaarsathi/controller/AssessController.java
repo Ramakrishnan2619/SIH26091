@@ -39,6 +39,12 @@ public class AssessController {
         return ResponseEntity.ok(layer2DbService.searchVillages(query, limit));
     }
 
+    @GetMapping("/location/geocode")
+    public ResponseEntity<java.util.Map<String, Object>> geocode(
+            @RequestParam("q") String query) {
+        return ResponseEntity.ok(googleMapsService.geocodeAddress(query));
+    }
+
     @PostMapping("/location/reverse-geocode")
     public ResponseEntity<ReverseGeocodeResponse> reverseGeocode(
             @Valid @RequestBody ReverseGeocodeRequest request) {

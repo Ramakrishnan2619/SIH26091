@@ -55,6 +55,65 @@ const CATEGORY_NAMES = {
   }
 };
 
+const TN_DISTRICT_COORDS = {
+  'chennai': [13.0827, 80.2707],
+  'coimbatore': [11.0168, 76.9558],
+  'madurai': [9.9252, 78.1198],
+  'tiruchirappalli': [10.7905, 78.7047],
+  'trichy': [10.7905, 78.7047],
+  'salem': [11.6643, 78.1460],
+  'tirunelveli': [8.7139, 77.7567],
+  'tiruppur': [11.1085, 77.3411],
+  'erode': [11.3410, 77.7172],
+  'vellore': [12.9165, 79.1325],
+  'thanjavur': [10.7870, 79.1378],
+  'dindigul': [10.3673, 77.9803],
+  'kancheepuram': [12.8342, 79.7036],
+  'kanchipuram': [12.8342, 79.7036],
+  'tiruvallur': [13.1432, 79.9079],
+  'thiruvallur': [13.1432, 79.9079],
+  'cuddalore': [11.7480, 79.7714],
+  'kanyakumari': [8.0883, 77.5385],
+  'kanniyakumari': [8.0883, 77.5385],
+  'thoothukkudi': [8.7642, 78.1348],
+  'tuticorin': [8.7642, 78.1348],
+  'virudhunagar': [9.5680, 77.9624],
+  'sivaganga': [9.8433, 78.4809],
+  'sivagangai': [9.8433, 78.4809],
+  'ramanathapuram': [9.3639, 78.8395],
+  'pudukkottai': [10.3833, 78.8001],
+  'theni': [10.0104, 77.4768],
+  'karur': [10.9601, 78.0766],
+  'namakkal': [11.2189, 78.1674],
+  'dharmapuri': [12.1211, 78.1582],
+  'krishnagiri': [12.5186, 78.2138],
+  'tiruvannamalai': [12.2253, 79.0747],
+  'viluppuram': [11.9401, 79.4861],
+  'villupuram': [11.9401, 79.4861],
+  'kallakurichi': [11.7384, 78.9639],
+  'ranipet': [12.9272, 79.3330],
+  'tirupathur': [12.4925, 78.5678],
+  'chengalpattu': [12.6819, 79.9836],
+  'tenkasi': [8.9594, 77.3152],
+  'mayiladuthurai': [11.1075, 79.6524],
+  'thiruvarur': [10.7725, 79.6365],
+  'tiruvarur': [10.7725, 79.6365],
+  'nagapattinam': [10.7672, 79.8449],
+  'perambalur': [11.2342, 78.8807],
+  'ariyalur': [11.1401, 79.0786],
+  'the nilgiris': [11.4102, 76.6950],
+  'nilgiris': [11.4102, 76.6950]
+};
+
+function getDistrictCoords(districtName) {
+  if (!districtName) return [10.0524, 78.3344];
+  const clean = districtName.trim().toLowerCase();
+  for (const [k, v] of Object.entries(TN_DISTRICT_COORDS)) {
+    if (clean.includes(k) || k.includes(clean)) return v;
+  }
+  return [10.0524, 78.3344];
+}
+
 const STORAGE_KEY = 'vyapaarsathi_assess_draft_v2';
 
 export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang = 'en' }) {
@@ -142,6 +201,59 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  const [isGeocodingVillage, setIsGeocodingVillage] = useState(false);
+
+  // Accurate forward geocoding when village is selected from database search
+  const handleSelectVillage = async (v) => {
+    setIsGeocodingVillage(true);
+    setSearchQuery('');
+    setSearchResults([]);
+    setValidationError('');
+
+    // 1. Immediately jump map to district center so user sees responsive feedback
+    const initialCoords = getDistrictCoords(v.districtName);
+    let finalLat = initialCoords[0];
+    let finalLng = initialCoords[1];
+
+    updateField('selectedVillage', {
+      ...v,
+      latitude: finalLat,
+      longitude: finalLng
+    });
+
+    // 2. High-precision pinpointing for specific village
+    const query = `${v.villageName}, ${v.subdistrictName || ''}, ${v.districtName}, Tamil Nadu, India`;
+
+    try {
+      const res = await fetch(`/api/assess/location/geocode?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.latitude && data.longitude && Number(data.latitude) !== 0) {
+          finalLat = Number(data.latitude);
+          finalLng = Number(data.longitude);
+        }
+      } else {
+        const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+        if (nomRes.ok) {
+          const nomData = await nomRes.json();
+          if (Array.isArray(nomData) && nomData.length > 0) {
+            finalLat = parseFloat(nomData[0].lat);
+            finalLng = parseFloat(nomData[0].lon);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Geocoding village fallback:', err);
+    } finally {
+      updateField('selectedVillage', {
+        ...v,
+        latitude: finalLat,
+        longitude: finalLng
+      });
+      setIsGeocodingVillage(false);
+    }
+  };
 
   // Geolocation detector with accurate reverse geocoding
   const handleDetectLocation = () => {
@@ -553,16 +665,7 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                       <button
                         key={v.villageLgdCode}
                         type="button"
-                        onClick={() => {
-                          updateField('selectedVillage', {
-                            ...v,
-                            latitude: v.latitude || 10.0524,
-                            longitude: v.longitude || 78.3344
-                          });
-                          setSearchQuery('');
-                          setSearchResults([]);
-                          setValidationError('');
-                        }}
+                        onClick={() => handleSelectVillage(v)}
                         className="w-full text-left px-4 py-3 hover:bg-[#CBF9FF]/40 border-b border-slate-100 last:border-none flex items-center justify-between transition-colors cursor-pointer"
                       >
                         <div>
@@ -579,16 +682,24 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
               </div>
 
               {/* Real Interactive Google Catchment Map (No competitor shop marks during location selection) */}
-              <GoogleMapView
-                latitude={selectedVillage?.latitude || 10.0524}
-                longitude={selectedVillage?.longitude || 78.3344}
-                radiusKm={10}
-                originName={selectedVillage?.villageName || "Proposed Business Location"}
-                showRadius={true}
-                showPlaces={false}
-                places={[]}
-                height="320px"
-              />
+              <div className="relative">
+                <GoogleMapView
+                  latitude={selectedVillage?.latitude || 10.0524}
+                  longitude={selectedVillage?.longitude || 78.3344}
+                  radiusKm={10}
+                  originName={selectedVillage?.villageName || "Proposed Business Location"}
+                  showRadius={true}
+                  showPlaces={false}
+                  places={[]}
+                  height="320px"
+                />
+                {isGeocodingVillage && (
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#009DB3] shadow-md flex items-center gap-2 text-xs font-bold text-[#006B7A] animate-pulse z-20">
+                    <Crosshair className="w-3.5 h-3.5 animate-spin text-[#006B7A]" />
+                    <span>Pinpointing village coordinates on Google Maps...</span>
+                  </div>
+                )}
+              </div>
 
               {/* Selected Village Card */}
               {selectedVillage ? (
@@ -596,7 +707,14 @@ export function AssessmentForm({ onSubmit, onCancel, defaultUser, selectedLang =
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
                     <div>
-                      <div className="text-xs font-bold text-[#006B7A]">Selected Revenue Village:</div>
+                      <div className="text-xs font-bold text-[#006B7A] flex items-center gap-2">
+                        <span>Selected Revenue Village:</span>
+                        {isGeocodingVillage && (
+                          <span className="text-[11px] font-semibold text-sky-700 animate-pulse">
+                            (Updating GPS location...)
+                          </span>
+                        )}
+                      </div>
                       <div className="text-base font-black text-slate-900 mt-0.5">
                         {selectedVillage.villageName}, {selectedVillage.subdistrictName || 'Block'}, {selectedVillage.districtName} ({selectedVillage.stateName || 'India'})
                       </div>
