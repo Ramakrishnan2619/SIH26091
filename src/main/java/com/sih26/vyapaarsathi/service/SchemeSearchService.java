@@ -54,6 +54,7 @@ public class SchemeSearchService {
     private String vertexModel = "gemini-2.5-flash";
 
     private List<SchemeArchetypeDto> archetypeCatalog = new ArrayList<>();
+    private List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> masterSchemeCatalog = new ArrayList<>();
 
     public SchemeSearchService(SchemeSearchSessionRepository sessionRepository,
                                AssessmentRepository assessmentRepository,
@@ -74,10 +75,59 @@ public class SchemeSearchService {
         } catch (Exception e) {
             log.warn("Could not load mock_scheme_archetypes.json from classpath: {}", e.getMessage());
         }
+
+        try {
+            ClassPathResource masterResource = new ClassPathResource("finsahay_scheme_master.json");
+            try (InputStream is = masterResource.getInputStream()) {
+                masterSchemeCatalog = objectMapper.readValue(is, new TypeReference<List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto>>() {});
+                log.info("Successfully loaded {} official FinSahay master schemes from classpath.", masterSchemeCatalog.size());
+            }
+        } catch (Exception e) {
+            log.warn("Could not load finsahay_scheme_master.json from classpath: {}", e.getMessage());
+        }
     }
 
     public List<SchemeArchetypeDto> getArchetypeCatalog() {
         return archetypeCatalog;
+    }
+
+    public List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> getMasterSchemeCatalog() {
+        return masterSchemeCatalog;
+    }
+
+    public List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto> filterMasterSchemes(String state, String category, String microOrTerm) {
+        return masterSchemeCatalog.stream()
+                .filter(s -> {
+                    if (state != null && !state.trim().isEmpty() && !"all".equalsIgnoreCase(state)) {
+                        String res = s.getResidenceRequirement() != null ? s.getResidenceRequirement() : "";
+                        if (!res.equalsIgnoreCase("India") && !res.toLowerCase().contains(state.toLowerCase())) {
+                            return false;
+                        }
+                    }
+                    if (category != null && !category.trim().isEmpty() && !"all".equalsIgnoreCase(category)) {
+                        String gen = s.getGenderRequirement() != null ? s.getGenderRequirement() : "";
+                        String ben = s.getBeneficiaryType() != null ? s.getBeneficiaryType() : "";
+                        String name = s.getSchemeName() != null ? s.getSchemeName() : "";
+                        String combined = (gen + " " + ben + " " + name).toLowerCase();
+                        if (category.equalsIgnoreCase("sc") && !combined.contains("sc") && !combined.contains("all genders")) {
+                            return false;
+                        }
+                        if (category.equalsIgnoreCase("women") && !combined.contains("women") && !combined.contains("female") && !combined.contains("all genders")) {
+                            return false;
+                        }
+                    }
+                    if (microOrTerm != null && !microOrTerm.trim().isEmpty() && !"all".equalsIgnoreCase(microOrTerm)) {
+                        String mt = s.getMicroOrTerm() != null ? s.getMicroOrTerm() : "";
+                        if (microOrTerm.equalsIgnoreCase("micro") && !mt.toLowerCase().contains("micro")) {
+                            return false;
+                        }
+                        if (microOrTerm.equalsIgnoreCase("term") && !mt.toLowerCase().contains("term")) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .toList();
     }
 
     @Transactional
@@ -261,14 +311,14 @@ public class SchemeSearchService {
                 - Existing Business: %s
 
                 INSTRUCTIONS & RULES:
-                1. Match schemes against real Ministry of Social Justice & Empowerment apex corporations (NSFDC for SC, NBCFDC for OBC, NSKFDC for Safai Karamchari, NDFDC for PwD), MSME Ministry (PMEGP, Mudra Shishu/Kishore/Tarun, PM SVANidhi), and State Channelizing Agencies (SCAs like TAHDCO / TABCEDCO).
+                1. Ground your recommendations in authentic Central & State government schemes from the official FinSahay Scheme Master (e.g. for Tamil Nadu: TN-004 AABCS for SC/ST with 35% subsidy + 6% subvention, TN-003 TWEES for Women with 95% bank finance + 25% subsidy, TN-001 NEEDS with 25% subsidy up to ₹75 Lakh + 3% subvention, TN-002 UYEGP with 25% subsidy up to ₹3.75 Lakh, TN-005 KKT for artisans; and Central schemes: CEN-001 Micro Finance Scheme at 6.5% interest, CEN-004 Mudra, CEN-005 PMEGP with 35% rural subsidy, CEN-007 Stand-Up India ₹10L-₹1Cr, CEN-011 PM SVANidhi with 7% interest subsidy).
                 2. Address the applicant directly by their actual name (%s) in the strategy insight and recommendations. DO NOT assume any hardcoded persona name.
                 3. Every scheme MUST be categorized into one of these EXACT 3 values:
-                   - "loan_type_specific": Concessional loan matching their specific social category or gender (e.g. NSFDC Mahila Samriddhi for SC Women, NBCFDC New Swarnima for OBC Women, Stand-Up India for SC/ST/Women).
-                   - "business_linked": Scheme directly aligned with the specific business trade (e.g. Dairy cooperative / AHIDF for dairy; Mudra for grocery/kirana; PMEGP for manufacturing/artisan units; PM SVANidhi for street vendors).
+                   - "loan_type_specific": Concessional loan matching their specific social category or gender (e.g. AABCS for SC/ST, TWEES for Women, NEEDS for youth, Stand-Up India).
+                   - "business_linked": Scheme directly aligned with the specific business trade (e.g. Mudra for retail/grocery; PMEGP for manufacturing; PMFME for food processing; PM SVANidhi for vending).
                    - "bank_specific": State Channelizing Agency or Scheduled Commercial Bank / Regional Rural Bank credit tie-up with back-ended capital subsidy or interest subvention.
-                4. Include realistic, accurate details for indicative_interest_rate (e.g. 4.0 to 6.5 percent per annum concessional), illustrative_benefit (loan caps, margin money requirements, subsidy percentage), and participating_institutions (SCAs, RRBs, Lead Bank).
-                5. Provide a strategic "household_strategy_insight" explaining whether registering under %s or spouse yields a better interest rebate (e.g., Mahila Samriddhi rebate for women), higher subsidy priority, or joint SHG benefits.
+                4. Include realistic, accurate details for indicative_interest_rate, illustrative_benefit, official_url, application_channel, subsidy_percentage, max_loan_amount, own_contribution, tenure, and moratorium.
+                5. Provide a strategic "household_strategy_insight" explaining whether registering under %s or spouse yields a better interest rebate (e.g., Mahila subvention for women), higher subsidy priority (e.g. 35% AABCS/PMEGP vs general), or joint SHG benefits.
                 6. Mark is_illustrative as true and include mandatory_disclosure: "AI-generated illustrative match — verify with your nearest SCA/bank before applying".
 
                 Return ONLY valid JSON matching this schema:
@@ -283,6 +333,13 @@ public class SchemeSearchService {
                       "illustrative_benefit": "string specifying loan limit, subsidy, tenure",
                       "indicative_interest_rate": "string with interest percent per annum",
                       "participating_institutions": "string listing SCAs, RRBs, Public Sector Banks",
+                      "official_url": "string valid URL or portal link",
+                      "application_channel": "string application portal or nodal office",
+                      "subsidy_percentage": "string e.g. 25% or 35%",
+                      "max_loan_amount": "string e.g. ₹1.25 Lakh or ₹1.5 Crore",
+                      "own_contribution": "string e.g. 5% or 10%",
+                      "tenure": "string e.g. 3 years or 7 years",
+                      "moratorium": "string e.g. 3 months or 6 months",
                       "is_illustrative": true,
                       "mandatory_disclosure": "AI-generated illustrative match — verify with your nearest SCA/bank before applying"
                     }
@@ -356,147 +413,318 @@ public class SchemeSearchService {
 
         boolean isTamil = "ta".equals(lang);
 
-        // 1. Statutory Demographic & Apex Corporation Schemes
-        if (category.contains("OBC") || category.contains("BACKWARD")) {
-            if (isFemale) {
-                recommended.add(RecommendedSchemeDto.builder()
-                        .schemeId("NBCFDC_NEW_SWARNIMA")
-                        .schemeName(isTamil ? "தேசிய பிற்படுத்தப்பட்டோர் புதிய ஸ்வர்ணிமா திட்டம் (NBCFDC)" : "NBCFDC New Swarnima Scheme for Women (Illustrative)")
-                        .category("loan_type_specific")
-                        .targetBeneficiaryMatch(isTamil ? "இதர பிற்படுத்தப்பட்ட (OBC) மகளிர் தொழில்முனைவோர்" : "OBC Women Micro-Entrepreneurs")
-                        .illustrativeBenefit(isTamil ? "ரூ. 2.00 லட்சம் வரை 5.0% குறைந்த வட்டியில் பிணையில்லா கடன்" : "Up to ₹2.00 Lakh term loan at subsidized 5.0% p.a. interest rate for self-reliant rural women")
-                        .indicativeInterestRate("5.0% p.a.")
-                        .participatingInstitutions(isTamil ? "TABCEDCO / மாவட்ட மத்திய கூட்டுறவு வங்கி" : "TABCEDCO / State Backward Classes Economic Development Corporation")
-                        .isIllustrative(true)
-                        .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
-                        .build());
-            } else {
-                recommended.add(RecommendedSchemeDto.builder()
-                        .schemeId("NBCFDC_GENERAL_TERM_LOAN")
-                        .schemeName(isTamil ? "தேசிய பிற்படுத்தப்பட்டோர் பொது தவணைக் கடன் திட்டம் (NBCFDC)" : "NBCFDC General Term Loan Scheme (Illustrative)")
-                        .category("loan_type_specific")
-                        .targetBeneficiaryMatch(isTamil ? "இதர பிற்படுத்தப்பட்ட (OBC) வகுப்பினர்" : "Other Backward Classes (OBC) entrepreneurs")
-                        .illustrativeBenefit(isTamil ? "ரூ. 50.00 லட்சம் வரை 90% அரசு கடன் பங்கு மற்றும் 6 மாத அசல் விலக்கு" : "90% project cost financing up to ₹50 Lakh with 84-month tenure and 6-month moratorium")
-                        .indicativeInterestRate("8.0% p.a. (reducing balance)")
-                        .participatingInstitutions(isTamil ? "TABCEDCO / தேசியமயமாக்கப்பட்ட வங்கிகள்" : "TABCEDCO / State Backward Classes Economic Development Corporation")
-                        .isIllustrative(true)
-                        .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
-                        .build());
-            }
-
+        // 1. Social Category & Domicile Targeted Master Schemes (Tamil Nadu Grounded)
+        if (category.contains("SC") || category.contains("SCHEDULED CASTE")) {
+            // Flagship TN SC/ST Scheme: TN-004 AABCS
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("TABCEDCO_MICRO_FINANCE")
-                    .schemeName(isTamil ? "தமிழ்நாடு பிற்படுத்தப்பட்டோர் பொருளாதார மேம்பாட்டுக் கழக மைக்ரோ கடன்" : "TABCEDCO Micro Finance Credit Scheme (Illustrative)")
-                    .category("bank_specific")
-                    .targetBeneficiaryMatch(isTamil ? "கிராமப்புற சிறு குறு வணிகர்கள் மற்றும் சுய உதவிக் குழுக்கள்" : "Rural Micro Traders & Self Help Group members")
-                    .illustrativeBenefit(isTamil ? "ரூ. 1,40,000 வரை 6.5% குறைந்த வட்டியில் எளிய தவணை கடன்" : "Micro-credit support up to ₹1,40,000 at 6.5% interest rate with simplified single-window processing")
-                    .indicativeInterestRate("6.0% - 6.5% p.a.")
-                    .participatingInstitutions(isTamil ? "TABCEDCO / தொடக்க வேளாண்மை கூட்டுறவு சங்கம் (PACCS)" : "TABCEDCO / State Channelizing Agency")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
-                    .build());
-        } else if (category.contains("SC") || category.contains("SCHEDULED CASTE")) {
-            recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("NSFDC_MAHILA_SAMRIDDHI")
-                    .schemeName(isTamil ? "தேசிய ஆதிதிராவிடர் மகிளா சம்ரித்தி திட்டம் (NSFDC)" : "NSFDC Mahila Samriddhi Yojana (Illustrative)")
+                    .schemeId("TN-004")
+                    .schemeName(isTamil 
+                            ? "AABCS – அண்ணல் அம்பேத்கர் தொழில் முன்னோடிகள் திட்டம்" 
+                            : "AABCS – Annal Ambedkar Business Champions Scheme (Official TN-004)")
                     .category("loan_type_specific")
-                    .targetBeneficiaryMatch(isTamil ? "பட்டியலின (SC) மகளிர் தொழில்முனைவோர்" : "Scheduled Caste (SC) Women Entrepreneurs")
-                    .illustrativeBenefit(isTamil ? "ரூ. 1,40,000 வரை வெறும் 4.0% சலுகை வட்டியில் நுண்கடன்" : "Up to ₹1,40,000 credit limit with 1.5% special rebate at 4.0% p.a. concessional interest")
-                    .indicativeInterestRate("4.0% p.a.")
-                    .participatingInstitutions(isTamil ? "TAHDCO / நபார்டு / கிராம வங்கி" : "TAHDCO / NSFDC / Regional Rural Banks")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "100% பட்டியலின (SC/ST) தொழில்முனைவோர் மற்றும் நிறுவனங்கள்" 
+                            : "Enterprises 100% owned by SC/ST entrepreneurs in Tamil Nadu")
+                    .illustrativeBenefit(isTamil 
+                            ? "35% நேரடி மூலதன மானியம் (அதிகபட்சம் ரூ. 1.50 கோடி) + 6% அரசு வட்டி மானியம் (Interest Subvention)" 
+                            : "35% capital subsidy up to ₹1.50 Crore + 6% interest subvention for machinery loan up to 10 years")
+                    .indicativeInterestRate(isTamil ? "வங்கி விகிதத்தில் 6% அரசு வட்டி மானியம்" : "Commercial bank rate with 6% interest subvention")
+                    .participatingInstitutions("District Industries Centre (DIC) / District Level Sanctioning Committee")
+                    .officialUrl("https://msmeonline.tn.gov.in/aabcs/")
+                    .applicationChannel("Online AABCS portal / District Level Sanctioning Committee / DIC")
+                    .subsidyPercentage("35% of eligible project cost (Max ₹1.50 Crore)")
+                    .maxLoanAmount("65% Bank Finance")
+                    .ownContribution("5% - 10%")
+                    .tenure("Up to 10 years")
+                    .moratorium("As per bank")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/aabcs/")
                     .build());
 
+            // CEN-001 Micro Finance Scheme (MFS) via NSFDC
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("TAHDCO_ENTERPRISE_SUBSIDY")
-                    .schemeName(isTamil ? "தாட்கோ சுயதொழில் மூலதன மானிய திட்டம் (TAHDCO)" : "TAHDCO Special Economic Assistance Scheme (Illustrative)")
+                    .schemeId("CEN-001")
+                    .schemeName(isTamil 
+                            ? "நுண்கடன் திட்டம் (MFS) – NSFDC / தாட்கோ" 
+                            : "Micro Finance Scheme (MFS) – NSFDC (Official CEN-001)")
                     .category("bank_specific")
-                    .targetBeneficiaryMatch(isTamil ? "தமிழ்நாடு பட்டியலின மற்றும் பழங்குடியினர்" : "Tamil Nadu Scheduled Caste Beneficiaries")
-                    .illustrativeBenefit(isTamil ? "30% அல்லது அதிகபட்சம் ரூ. 2.25 லட்சம் வரை அரசு மூலதன மானியம்" : "30% back-ended capital subsidy up to ₹2.25 Lakh combined with commercial bank credit")
-                    .indicativeInterestRate("Standard bank lending rate with 30% capital grant")
-                    .participatingInstitutions(isTamil ? "தாட்கோ (TAHDCO) / பொதுத்துறை வங்கிகள்" : "TAHDCO / State Scheduled Castes Development Corp")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "சிறு வருவாய் ஈட்டும் SC தொழில்முனைவோர் (குடும்ப வருமானம் <= ₹5 லட்சம்)" 
+                            : "SC individuals with annual family income <= ₹5 Lakh")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 1.40 லட்சம் வரை திட்ட மதிப்பீடு, 90% அரசு கடன் பங்கு (அதிகபட்சம் ரூ. 1.25 லட்சம்), 6.5% சலுகை வட்டி" 
+                            : "Project cost up to ₹1.40 Lakh, 90% loan up to ₹1.25 Lakh, at 6.5% concessional interest rate")
+                    .indicativeInterestRate("6.5% p.a. (Fixed)")
+                    .participatingInstitutions("TAHDCO / State Channelising Agencies / PM-SURAJ")
+                    .officialUrl("https://nsfdc.nic.in/")
+                    .applicationChannel("PM-SURAJ / State Channelising Agencies (TAHDCO)")
+                    .subsidyPercentage("90% Concessional Loan (Up to ₹1.25 Lakh)")
+                    .maxLoanAmount("₹1.25 Lakh")
+                    .ownContribution("Up to 10%")
+                    .tenure("Up to 3 years")
+                    .moratorium("3 months")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Central Scheme under MoSJE / NSFDC — Apply via PM-SURAJ portal")
                     .build());
-        } else if (category.contains("SAFAI") || category.contains("SANITATION")) {
-            recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("NSKFDC_SWACCHTA_UDYAMI")
-                    .schemeName(isTamil ? "தூய்மைப் பணியாளர் உத்யமி திட்டம் (NSKFDC)" : "NSKFDC Swacchta Udyami Yojana (Illustrative)")
-                    .category("loan_type_specific")
-                    .targetBeneficiaryMatch(isTamil ? "தூய்மைப் பணியாளர்கள் மற்றும் அவர்தம் சார்ந்த குடும்பத்தினர்" : "Safai Karamchari & Sanitation Workers Community")
-                    .illustrativeBenefit(isTamil ? "ரூ. 15.00 லட்சம் வரை கடன் மற்றும் ரூ. 3.25 லட்சம் நேரடி மானியம்" : "Capital subsidy up to ₹3,25,000 with 4.0% concessional interest rate")
-                    .indicativeInterestRate("4.0% - 6.0% p.a.")
-                    .participatingInstitutions("National Safai Karamcharis Finance & Development Corporation")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
-                    .build());
-        }
 
-        // 2. Business Trade-Specific Schemes
-        if (bizCategory.contains("dairy") || bizCategory.contains("milk") || bizCategory.contains("cattle")) {
+            // CEN-007 Stand-Up India
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("MICRO_WOMEN_DAIRY")
-                    .schemeName(isTamil ? "பால் பண்ணை & கால்நடை வளர்ப்பு கூட்டுறவு திட்டம்" : "Women Rural Dairy Cooperative Scheme (Illustrative)")
-                    .category("business_linked")
-                    .targetBeneficiaryMatch(isTamil ? "பால் பண்ணை மற்றும் கால்நடை வளர்ப்பு வணிகம்" : "Dairy & Livestock rearing enterprise")
-                    .illustrativeBenefit(isTamil ? "ரூ. 2.00 லட்சம் வரை கடன் மற்றும் 25% மூலதன மானியம் (ஆவின் இணைப்பு)" : "Milch cattle financing with milk collection tie-up and 25% back-ended capital subsidy")
-                    .indicativeInterestRate("5.0% - 6.5% p.a.")
-                    .participatingInstitutions(isTamil ? "மாவட்ட பால் உற்பத்தியாளர்கள் சங்கம் / நபார்டு" : "District Cooperative Milk Producers Union / NABARD")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .schemeId("CEN-007")
+                    .schemeName(isTamil 
+                            ? "ஸ்டாண்ட்-அப் இந்தியா திட்டம் (Stand-Up India)" 
+                            : "Stand-Up India Scheme for SC/ST & Women (Official CEN-007)")
+                    .category("loan_type_specific")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "பட்டியலின (SC/ST) மற்றும் மகளிர் தொழில்முனைவோர் (புதிய நிறுவனம்)" 
+                            : "SC/ST and Women entrepreneurs setting up greenfield enterprises")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 10.00 லட்சம் முதல் ரூ. 1.00 கோடி வரை பசுமை தொழில் ஒருங்கிணைந்த கடன், 15% சொந்த முதலீடு" 
+                            : "Composite loan between ₹10 Lakh and ₹1 Crore for manufacturing, services, agri-allied or trading")
+                    .indicativeInterestRate("MCLR + 3% + Tenor Premium")
+                    .participatingInstitutions("Scheduled Commercial Banks / SIDBI / Stand-Up Mitra")
+                    .officialUrl("https://www.standupmitra.in/")
+                    .applicationChannel("Stand-Up Mitra Portal / All Commercial Bank Branches")
+                    .subsidyPercentage("Credit Guarantee coverage (CGFSIL)")
+                    .maxLoanAmount("₹1.00 Crore")
+                    .ownContribution("15% (can converge with other subsidies)")
+                    .tenure("Up to 7 years")
+                    .moratorium("Up to 18 months")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Central Scheme — Apply via standupmitra.in")
                     .build());
-        } else if (bizCategory.contains("textile") || bizCategory.contains("tailor") || bizCategory.contains("carpentry") || bizCategory.contains("metal") || bizCategory.contains("craft") || bizCategory.contains("artisan")) {
+        } else if (isFemale) {
+            // Flagship TN Women Scheme: TN-003 TWEES
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("PM_VISHWAKARMA")
-                    .schemeName(isTamil ? "பிரதமர் விஸ்வகர்மா திட்டம் (PM Vishwakarma)" : "PM Vishwakarma Scheme (Illustrative)")
-                    .category("business_linked")
-                    .targetBeneficiaryMatch(isTamil ? "பாரம்பரிய கைவினைஞர்கள், தையல் மற்றும் மர/உலோக வேலை கலைஞர்கள்" : "Traditional Artisans, Tailors, Carpenters, and Metal Crafters")
-                    .illustrativeBenefit(isTamil ? "பிணையில்லா கடன் ரூ. 3.00 லட்சம் (5% வட்டி) + ரூ. 15,000 இலவச கருவி மானியம்" : "Collateral-free credit up to ₹3.00 Lakh at 5.0% interest + ₹15,000 modern toolkit grant")
-                    .indicativeInterestRate("5.0% p.a. flat")
-                    .participatingInstitutions(isTamil ? "மத்திய சிறு, குறு தொழில்கள் அமைச்சகம் (MSME) / வங்கிகள்" : "Ministry of MSME / National Skill Development Corporation")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .schemeId("TN-003")
+                    .schemeName(isTamil 
+                            ? "TWEES – தமிழ்நாடு மகளிர் தொழில்முனைவோர் மேம்பாட்டு திட்டம்" 
+                            : "TWEES – Tamil Nadu Women Entrepreneurs Empowerment Scheme (Official TN-003)")
+                    .category("loan_type_specific")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "தமிழ்நாடு பெண் தொழில்முனைவோர் (புதிய வணிகம்/சேவை/உற்பத்தி)" 
+                            : "Women entrepreneurs with Tamil Nadu domicile establishing new enterprise")
+                    .illustrativeBenefit(isTamil 
+                            ? "திட்ட மதிப்பீட்டில் 95% வங்கி கடன், வெறும் 5% சொந்த முதலீடு, 25% மூலதன மானியம் (அதிகபட்சம் ரூ. 2.00 லட்சம்), பிணையில்லா கடன்" 
+                            : "95% bank loan with only 5% promoter margin, 25% capital subsidy up to ₹2.00 Lakh, collateral-free")
+                    .indicativeInterestRate("Bank lending rate")
+                    .participatingInstitutions("District Industries Centre (DIC) / Commercial Banks")
+                    .officialUrl("https://msmeonline.tn.gov.in/twees/")
+                    .applicationChannel("Online TWEES portal / DIC / Banks")
+                    .subsidyPercentage("25% of project cost (Max ₹2.00 Lakh)")
+                    .maxLoanAmount("95% of project cost (Project up to ₹10 Lakh)")
+                    .ownContribution("5% Promoter Contribution")
+                    .tenure("As per bank (36 - 60 months)")
+                    .moratorium("As per bank")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Government Scheme for Women — Apply via msmeonline.tn.gov.in/twees/")
+                    .build());
+
+            // TN-001 NEEDS (Special Category concession for Women)
+            recommended.add(RecommendedSchemeDto.builder()
+                    .schemeId("TN-001")
+                    .schemeName(isTamil 
+                            ? "NEEDS – புதிய தொழில்முனைவோர் மேம்பாட்டு திட்டம்" 
+                            : "NEEDS – New Entrepreneur-cum-Enterprise Development Scheme (Official TN-001)")
+                    .category("loan_type_specific")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "பெண் தொழில்முனைவோர் (சிறப்பு பிரிவினருக்கு 5% குறைந்த சொந்த முதலீடு, 55 வயது வரை)" 
+                            : "First-generation women entrepreneurs (5% promoter margin, age relaxation up to 55)")
+                    .illustrativeBenefit(isTamil 
+                            ? "25% அரசு மூலதன மானியம் (அதிகபட்சம் ரூ. 75 லட்சம்) + திருப்பிச் செலுத்தும் காலம் முழுவதும் 3% வட்டி மானியம்" 
+                            : "25% capital subsidy up to ₹75 Lakh + 3% interest subvention throughout repayment period")
+                    .indicativeInterestRate("Bank-linked with 3% Government interest subvention")
+                    .participatingInstitutions("TIIC / Commercial Banks / TAICO / DIC")
+                    .officialUrl("https://msmeonline.tn.gov.in/needs/")
+                    .applicationChannel("Online NEEDS portal / TIIC / Commercial Banks / DIC")
+                    .subsidyPercentage("25% of project cost (Max ₹75 Lakh)")
+                    .maxLoanAmount("Bank/TIIC finance for balance project outlay (up to ₹5 Crore)")
+                    .ownContribution("5% (Special / Women Category)")
+                    .tenure("As per bank / TIIC")
+                    .moratorium("As per bank")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/")
                     .build());
         } else {
+            // General / OBC: TN-001 NEEDS & TN-002 UYEGP
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("MUDRA_KISHORE_RETAIL")
-                    .schemeName(isTamil ? "பிரதமர் முத்ரா திட்டம் - கிஷோர் & தருண் (MUDRA)" : "Pradhan Mantri MUDRA Yojana - Kishore/Tarun (Illustrative)")
-                    .category("business_linked")
-                    .targetBeneficiaryMatch(isTamil ? "மளிகை, பல்பொருள் அங்காடி மற்றும் சில்லறை வணிக நிறுவனங்கள்" : "Grocery, Provisions, and Micro Retail Trade")
-                    .illustrativeBenefit(isTamil ? "ரூ. 50,000 முதல் ரூ. 10.00 லட்சம் வரை பிணையில்லா தொழில் விரிவாக்க கடன்" : "Collateral-free working capital & machinery loan up to ₹10 Lakh with RuPay business card")
-                    .indicativeInterestRate("8.5% - 9.5% p.a.")
-                    .participatingInstitutions(isTamil ? "அனைத்து பொதுத்துறை மற்றும் பிராந்திய கிராம வங்கிகள்" : "All Public Sector Banks & Regional Rural Banks")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .schemeId("TN-001")
+                    .schemeName(isTamil 
+                            ? "NEEDS – புதிய தொழில்முனைவோர் மற்றும் நிறுவன மேம்பாட்டு திட்டம்" 
+                            : "NEEDS – New Entrepreneur-cum-Enterprise Development Scheme (Official TN-001)")
+                    .category("loan_type_specific")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "முதல் தலைமுறை தொழில்முனைவோர் (21-45 வயது, உற்பத்தி மற்றும் சேவை நிறுவனங்கள்)" 
+                            : "First-generation entrepreneurs (Age 21-45, manufacturing & services)")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 10 லட்சம் முதல் ரூ. 5 கோடி வரையிலான புதிய திட்டங்களுக்கு 25% மூலதன மானியம் (அதிகபட்சம் ரூ. 75 லட்சம்) + 3% அரசு வட்டி மானியம்" 
+                            : "25% capital subsidy up to ₹75 Lakh + 3% interest subvention for projects between ₹10 Lakh and ₹5 Crore")
+                    .indicativeInterestRate("Bank lending rate with 3% Government interest subvention")
+                    .participatingInstitutions("TIIC / Commercial Banks / TAICO / DIC")
+                    .officialUrl("https://msmeonline.tn.gov.in/needs/")
+                    .applicationChannel("Online NEEDS portal / TIIC / Commercial Banks / TAICO / DIC")
+                    .subsidyPercentage("25% of project cost (Max ₹75 Lakh)")
+                    .maxLoanAmount("Project cost up to ₹5 Crore")
+                    .ownContribution("10% General / 5% Special Categories")
+                    .tenure("As per bank / TIIC")
+                    .moratorium("As per bank")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/needs/")
+                    .build());
+
+            recommended.add(RecommendedSchemeDto.builder()
+                    .schemeId("TN-002")
+                    .schemeName(isTamil 
+                            ? "UYEGP – வேலைவாய்ப்பற்ற இளைஞர் வேலைவாய்ப்பு உருவாக்கும் திட்டம்" 
+                            : "UYEGP – Unemployed Youth Employment Generation Programme (Official TN-002)")
+                    .category("bank_specific")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "தமிழ்நாடு சுயதொழில் இளைஞர்கள் (18-45 வயது, வர்த்தகம்/வணிக திட்டங்கள்)" 
+                            : "Self-employment youth in Tamil Nadu for eligible business & trading projects up to ₹15 Lakh")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 15.00 லட்சம் வரை திட்ட மதிப்பீடு, 25% அரசு மூலதன மானியம் (அதிகபட்சம் ரூ. 3.75 லட்சம்), 90-95% வங்கி கடன்" 
+                            : "25% capital subsidy up to ₹3.75 Lakh with 90-95% bank finance for projects up to ₹15 Lakh")
+                    .indicativeInterestRate("Bank lending rate")
+                    .participatingInstitutions("District Industries Centre (DIC) / Commercial Banks")
+                    .officialUrl("https://msmeonline.tn.gov.in/uyegp/")
+                    .applicationChannel("Online UYEGP portal / DIC / Commercial Banks")
+                    .subsidyPercentage("25% of project cost (Max ₹3.75 Lakh)")
+                    .maxLoanAmount("90% - 95% of project cost (Project up to ₹15 Lakh)")
+                    .ownContribution("10% General / 5% Special Categories")
+                    .tenure("As per bank")
+                    .moratorium("As per bank")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Government Scheme — Apply via msmeonline.tn.gov.in/uyegp/")
                     .build());
         }
 
-        // 3. Flagship Government Capital Grant Scheme: PMEGP
+        // 2. Business Trade-Specific Match: PM Vishwakarma / TN-005 / CEN-004 Mudra / CEN-011 PM SVANidhi
+        if (bizCategory.contains("artisan") || bizCategory.contains("craft") || bizCategory.contains("tailor") || bizCategory.contains("carpenter") || bizCategory.contains("wood")) {
+            recommended.add(RecommendedSchemeDto.builder()
+                    .schemeId("TN-005")
+                    .schemeName(isTamil 
+                            ? "கலைஞர் கைவினைத் திட்டம் (KKT) – தமிழ்நாடு அரசு" 
+                            : "Kalaignar Kaivinai Thittam (KKT) – Tamil Nadu Artisan Scheme (Official TN-005)")
+                    .category("business_linked")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "பாரம்பரிய கைவினைஞர்கள், தையல் மற்றும் கைவினை கலைஞர்கள்" 
+                            : "Traditional artisans, craftsmen, and allied trades in Tamil Nadu")
+                    .illustrativeBenefit(isTamil 
+                            ? "25% நேரடி அரசு மூலதன மானியம் மற்றும் கடன் இணைப்பு உதவி" 
+                            : "Credit-linked term loan with 25% capital subsidy for artisan self-employment")
+                    .indicativeInterestRate("Subsidized cooperative/bank rate")
+                    .participatingInstitutions("DIC / Handicrafts Department / Tamil Nadu Cooperative Banks")
+                    .officialUrl("https://www.tn.gov.in/")
+                    .applicationChannel("District Industries Centre / Tamil Nadu Handicrafts Development")
+                    .subsidyPercentage("25% Capital Subsidy")
+                    .maxLoanAmount("Credit-linked based on artisan trade")
+                    .ownContribution("5% - 10%")
+                    .tenure("3 to 5 years")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Tamil Nadu Artisan Scheme — Apply via DIC")
+                    .build());
+        } else if (bizCategory.contains("vending") || bizCategory.contains("street") || bizCategory.contains("pushcart")) {
+            recommended.add(RecommendedSchemeDto.builder()
+                    .schemeId("CEN-011")
+                    .schemeName(isTamil 
+                            ? "பிரதமர் ஸ்வாநிதி திட்டம் (PM SVANidhi)" 
+                            : "PM SVANidhi – Street Vendor's AtmaNirbhar Nidhi (Official CEN-011)")
+                    .category("business_linked")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "தெருவோர வியாபாரிகள் மற்றும் தள்ளுவண்டி சிறு வணிகர்கள்" 
+                            : "Street vendors in urban and peri-urban rural growth centres")
+                    .illustrativeBenefit(isTamil 
+                            ? "₹15,000 முதல் தவணை; ₹25,000 இரண்டாம் தவணை; ₹50,000 மூன்றாம் தவணை பிணையில்லா நடைமுறை மூலதனம், 7% வட்டி மானியம் மற்றும் டிஜிட்டல் கேஷ்பேக்" 
+                            : "Collateral-free working capital in tranches (₹15k, ₹25k, ₹50k) with 7% interest subsidy & UPI cashback")
+                    .indicativeInterestRate("Market rate with 7% direct interest subsidy")
+                    .participatingInstitutions("Urban Local Bodies / Commercial Banks / Lending Institutions")
+                    .officialUrl("https://pmsvanidhi.mohua.gov.in/")
+                    .applicationChannel("PM SVANidhi portal / ULBs / Banks")
+                    .subsidyPercentage("7% Interest Subsidy")
+                    .maxLoanAmount("₹15,000 (1st) / ₹25,000 (2nd) / ₹50,000 (3rd)")
+                    .ownContribution("0% (Nil)")
+                    .tenure("12 to 36 months")
+                    .moratorium("Nil")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Central Scheme — Apply via pmsvanidhi.mohua.gov.in")
+                    .build());
+        } else {
+            // CEN-004 PMMY MUDRA
+            recommended.add(RecommendedSchemeDto.builder()
+                    .schemeId("CEN-004")
+                    .schemeName(isTamil 
+                            ? "பிரதமர் முத்ரா யோஜனா (PMMY) – கிஷோர் & தருண்" 
+                            : "Pradhan Mantri MUDRA Yojana (PMMY) – Kishore & Tarun (Official CEN-004)")
+                    .category("business_linked")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "சில்லறை வர்த்தகம், மளிகை, பல்பொருள் அங்காடி மற்றும் சேவை நிறுவனங்கள்" 
+                            : "Micro and small business enterprises, retail trade, and service units")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 50,000 முதல் ரூ. 10.00 லட்சம் வரை (தருண் பிளஸ் ரூ. 20 லட்சம் வரை) பிணையில்லா நடைமுறை மூலதன கடன், RuPay கார்டு" 
+                            : "Collateral-free credit: Kishore (₹50k-₹5L), Tarun (₹5L-₹10L), Tarun Plus (₹10L-₹20L)")
+                    .indicativeInterestRate("8.5% - 9.5% p.a. (bank-linked)")
+                    .participatingInstitutions("All Commercial Banks / Regional Rural Banks / Small Finance Banks")
+                    .officialUrl("https://www.mudra.org.in/")
+                    .applicationChannel("Mudra Portal / Udyamimitra / All Bank Branches")
+                    .subsidyPercentage("Nil margin up to ₹50,000; Credit Guarantee (CGFMU)")
+                    .maxLoanAmount("Up to ₹10 Lakh (Tarun) / ₹20 Lakh (Tarun Plus)")
+                    .ownContribution("0% (Shishu/Kishore) / up to 15% (Tarun)")
+                    .tenure("Up to 5 years")
+                    .moratorium("Up to 6 months")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official Central MSME Scheme — Apply at any commercial bank or mudra.org.in")
+                    .build());
+        }
+
+        // 3. Flagship Central Capital Subsidy: CEN-005 PMEGP
         recommended.add(RecommendedSchemeDto.builder()
-                .schemeId("PMEGP_RURAL_SUBSIDY")
-                .schemeName(isTamil ? "பிரதமரின் வேலைவாய்ப்பு உருவாக்கும் திட்டம் (PMEGP)" : "Prime Minister Employment Generation Programme (PMEGP)")
+                .schemeId("CEN-005")
+                .schemeName(isTamil 
+                        ? "பிரதமரின் வேலைவாய்ப்பு உருவாக்கும் திட்டம் (PMEGP)" 
+                        : "Prime Minister's Employment Generation Programme (PMEGP Official CEN-005)")
                 .category("bank_specific")
-                .targetBeneficiaryMatch(isTamil ? "கிராமப்புற சிறு உற்பத்தி மற்றும் சேவை தொழில்முனைவோர்" : "Rural Micro-Enterprise & Service Units")
-                .illustrativeBenefit(isTamil ? "கிராமப்புற சிறப்பு பிரிவினருக்கு 35% வரை திரும்ப செலுத்த வேண்டாத அரசு மூலதன மானியம்" : "Up to 35% margin money government subsidy in rural areas for special category beneficiaries")
-                .indicativeInterestRate(isTamil ? "வங்கி வட்டி விகிதத்தில் 35% நேரடி அரசு மானியம்" : "Commercial bank lending rate offset by 35% back-ended capital grant")
-                .participatingInstitutions(isTamil ? "காதிராமத் தொழில் வாரியம் (KVIC) / மாவட்ட தொழில் மையம் (DIC)" : "KVIC / KVIB / District Industries Centre (DIC)")
-                .isIllustrative(true)
-                .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                .targetBeneficiaryMatch(isTamil 
+                        ? "கிராமப்புற சிறு உற்பத்தி, செயலாக்கம் மற்றும் சேவை நிறுவனங்கள்" 
+                        : "New micro-enterprises in manufacturing and services in rural/urban areas")
+                .illustrativeBenefit(isTamil 
+                        ? "கிராமப்புற சிறப்பு பிரிவினருக்கு 35% வரை திரும்ப செலுத்த வேண்டாத அரசு மூலதன மானியம் (நகர்ப்புறத்தில் 25%), வெறும் 5% சொந்த முதலீடு" 
+                        : "Up to 35% rural margin money subsidy (25% urban) for special category (SC/ST/OBC/Women/PwD) with only 5% promoter margin")
+                .indicativeInterestRate(isTamil ? "வங்கி வட்டி விகிதத்தில் 35% நேரடி மூலதன மானியம்" : "Normal bank rate with 35% back-ended capital grant")
+                .participatingInstitutions("KVIC / KVIB / District Industries Centre (DIC) / Commercial Banks")
+                .officialUrl("https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp")
+                .applicationChannel("Online PMEGP e-Portal / KVIC / DIC / Banks")
+                .subsidyPercentage("35% Rural Special / 25% Urban Special")
+                .maxLoanAmount("Project cost up to ₹50 Lakh (Mfg) / ₹20 Lakh (Services)")
+                .ownContribution("5% (Special Categories) / 10% (General)")
+                .tenure("3 to 7 years (including lock-in of subsidy)")
+                .moratorium("As per bank")
+                .isIllustrative(false)
+                .mandatoryDisclosure("Official Central Scheme under Ministry of MSME — Apply via kviconline.gov.in")
                 .build());
 
-        // 4. Disability Support
+        // 4. Disability Support if applicable: Divyangjan Swavalamban
         if (isDisability) {
             recommended.add(RecommendedSchemeDto.builder()
-                    .schemeId("NHFDC_DIVYANGJAN_SWAVALAMBAN")
-                    .schemeName(isTamil ? "திவ்யாங்ஜன் ஸ்வாவலம்பன் திட்டம் (NHFDC)" : "Divyangjan Swavalamban Yojana (Illustrative)")
+                    .schemeId("NDFDC-001")
+                    .schemeName(isTamil 
+                            ? "திவ்யாங்ஜன் ஸ்வாவலம்பன் யோஜனா (NDFDC)" 
+                            : "Divyangjan Swavalamban Yojana – NDFDC (Official)")
                     .category("loan_type_specific")
-                    .targetBeneficiaryMatch(isTamil ? "மாற்றுத்திறனாளி தொழில்முனைவோர் (40%+ சான்று)" : "Persons with Benchmark Disabilities (PwD)")
-                    .illustrativeBenefit(isTamil ? "ரூ. 5.00 லட்சம் வரை 5.0% வட்டியில் 100% கடன் நிதி உதவி" : "100% concessional credit up to ₹5,00,000 with 0.5% special rebate for women")
+                    .targetBeneficiaryMatch(isTamil 
+                            ? "40% அல்லது அதற்கு மேற்பட்ட குறைபாடுடைய மாற்றுத்திறனாளி தொழில்முனைவோர்" 
+                            : "Persons with Benchmark Disabilities (PwD 40%+ UDID card)")
+                    .illustrativeBenefit(isTamil 
+                            ? "ரூ. 5.00 லட்சம் வரை வெறும் 5.0% சலுகை வட்டியில் 100% கடன் நிதி உதவி, பெண்களுக்கு கூடுதல் 0.5% தள்ளுபடி" 
+                            : "Concessional credit up to ₹5.00 Lakh at 5.0% interest rate with 0.5% special rebate for women")
                     .indicativeInterestRate("5.0% p.a.")
-                    .participatingInstitutions("National Handicapped Finance and Development Corporation (NHFDC)")
-                    .isIllustrative(true)
-                    .mandatoryDisclosure("AI-generated illustrative match — verify with your nearest SCA/bank before applying")
+                    .participatingInstitutions("National Divyangjan Finance and Development Corporation (NDFDC)")
+                    .officialUrl("https://nhfdc.nic.in/")
+                    .applicationChannel("NDFDC / State Channelising Agencies / Nationalised Banks")
+                    .subsidyPercentage("Interest concession down to 5.0% p.a.")
+                    .maxLoanAmount("Up to ₹5.00 Lakh")
+                    .ownContribution("Nil up to ₹50,000 / 5% above")
+                    .tenure("Up to 7 years")
+                    .isIllustrative(false)
+                    .mandatoryDisclosure("Official MoSJE Concessional Credit Scheme for PwD")
                     .build());
         }
 
@@ -506,13 +734,19 @@ public class SchemeSearchService {
                 : (user != null && user.getName() != null ? user.getName() : "the Primary Applicant");
         String strategyInsight;
         if (isTamil) {
-            strategyInsight = appName + " அவர்களின் சமூக தகுதி (" + category + ") மற்றும் கிராமப்புற தொழில் அமைவிடத்தின் அடிப்படையில் அரசு சலுகைக் கடன்கள் மற்றும் அதிகபட்ச 35% மூலதன மானியம் பொருந்துகிறது. மகளிர் பெயரில் அல்லது கூட்டு விண்ணப்பமாக சமர்ப்பித்தால் கூடுதல் 1.0% வட்டி தள்ளுபடி மற்றும் முன்னுரிமை கிடைக்கும்.";
+            if (category.contains("SC")) {
+                strategyInsight = appName + " அவர்களின் சமூக தகுதி (SC) மற்றும் தமிழக அமைவிடத்தின் அடிப்படையில் 'அண்ணல் அம்பேத்கர் தொழில் முன்னோடிகள் திட்டம் (AABCS TN-004)' மூலம் அதிகபட்சம் 35% நேரடி மூலதன மானியம் (ரூ. 1.50 கோடி வரை) மற்றும் 6% வட்டி மானியம் பெற முழுத் தகுதி உள்ளது. கூடுதலாக NSFDC நுண்கடன் (MFS CEN-001) மூலம் 6.5% சலுகை வட்டி பெறலாம்.";
+            } else if (isFemale) {
+                strategyInsight = appName + " (பெண் தொழில்முனைவோர்) அவர்களின் பெயரில் பதிவு செய்வதன் மூலம் தமிழக அரசின் 'TWEES (TN-003)' திட்டத்தின் கீழ் 95% வங்கி கடன் மற்றும் 25% மூலதன மானியம் பிணையில்லாமல் பெறலாம். மேலும் PMEGP திட்டத்தில் 35% கிராமப்புற மானிய முன்னுரிமை கிடைக்கும்.";
+            } else {
+                strategyInsight = appName + " அவர்களுக்கு தமிழக அரசின் 'NEEDS (TN-001)' மூலம் 25% மூலதன மானியம் (ரூ. 75 லட்சம் வரை) மற்றும் 3% வட்டி மானியம், அல்லது 'UYEGP (TN-002)' மூலம் ரூ. 3.75 லட்சம் வரை மானியம் பொருந்தும். குடும்ப பெண் உறுப்பினர் பெயரில் கூட்டு விண்ணப்பம் செய்தால் கூடுதல் வட்டி சலுகை கிடைக்கும்.";
+            }
+        } else if (category.contains("SC")) {
+            strategyInsight = "Based on " + appName + "'s SC demographic profile in Tamil Nadu, the enterprise is eligible for flagship Annal Ambedkar Business Champions Scheme (AABCS TN-004) offering a 35% capital subsidy up to ₹1.50 Crore plus 6% interest subvention, alongside NSFDC Micro Finance Scheme (CEN-001) at 6.5% interest.";
         } else if (isFemale) {
-            strategyInsight = "Registering the enterprise under " + appName +
-                    " (Female) unlocks an additional 0.5% to 1.5% concessional interest rebate and higher rural subsidy priority under apex corporation schemes.";
+            strategyInsight = "Registering under " + appName + " (Female) unlocks Tamil Nadu's TWEES scheme (TN-003) providing 95% bank finance with only 5% margin, 25% capital subsidy, nil collateral, and maximum 35% rural subsidy quota under PMEGP.";
         } else {
-            strategyInsight = "Registering the enterprise under " + appName +
-                    " (" + category + ") positions the business for targeted concessional apex schemes. If registered jointly with an eligible female family member, the enterprise may also qualify for enhanced Mahila Samriddhi subvention and higher subsidy margins.";
+            strategyInsight = "Enterprise profile matches Tamil Nadu's flagship NEEDS (TN-001) scheme for 25% capital subsidy up to ₹75 Lakh + 3% interest subvention, and UYEGP (TN-002) for projects up to ₹15 Lakh. Adding an eligible female family co-applicant unlocks additional 5% promoter margin concessions.";
         }
 
         return SchemeSearchResponse.builder()

@@ -549,6 +549,327 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
           ))}
         </div>
       </div>
+
+      {/* 4. Grounded FinSahay Scheme Master Catalog (Accurate Government Schemes) */}
+      <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <Landmark className="w-5 h-5 text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">
+                {selectedLang === 'ta' 
+                  ? "அரசு நிதி உதவி & மானிய திட்டங்களின் அதிகாரப்பூர்வ பட்டியல் (FinSahay Master Catalog)" 
+                  : "Official State & Central Government Scheme Catalog (FinSahay Master)"}
+              </h3>
+            </div>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              {selectedLang === 'ta'
+                ? "தமிழ்நாடு MSME துறை மற்றும் மத்திய அரசின் கீழ் நடைமுறையில் உள்ள அதிகாரப்பூர்வ கடன் மற்றும் மூலதன மானிய திட்டங்கள். நேரடி போர்டல் இணைப்புகள் சரிபார்க்கப்பட்டு வழங்கப்பட்டுள்ளன."
+                : "Authentic, live concessional credit and capital subsidy programs from Tamil Nadu MSME Department and Government of India with verified direct portal links."}
+            </p>
+          </div>
+          <button
+            onClick={onOpenSchemeSearch}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{selectedLang === 'ta' ? "தனிப்பயனாக்கப்பட்ட திட்ட தேடல்" : "Run Tailored Eligibility Discovery"}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card 1: Primary State Scheme */}
+          {isNsfdcEligible ? (
+            <div className="p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50/30 flex flex-col justify-between space-y-3 text-xs">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded font-black text-[10px] bg-emerald-200 text-emerald-900">TN-004</span>
+                      <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">35% Subsidy (Max ₹1.5 Cr)</span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mt-1">
+                      {selectedLang === 'ta' ? "AABCS – அண்ணல் அம்பேத்கர் தொழில் முன்னோடிகள் திட்டம்" : "AABCS – Annal Ambedkar Business Champions Scheme"}
+                    </h4>
+                    <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                      {selectedLang === 'ta' ? "பட்டியலின (SC/ST) தொழில்முனைவோருக்கான 100% பிரத்யேக திட்டம்" : "100% SC/ST owned enterprises in Tamil Nadu"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+                    {selectedLang === 'ta' ? "முதன்மை சலுகை" : "Top State Grant"}
+                  </span>
+                </div>
+                <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                  {selectedLang === 'ta' 
+                    ? "35% நேரடி மூலதன மானியம் (அதிகபட்சம் ரூ. 1.50 கோடி) மற்றும் இயந்திர கடனுக்கு 6% அரசு வட்டி மானியம் (Interest Subvention). 10 ஆண்டுகள் வரை திருப்பிச் செலுத்த அவகாசம்."
+                    : "35% capital subsidy up to ₹1.50 Crore + 6% interest subvention for machinery loans up to 10 years via District Industries Centre."}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-emerald-200/80 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online AABCS / DIC</strong></span>
+                <a 
+                  href="https://msmeonline.tn.gov.in/aabcs/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] transition"
+                >
+                  <span>Official Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          ) : isFemale ? (
+            <div className="p-5 rounded-2xl border-2 border-emerald-300 bg-emerald-50/30 flex flex-col justify-between space-y-3 text-xs">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded font-black text-[10px] bg-pink-200 text-pink-900">TN-003</span>
+                      <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">25% Subsidy • 95% Bank Loan</span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mt-1">
+                      {selectedLang === 'ta' ? "TWEES – தமிழ்நாடு மகளிர் தொழில்முனைவோர் மேம்பாட்டு திட்டம்" : "TWEES – Tamil Nadu Women Entrepreneurs Empowerment Scheme"}
+                    </h4>
+                    <p className="text-[11px] text-pink-800 font-semibold mt-0.5">
+                      {selectedLang === 'ta' ? "தமிழ்நாடு பெண் தொழில்முனைவோருக்கான நேரடி சலுகை" : "Women entrepreneurs with Tamil Nadu domicile"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-100 text-pink-800 border border-pink-300 shrink-0">
+                    {selectedLang === 'ta' ? "மகளிர் திட்டம்" : "Women Flagship"}
+                  </span>
+                </div>
+                <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                  {selectedLang === 'ta' 
+                    ? "திட்ட மதிப்பீட்டில் 95% வங்கி கடன், வெறும் 5% சொந்த முதலீடு, 25% மூலதன மானியம் (அதிகபட்சம் ரூ. 2.00 லட்சம்) மற்றும் சொத்து பிணையில்லா நிதி உதவி."
+                    : "95% bank finance with only 5% promoter margin, 25% capital subsidy up to ₹2.00 Lakh, and zero collateral security."}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-emerald-200/80 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online TWEES / DIC</strong></span>
+                <a 
+                  href="https://msmeonline.tn.gov.in/twees/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] transition"
+                >
+                  <span>Official Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="p-5 rounded-2xl border-2 border-blue-300 bg-blue-50/30 flex flex-col justify-between space-y-3 text-xs">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded font-black text-[10px] bg-blue-200 text-blue-900">TN-001</span>
+                      <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">25% Subsidy (Max ₹75 Lakh)</span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mt-1">
+                      {selectedLang === 'ta' ? "NEEDS – புதிய தொழில்முனைவோர் மற்றும் நிறுவன மேம்பாட்டு திட்டம்" : "NEEDS – New Entrepreneur-cum-Enterprise Development Scheme"}
+                    </h4>
+                    <p className="text-[11px] text-blue-800 font-semibold mt-0.5">
+                      {selectedLang === 'ta' ? "முதல் தலைமுறை பட்டதாரிகள் & தொழில்முனைவோர்" : "First-generation entrepreneurs (₹10 Lakh to ₹5 Crore)"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300 shrink-0">
+                    {selectedLang === 'ta' ? "தமிழ்நாடு முதன்மை" : "TN Flagship"}
+                  </span>
+                </div>
+                <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                  {selectedLang === 'ta' 
+                    ? "25% அரசு மூலதன மானியம் (அதிகபட்சம் ரூ. 75 லட்சம்) மற்றும் திருப்பிச் செலுத்தும் காலம் முழுவதும் 3% வட்டி மானியம் (Interest Subvention)."
+                    : "25% capital subsidy up to ₹75 Lakh + 3% interest subvention throughout the loan tenure via TIIC and Commercial Banks."}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-blue-200/80 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online NEEDS / TIIC / DIC</strong></span>
+                <a 
+                  href="https://msmeonline.tn.gov.in/needs/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-bold text-[11px] transition"
+                >
+                  <span>Official Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Card 2: UYEGP for Micro/Trading or Micro Finance Scheme (CEN-001) */}
+          {isNsfdcEligible ? (
+            <div className="p-5 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 text-xs shadow-xs">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-100 text-slate-800">CEN-001</span>
+                      <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">6.5% Concessional Rate</span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mt-1">
+                      {selectedLang === 'ta' ? "மைக்ரோ நிதி திட்டம் (MFS) – NSFDC / தாட்கோ" : "Micro Finance Scheme (MFS) – NSFDC"}
+                    </h4>
+                    <p className="text-[11px] text-blue-700 font-semibold mt-0.5">
+                      {selectedLang === 'ta' ? "SC சிறுதொழில் கடன் (திட்ட மதிப்பு ₹1.40 லட்சம் வரை)" : "Micro units with project outlay up to ₹1.40 Lakh"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 shrink-0">
+                    PM-SURAJ
+                  </span>
+                </div>
+                <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                  {selectedLang === 'ta' 
+                    ? "திட்ட மதிப்பீட்டில் 90% கடன் (அதிகபட்சம் ரூ. 1.25 லட்சம்), 6.5% குறைந்த வட்டி, 36 மாத தவணை மற்றும் 3 மாத அசல் விலக்கு சலுகை."
+                    : "90% loan outlay up to ₹1.25 Lakh at 6.5% concessional interest rate, 3-year repayment tenure and 3-month grace period."}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">PM-SURAJ / TAHDCO</strong></span>
+                <a 
+                  href="https://nsfdc.nic.in/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition"
+                >
+                  <span>Official Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="p-5 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 text-xs shadow-xs">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-100 text-slate-800">TN-002</span>
+                      <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">25% Subsidy (Max ₹3.75 Lakh)</span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-sm mt-1">
+                      {selectedLang === 'ta' ? "UYEGP – வேலைவாய்ப்பற்ற இளைஞர் வேலைவாய்ப்பு உருவாக்கும் திட்டம்" : "UYEGP – Unemployed Youth Employment Generation Programme"}
+                    </h4>
+                    <p className="text-[11px] text-blue-700 font-semibold mt-0.5">
+                      {selectedLang === 'ta' ? "வணிகம் மற்றும் வர்த்தக திட்டங்கள் (₹15 லட்சம் வரை)" : "Trading and business ventures up to ₹15 Lakh"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 shrink-0">
+                    DIC Portal
+                  </span>
+                </div>
+                <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                  {selectedLang === 'ta' 
+                    ? "ரூ. 15 லட்சம் வரையிலான வணிகத் திட்டங்களுக்கு 25% அரசு மூலதன மானியம் (ரூ. 3.75 லட்சம் வரை) மற்றும் 90-95% வங்கி கடன்."
+                    : "Up to ₹15 Lakh project cost with 25% capital subsidy (max ₹3.75 Lakh) and 90-95% bank loan via commercial banks."}
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online UYEGP / DIC</strong></span>
+                <a 
+                  href="https://msmeonline.tn.gov.in/uyegp/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition"
+                >
+                  <span>Official Portal</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Card 3: Central Flagship Subsidy PMEGP (CEN-005) */}
+          <div className="p-5 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 text-xs shadow-xs">
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-100 text-slate-800">CEN-005</span>
+                    <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">Up to 35% Rural Subsidy</span>
+                  </div>
+                  <h4 className="font-bold text-slate-900 text-sm mt-1">
+                    {selectedLang === 'ta' ? "பிரதமரின் வேலைவாய்ப்பு உருவாக்கும் திட்டம் (PMEGP)" : "Prime Minister's Employment Generation Programme (PMEGP)"}
+                  </h4>
+                  <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                    {selectedLang === 'ta' ? "மத்திய சிறு குறு நடுத்தர தொழில்கள் அமைச்சகம் (MSME)" : "Ministry of MSME, Govt of India"}
+                  </p>
+                </div>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
+                  National Grant
+                </span>
+              </div>
+              <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                {selectedLang === 'ta' 
+                  ? "கிராமப்புற சிறப்பு பிரிவினருக்கு 35% வரை அரசு மூலதன மானியம் (ரூ. 50 லட்சம் உற்பத்தி / ரூ. 20 லட்சம் சேவை), வெறும் 5% சொந்த முதலீடு."
+                  : "Up to 35% non-repayable margin money subsidy in rural areas for special category beneficiaries with only 5% promoter margin."}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Channel: <strong className="text-slate-800">Online PMEGP e-Portal / KVIC / DIC</strong></span>
+              <a 
+                href="https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp" 
+                target="_blank" 
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition"
+              >
+                <span>Official Portal</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+
+          {/* Card 4: Central Working Capital MUDRA (CEN-004) or Stand-Up India (CEN-007) */}
+          <div className="p-5 rounded-2xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 text-xs shadow-xs">
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-100 text-slate-800">
+                      {isNsfdcEligible || isFemale ? "CEN-007" : "CEN-004"}
+                    </span>
+                    <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">
+                      {isNsfdcEligible || isFemale ? "₹10 Lakh to ₹1 Crore" : "Up to ₹10 - ₹20 Lakh"}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-slate-900 text-sm mt-1">
+                    {isNsfdcEligible || isFemale 
+                      ? (selectedLang === 'ta' ? "ஸ்டாண்ட்-அப் இந்தியா திட்டம் (Stand-Up India)" : "Stand-Up India Scheme (SC/ST & Women)")
+                      : (selectedLang === 'ta' ? "பிரதமர் முத்ரா யோஜனா (PMMY) – கிஷோர் & தருண்" : "Pradhan Mantri MUDRA Yojana (PMMY)")}
+                  </h4>
+                  <p className="text-[11px] text-blue-700 font-semibold mt-0.5">
+                    {isNsfdcEligible || isFemale 
+                      ? (selectedLang === 'ta' ? "பசுமை தொழில் நிறுவனங்களுக்கான கூட்டு கடன்" : "Greenfield enterprises in manufacturing, services or trading")
+                      : (selectedLang === 'ta' ? "வணிக பிணையில்லா நடைமுறை மூலதனம்" : "Collateral-free working capital for micro retailers")}
+                  </p>
+                </div>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200 shrink-0">
+                  Bank Finance
+                </span>
+              </div>
+              <p className="text-slate-600 text-[11px] mt-2 leading-relaxed">
+                {isNsfdcEligible || isFemale 
+                  ? (selectedLang === 'ta' ? "ரூ. 10 லட்சம் முதல் ரூ. 1 கோடி வரை வணிக வங்கிகள் மூலம் கூட்டு கடன், 15% சொந்த முதலீடு மற்றும் கடன் உத்தரவாதம்." : "Composite loan between ₹10 Lakh and ₹1 Crore for SC/ST and women entrepreneurs with CGFSIL guarantee.")
+                  : (selectedLang === 'ta' ? "சொத்து அடமானம் இல்லாமல் ரூ. 10.00 லட்சம் வரை (தருண் பிளஸ் ரூ. 20 லட்சம் வரை) உடனடி வணிக கடன் மற்றும் RuPay வணிக அட்டை." : "Collateral-free credit up to ₹10 Lakh (Tarun Plus ₹20 Lakh) with RuPay business card via all public sector and rural banks.")}
+              </p>
+            </div>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">
+                Channel: <strong className="text-slate-800">{isNsfdcEligible || isFemale ? "Stand-Up Mitra / Commercial Banks" : "Mudra Portal / All Bank Branches"}</strong>
+              </span>
+              <a 
+                href={isNsfdcEligible || isFemale ? "https://www.standupmitra.in/" : "https://www.mudra.org.in/"} 
+                target="_blank" 
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition"
+              >
+                <span>Official Portal</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

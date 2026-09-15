@@ -31,6 +31,27 @@ public class RecommendedSchemeDto {
     @JsonProperty("participating_institutions")
     private String participatingInstitutions;
 
+    @JsonProperty("official_url")
+    private String officialUrl;
+
+    @JsonProperty("application_channel")
+    private String applicationChannel;
+
+    @JsonProperty("subsidy_percentage")
+    private String subsidyPercentage;
+
+    @JsonProperty("max_loan_amount")
+    private String maxLoanAmount;
+
+    @JsonProperty("own_contribution")
+    private String ownContribution;
+
+    @JsonProperty("tenure")
+    private String tenure;
+
+    @JsonProperty("moratorium")
+    private String moratorium;
+
     @Builder.Default
     @JsonProperty("is_illustrative")
     private Boolean isIllustrative = true;

@@ -27,6 +27,14 @@ public class SchemeController {
         return ResponseEntity.ok(schemeSearchService.getArchetypeCatalog());
     }
 
+    @GetMapping("/master")
+    public ResponseEntity<List<com.sih26.vyapaarsathi.dto.scheme.FinSahayMasterSchemeDto>> getMasterSchemes(
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String microOrTerm) {
+        return ResponseEntity.ok(schemeSearchService.filterMasterSchemes(state, category, microOrTerm));
+    }
+
     @PostMapping("/search")
     public ResponseEntity<SchemeSearchResponse> searchSchemes(
             @Valid @RequestBody SchemeSearchRequest request,
