@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Building2, CheckCircle, ExternalLink, ArrowRight, 
   FileText, Landmark, ShieldCheck, Sparkles, AlertCircle, Heart
@@ -135,6 +135,36 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
   const bizCat = (applicantDetails?.businessCategory || module2Result?.businessCategory || '').toLowerCase();
   const isArtisan = bizCat.includes('wood') || bizCat.includes('craft') || bizCat.includes('tailor') || bizCat.includes('barber') || bizCat.includes('carpenter') || bizCat.includes('mason');
   const isDairy = bizCat.includes('dairy') || bizCat.includes('milk') || bizCat.includes('cattle');
+
+  // Interactive Required Documents Verification State
+  const [docChecks, setDocChecks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vyapaarsathi_docs_verified');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      aadhaar: true,
+      community: true,
+      dpr: true,
+      quotations: true
+    };
+  });
+
+  const toggleDoc = (key) => {
+    setDocChecks(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { localStorage.setItem('vyapaarsathi_docs_verified', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const markAllDocs = (val = true) => {
+    const next = { aadhaar: val, community: val, dpr: val, quotations: val };
+    setDocChecks(next);
+    try { localStorage.setItem('vyapaarsathi_docs_verified', JSON.stringify(next)); } catch {}
+  };
+
+  const readyDocsCount = Object.values(docChecks).filter(Boolean).length;
 
   const corporations = [
     {
@@ -309,52 +339,161 @@ export function TabSchemes({ module2Result, onOpenSchemeSearch, selectedLang = '
           </div>
         </div>
 
-        {/* Exact Mandatory Required Documents Checklist for Primary Scheme */}
-        <div className="mt-6 p-4 rounded-xl bg-emerald-50/90 border-2 border-emerald-300 text-xs space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2 font-black text-emerald-950 text-sm">
-              <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
-              <span>
+        {/* Exact Mandatory Required Documents Interactive Checklist for Primary Scheme */}
+        <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-white to-blue-50/50 border-2 border-emerald-300 text-xs shadow-xs space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-emerald-200/80">
+            <div>
+              <div className="flex items-center gap-2 font-black text-emerald-950 text-sm">
+                <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
+                <span>
+                  {selectedLang === 'ta' 
+                    ? "விண்ணப்பிக்க தேவையான அசல் ஆவணங்கள் (Mandatory Document Checklist):" 
+                    : "Exact Required Documents to Apply (Mandatory Checklist):"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 font-medium mt-0.5">
                 {selectedLang === 'ta' 
-                  ? "விண்ணப்பிக்க தேவையான அசல் ஆவணங்கள் (Exact Required Documents):" 
-                  : "Exact Required Documents to Apply (Mandatory Checklist):"}
+                  ? "உங்களிடம் இந்த ஆவணங்கள் தயாராக உள்ளதா? கீழே உள்ள ஆவணங்களை கிளிக் செய்து உறுதிப்படுத்தவும் (100% அரசு கடன் ஒப்புதலுக்கு அவசியம்)."
+                  : "Do you have these mandatory documents ready? Click each item to verify readiness for swift bank sanction."}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => markAllDocs(readyDocsCount !== 4)}
+                className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] transition shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>{readyDocsCount === 4 ? "Uncheck All" : "✓ Mark All Ready (அனைத்தும் தயார்)"}</span>
+              </button>
+              <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border ${
+                readyDocsCount === 4 
+                  ? 'bg-emerald-200 text-emerald-900 border-emerald-300' 
+                  : 'bg-amber-100 text-amber-900 border-amber-300'
+              }`}>
+                {readyDocsCount}/4 Ready ({readyDocsCount === 4 ? '100% Required for Sanction' : 'Incomplete'})
               </span>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-200 text-emerald-900 border border-emerald-300">
-              100% Required for Sanction
-            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
-              <div>
-                <strong className="text-slate-900 block text-xs font-bold">1. Aadhaar Card</strong>
-                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "ஆதார் அட்டை / அடையாள சான்று" : "Identity & Age Verification (KYC)"}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* 1. Aadhaar Card */}
+            <div 
+              onClick={() => toggleDoc('aadhaar')}
+              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
+                docChecks.aadhaar 
+                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
+                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
+                docChecks.aadhaar 
+                  ? 'bg-emerald-700 text-white shadow-xs' 
+                  : 'bg-slate-200 text-slate-500 border border-slate-300'
+              }`}>
+                {docChecks.aadhaar ? '✓' : '○'}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 block text-xs font-bold">1. Aadhaar Card</strong>
+                  {docChecks.aadhaar && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
+                </div>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  {selectedLang === 'ta' ? "ஆதார் அட்டை / அடையாள சான்று" : "Identity & Age Verification (KYC)"}
+                </span>
+                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
+                  {docChecks.aadhaar ? "✓ Available with applicant" : "Click if you possess this"}
+                </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
-              <div>
-                <strong className="text-slate-900 block text-xs font-bold">2. Community Certificate</strong>
-                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? `${socialCategory} சாதி சான்றிதழ்` : `${socialCategory} / Domicile Certificate`}</span>
+            {/* 2. Community Certificate */}
+            <div 
+              onClick={() => toggleDoc('community')}
+              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
+                docChecks.community 
+                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
+                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
+                docChecks.community 
+                  ? 'bg-emerald-700 text-white shadow-xs' 
+                  : 'bg-slate-200 text-slate-500 border border-slate-300'
+              }`}>
+                {docChecks.community ? '✓' : '○'}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 block text-xs font-bold">2. Community Certificate</strong>
+                  {docChecks.community && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
+                </div>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  {selectedLang === 'ta' ? `${socialCategory} சாதி சான்றிதழ்` : `${socialCategory} / Domicile Certificate`}
+                </span>
+                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
+                  {docChecks.community ? "✓ Available with applicant" : "Click if you possess this"}
+                </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
-              <div>
-                <strong className="text-slate-900 block text-xs font-bold">3. Detailed Project Report (DPR)</strong>
-                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "விரிவான திட்ட அறிக்கை (DPR)" : "Generated directly by VyapaarSathi"}</span>
+            {/* 3. Detailed Project Report (DPR) */}
+            <div 
+              onClick={() => toggleDoc('dpr')}
+              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
+                docChecks.dpr 
+                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
+                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
+                docChecks.dpr 
+                  ? 'bg-emerald-700 text-white shadow-xs' 
+                  : 'bg-slate-200 text-slate-500 border border-slate-300'
+              }`}>
+                {docChecks.dpr ? '✓' : '○'}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 block text-xs font-bold">3. Detailed Project Report</strong>
+                  {docChecks.dpr && <span className="text-[10px] font-extrabold text-emerald-700">AUTO-READY</span>}
+                </div>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  {selectedLang === 'ta' ? "விரிவான திட்ட அறிக்கை (DPR)" : "Generated directly by VyapaarSathi"}
+                </span>
+                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
+                  ✓ Instant download available
+                </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white border border-emerald-200 shadow-xs flex items-start gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
-              <div>
-                <strong className="text-slate-900 block text-xs font-bold">4. Machinery Quotations</strong>
-                <span className="text-[11px] text-slate-500">{selectedLang === 'ta' ? "இயந்திர விலைப்பட்டியல் / மதிப்பீடு" : "Equipment & Stock Supplier Invoices"}</span>
+            {/* 4. Machinery Quotations */}
+            <div 
+              onClick={() => toggleDoc('quotations')}
+              className={`p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start gap-3 select-none ${
+                docChecks.quotations 
+                  ? 'bg-emerald-50/70 border-emerald-400 shadow-xs' 
+                  : 'bg-slate-50 border-dashed border-slate-300 hover:border-slate-400 opacity-90'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition ${
+                docChecks.quotations 
+                  ? 'bg-emerald-700 text-white shadow-xs' 
+                  : 'bg-slate-200 text-slate-500 border border-slate-300'
+              }`}>
+                {docChecks.quotations ? '✓' : '○'}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 block text-xs font-bold">4. Machinery Quotations</strong>
+                  {docChecks.quotations && <span className="text-[10px] font-extrabold text-emerald-700">READY</span>}
+                </div>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  {selectedLang === 'ta' ? "இயந்திர விலைப்பட்டியல் / மதிப்பீடு" : "Equipment & Stock Supplier Invoices"}
+                </span>
+                <span className="text-[10px] text-emerald-800 font-semibold block mt-1">
+                  {docChecks.quotations ? "✓ Obtained from supplier" : "Click if you possess this"}
+                </span>
               </div>
             </div>
           </div>
